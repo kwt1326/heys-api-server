@@ -1,10 +1,12 @@
-PROJECT_NAME=api
+# PROJECT_NAME=api
 
-JAR_NAME=$(ls -tr $PROJECT_NAME-* | grep jar | tail -n 1)
+# JAR_NAME=$(ls -tr $PROJECT_NAME-* | grep jar | tail -n 1)
+
+JAR_NAME=deploy-jar.jar
 
 # kill running server
 
-CURRENT_PID=$(pgrep -f $PROJECT_NAME-*.jar)
+CURRENT_PID=$(pgrep -f $JAR_NAME)
 
 if [ -z "$CURRENT_PID" ]; then
         echo "*** current not running application, try run app ***"

@@ -43,5 +43,5 @@ secrets.yml
 
 # CUSTOM
 nohup.out
-api-*.jar
-.*.yml
+/*.jar
+/*.yml
