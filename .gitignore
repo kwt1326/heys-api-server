@@ -2,7 +2,7 @@
 *.iml
 *.ipr
 *.iws
-*.jar
+#*.jar
 *.sw?
 *~
 .#*
@@ -43,5 +43,5 @@ secrets.yml
 
 # CUSTOM
 nohup.out
-*.jar
+api-*.jar
 .*.yml
