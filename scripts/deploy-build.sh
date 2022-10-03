@@ -1,3 +1,7 @@
-chmod +x ../gradlew
+PROJECT_NAME=api
 
-../gradlew build
+chmod +x ./gradlew
+
+./gradlew build
+
+cp ./build/libs/*.jar .

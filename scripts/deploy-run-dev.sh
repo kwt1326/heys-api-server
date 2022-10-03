@@ -19,6 +19,6 @@ fi
 echo "*** build jar name : $JAR_NAME ***"
 
 nohup java -jar \
-        -Dspring.profiles.active=prod \
-        -Dspring.config.location=file:prod-application.yml \
+        -Dspring.profiles.active=dev \
+        -Dspring.config.location=file:dev-application.yml \
         $JAR_NAME 2>&1 &
