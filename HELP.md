@@ -11,6 +11,7 @@ For further reference, please consider the following sections:
 * [Spring Data JPA](https://docs.spring.io/spring-boot/docs/2.7.4/reference/htmlsingle/#data.sql.jpa-and-spring-data)
 * [Flyway Migration](https://docs.spring.io/spring-boot/docs/2.7.4/reference/htmlsingle/#howto.data-initialization.migration-tool.flyway)
 * [Spring for RabbitMQ](https://docs.spring.io/spring-boot/docs/2.7.4/reference/htmlsingle/#messaging.amqp)
+* [Spring Configuration Processor](https://docs.spring.io/spring-boot/docs/2.7.4/reference/htmlsingle/#appendix.configuration-metadata.annotation-processor)
 
 ### Guides
 The following guides illustrate how to use some features concretely:
