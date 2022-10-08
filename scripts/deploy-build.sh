@@ -1,3 +1,3 @@
-chmod +x ../gradlew
+chmod +x ./gradlew
 
-../gradlew build
+./gradlew build

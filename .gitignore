@@ -2,7 +2,6 @@
 *.iml
 *.ipr
 *.iws
-*.jar
 *.sw?
 *~
 .#*
@@ -40,3 +39,5 @@ target
 secrets.yml
 .gradletasknamecache
 .sts4-cache
+
+./*.jar

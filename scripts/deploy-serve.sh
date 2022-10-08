@@ -1,6 +1,6 @@
 PROJECT_NAME=heys-api-server
 
-cp ../build/libs/*.jar ..
+cp ./build/libs/*.jar .
 
 CURRENT_PID=$(pgrep -f ${PROJECT_NAME}.*.jar)
 
