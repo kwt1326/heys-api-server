@@ -2,7 +2,10 @@
 *.iml
 *.ipr
 *.iws
+<<<<<<< HEAD
 #*.jar
+=======
+>>>>>>> develop
 *.sw?
 *~
 .#*
@@ -41,7 +44,11 @@ secrets.yml
 .gradletasknamecache
 .sts4-cache
 
+<<<<<<< HEAD
 # CUSTOM
 nohup.out
 /*.jar
 /*.yml
+=======
+./*.jar
+>>>>>>> develop

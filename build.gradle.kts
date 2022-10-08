@@ -49,3 +49,14 @@ tasks.withType<KotlinCompile> {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+// Not working
+//tasks.register<Copy>("Serve Deploy Jar") {
+//	description = "Deploy jar to root"
+//	dependsOn("assemble")
+//	outputs.upToDateWhen { false }
+//	from("build/libs") {
+//		include("*.jar")
+//	}
+//	into("/")
+//}
