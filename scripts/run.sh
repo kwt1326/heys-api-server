@@ -26,6 +26,6 @@ nohup java -jar \
         -Dspring.profiles.active=prod \
         -Dspring.config.location=file:prod-application.yml \
         -Duser.timezone=Asia/Seoul \
-        $JAR_NAME 2>&1 &
+        $JAR_NAME > nohup.txt 2>&1 &
 
 echo "Deploy Prod Done"
