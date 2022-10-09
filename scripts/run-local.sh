@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash +x
 
 PROJECT_NAME=heys-api-server
 JAR_NAME=deploy-jar.jar
@@ -33,3 +33,5 @@ nohup java -jar \
         -Dspring.config.location=file:local-application.yml \
         -Duser.timezone=Asia/Seoul \
         $JAR_NAME 2>&1 &
+
+echo "Running Local"

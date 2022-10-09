@@ -27,3 +27,5 @@ nohup java -jar \
         -Dspring.config.location=file:dev-application.yml \
         -Duser.timezone=Asia/Seoul \
         $JAR_NAME 2>&1 &
+
+echo "Deploy Dev Done"
