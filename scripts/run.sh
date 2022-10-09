@@ -1,4 +1,4 @@
-# PROJECT_NAME=api
+# PROJECT_NAME=heys-api-server
 
 # JAR_NAME=$(ls -tr $PROJECT_NAME-* | grep jar | tail -n 1)
 
@@ -23,4 +23,5 @@ echo "*** build jar name : $JAR_NAME ***"
 nohup java -jar \
         -Dspring.profiles.active=prod \
         -Dspring.config.location=file:prod-application.yml \
+        -Duser.timezone=Asia/Seoul \
         $JAR_NAME 2>&1 &
