@@ -1,11 +1,17 @@
-# PROJECT_NAME=heys-api-server
-
-# JAR_NAME=$(ls -tr $PROJECT_NAME-* | grep jar | tail -n 1)
-
+PROJECT_NAME=heys-api-server
 JAR_NAME=deploy-jar.jar
 
-# kill running server
+chmod +x ./gradlew
 
+./gradlew build
+
+cp ./build/libs/*.jar .
+
+mv $(ls -tr ${PROJECT_NAME}-* | grep jar | tail -n 1) $JAR_NAME
+
+echo "JAR NAME = $JAR_NAME"
+
+# kill running server
 CURRENT_PID=$(pgrep -f $JAR_NAME)
 
 if [ -z "$CURRENT_PID" ]; then
@@ -21,7 +27,7 @@ fi
 echo "*** build jar name : $JAR_NAME ***"
 
 nohup java -jar \
-        -Dspring.profiles.active=dev \
-        -Dspring.config.location=file:dev-application.yml \
+        -Dspring.profiles.active=local \
+        -Dspring.config.location=file:local-application.yml \
         -Duser.timezone=Asia/Seoul \
         $JAR_NAME 2>&1 &

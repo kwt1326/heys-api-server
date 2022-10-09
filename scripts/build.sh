@@ -1,4 +1,4 @@
-PROJECT_NAME=api
+PROJECT_NAME=heys-api-server
 
 chmod +x ./gradlew
 
