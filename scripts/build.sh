@@ -1,3 +1,5 @@
+#!/bin/bash
+
 PROJECT_NAME=heys-api-server
 
 chmod +x ./gradlew

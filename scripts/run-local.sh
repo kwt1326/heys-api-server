@@ -1,3 +1,5 @@
+#!/bin/bash
+
 PROJECT_NAME=heys-api-server
 JAR_NAME=deploy-jar.jar
 
