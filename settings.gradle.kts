@@ -1,2 +1,2 @@
-rootProject.name = "heys-api-server"
+rootProject.name = "heys"
 rootProject.buildFileName = "build.gradle.kts"
