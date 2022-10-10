@@ -15,14 +15,14 @@ import org.springframework.security.web.SecurityFilterChain
 @EnableWebSecurity
 class SecurityConfiguration {
 
-    @Bean
-    fun webSecurityCustomizer(): WebSecurityCustomizer? {
-        return WebSecurityCustomizer { web: WebSecurity ->
-            web.debug(false) // debug = true only development used
-                    .ignoring()
-                    .antMatchers("/css/**", "/js/**", "/img/**", "/lib/**", "/favicon.ico")
-        }
-    }
+//    @Bean
+//    fun webSecurityCustomizer(): WebSecurityCustomizer? {
+//        return WebSecurityCustomizer { web: WebSecurity ->
+//            web // debug = true only development used
+//                    .ignoring()
+//                    .antMatchers("/css/**", "/js/**", "/img/**", "/lib/**", "**/favicon.ico")
+//        }
+//    }
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -33,6 +33,7 @@ class SecurityConfiguration {
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/common/**").permitAll()
                 .antMatchers("/user/**").permitAll()
+                .antMatchers("/css/**", "/js/**", "/img/**", "/favicon.ico").anonymous()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().disable()
