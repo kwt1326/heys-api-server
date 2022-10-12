@@ -6,11 +6,18 @@ plugins {
 	kotlin("jvm") version "1.6.21"
 	kotlin("plugin.spring") version "1.6.21"
 	kotlin("plugin.jpa") version "1.6.21"
+	kotlin("kapt") version "1.7.20" // querydsl dependency
 }
 
 group = "com.api"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
+
+val queryDslVersion = "5.0.0"
+
+sourceSets["main"].withConvention(org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet::class) {
+	kotlin.srcDir("$buildDir/generated/source/kapt/main")
+}
 
 configurations {
 	compileOnly {
@@ -38,6 +45,9 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.amqp:spring-rabbit-test")
 	testImplementation("org.springframework.security:spring-security-test")
+	// querydsl dependency
+	implementation("com.querydsl:querydsl-jpa:$queryDslVersion")
+	kapt("com.querydsl:querydsl-apt:$queryDslVersion:jpa")
 }
 
 tasks.withType<KotlinCompile> {

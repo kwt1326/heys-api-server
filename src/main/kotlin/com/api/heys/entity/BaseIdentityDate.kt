@@ -1,4 +1,4 @@
-package com.api.heys.domain.common.entity
+package com.api.heys.entity
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import org.hibernate.annotations.CreationTimestamp
@@ -10,7 +10,7 @@ import javax.persistence.*
 import kotlin.jvm.Transient
 
 @MappedSuperclass
-abstract class BaseIdentityDateEntity(existId: UUID? = null): Persistable<UUID> {
+abstract class BaseIdentityDate(existId: UUID? = null): Persistable<UUID> {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -45,7 +45,7 @@ abstract class BaseIdentityDateEntity(existId: UUID? = null): Persistable<UUID> 
         return when {
             this === right -> true
             right == null -> false
-            right !is BaseIdentityDateEntity -> false
+            right !is BaseIdentityDate -> false
             else -> getId() == right.getId()
         }
     }

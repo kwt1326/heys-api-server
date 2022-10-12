@@ -1,4 +1,4 @@
-package com.api.heys.domain.common.entity
+package com.api.heys.entity
 
 import org.hibernate.annotations.GenericGenerator
 import org.springframework.data.domain.Persistable
@@ -9,7 +9,7 @@ import javax.persistence.GeneratedValue
 import javax.persistence.MappedSuperclass
 
 @MappedSuperclass
-abstract class BaseIdentityEntity(existId: UUID? = null): Persistable<UUID> {
+abstract class BaseIdentity(existId: UUID? = null): Persistable<UUID> {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -29,7 +29,7 @@ abstract class BaseIdentityEntity(existId: UUID? = null): Persistable<UUID> {
         return when {
             this === right -> true
             right == null -> false
-            right !is BaseIdentityDateEntity -> false
+            right !is BaseIdentityDate -> false
             else -> getId() == right.getId()
         }
     }
