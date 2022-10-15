@@ -38,11 +38,17 @@ dependencies {
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.postgresql:postgresql")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-test") {
+		exclude("org.junit.vintage", "junit-vintage-engine")
+		exclude("org.mockito", "mockito-core")
+	}
+	testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.0") // Kotlin TEST CODE PACKAGE
+	testImplementation("com.ninja-squad:springmockk:3.1.1") // Kotlin TEST CODE PACKAGE
 	testImplementation("org.springframework.amqp:spring-rabbit-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	// querydsl dependency

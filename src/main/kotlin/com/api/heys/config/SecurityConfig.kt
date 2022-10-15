@@ -10,20 +10,12 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.header.writers.frameoptions.WhiteListedAllowFromStrategy
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfiguration {
-
-//    @Bean
-//    fun webSecurityCustomizer(): WebSecurityCustomizer? {
-//        return WebSecurityCustomizer { web: WebSecurity ->
-//            web // debug = true only development used
-//                    .ignoring()
-//                    .antMatchers("/css/**", "/js/**", "/img/**", "/lib/**", "**/favicon.ico")
-//        }
-//    }
-
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http.cors()
@@ -31,10 +23,13 @@ class SecurityConfiguration {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/common/**").permitAll()
                 .antMatchers("/user/**").permitAll()
                 .antMatchers("/css/**", "/js/**", "/img/**", "/favicon.ico").anonymous()
                 .anyRequest().authenticated()
+                .and()
+                .headers().frameOptions().sameOrigin() // because: h2 console render issue
                 .and()
                 .formLogin().disable()
                 .httpBasic().disable()

@@ -14,12 +14,9 @@ class User(
         @Column(name = "reason_for_withdrawal")
         var reasonForWithdrawal: String = "",
 
-        @Enumerated(EnumType.ORDINAL)
-        @Column(name = "gender")
-        val gender: Gender
+        @OneToOne(mappedBy = "user")
+        var detail: UserDetail
 
-        // val user_detail
         // user_channel_rels
         // notifications
-): BaseIdentityDate() {
-}
+): BaseIdentityDate()
