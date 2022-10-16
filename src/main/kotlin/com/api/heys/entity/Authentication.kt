@@ -1,27 +1,30 @@
 package com.api.heys.entity
 
 import lombok.Getter
+import org.hibernate.annotations.GenericGenerator
+import java.io.Serializable
 import javax.persistence.*
 
 @Getter
 @Entity
 @Table(name = "authentication")
 class Authentication(
+        user: User,
+        phone: String,
+        password: String,
+): Serializable {
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "user_id")
-        private var userId: Long,
+        private val id: Long = 0
 
-        @OneToOne
-        @PrimaryKeyJoinColumn(name = "user_id")
-        var user: User,
+        @MapsId
+        @OneToOne(cascade = [CascadeType.MERGE, CascadeType.REMOVE])
+        @JoinColumn(name = "user_id")
+        var user: User = user
 
         @Column(name = "phone", length = 20, unique = true, nullable = false)
-        var phone: String,
-
-        @Column(name = "email", length = 50, unique = true, nullable = false)
-        var email: String,
+        var phone: String = phone
 
         @Column(name = "password", length = 50, nullable = false)
-        var password: String,
-)
+        var password: String = password
+}

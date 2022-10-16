@@ -10,6 +10,8 @@ import javax.persistence.Table
 @Entity
 @Table(name = "interest")
 class Interest(
+        name: String,
+): BaseIdentity(), Serializable {
         @Column(name = "name")
-        val name: String
-): BaseIdentity(), Serializable
+        val name: String = name
+}

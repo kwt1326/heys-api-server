@@ -13,6 +13,7 @@ import kotlin.jvm.Transient
 abstract class BaseIdentityDate(existId: Long? = null): Persistable<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false, unique = true, updatable = false)
     private val id: Long = 0
 
     @JsonFormat(pattern = "yyyy-mm-dd")

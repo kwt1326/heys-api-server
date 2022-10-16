@@ -17,6 +17,7 @@ abstract class BaseIdentity(existId: Long? = null): Persistable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false, unique = true, updatable = false)
     private val id: Long = 0
 
     @Transient

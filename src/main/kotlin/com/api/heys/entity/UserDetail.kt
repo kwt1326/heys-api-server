@@ -9,43 +9,48 @@ import javax.persistence.*
 @Entity
 @Table(name = "user_detail")
 class UserDetail(
+        user: User,
+        gender: Gender,
+        age: Int,
+        phone: String,
+        username: String,
+        interests: MutableSet<Interest>,
+): Serializable {
         @Id
-        private var id: Long,
+        @Column(name = "user_id")
+        private var id: Long = 0
 
+        @MapsId
         @OneToOne
-        @JoinColumn(name = "detail")
-        @PrimaryKeyJoinColumn(name = "id")
-        var user: User,
+        @JoinColumn(name = "user_id")
+        var user: User = user
+
+        @OneToMany(fetch = FetchType.EAGER)
+        @JoinColumn(name = "id")
+        var interests: MutableSet<Interest> = interests
 
         @Enumerated(EnumType.ORDINAL)
         @Column(name = "gender", nullable = false)
-        var gender: Gender,
+        var gender: Gender = gender
 
         @Column(name = "phone", unique = true, nullable = false, length = 20)
-        var phone: String,
+        var phone: String = phone
 
         @Column(name = "username", nullable = false, length = 50)
-        var username: String,
+        var username: String = username
 
         @Column(name = "age", nullable = false, length = 20)
-        var age: Int,
+        var age: Int = age
 
         @Column(name = "job", length = 50)
-        var job: String = "",
-
-        @Column(name = "email", unique = true, length = 50)
-        var email: String = "",
+        var job: String = ""
 
         @Column(name = "capability")
-        var capability: String = "",
+        var capability: String = ""
 
         @Column(name = "introduce_text")
-        var introduceText: String = "",
+        var introduceText: String = ""
 
         @Column(name = "profile_picture_uri")
-        var profilePictureUri: String = "",
-
-        @ManyToOne(fetch = FetchType.EAGER)
-        @JoinColumn(referencedColumnName = "id")
-        var interests: Interest,
-): Serializable
+        var profilePictureUri: String = ""
+}
