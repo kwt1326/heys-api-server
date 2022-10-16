@@ -1,25 +1,29 @@
 package com.api.heys.entity
 
-import org.hibernate.annotations.GenericGenerator
 import org.springframework.data.domain.Persistable
-import java.util.*
-import javax.persistence.Id
-import javax.persistence.Column
-import javax.persistence.GeneratedValue
-import javax.persistence.MappedSuperclass
+import javax.persistence.*
+import kotlin.jvm.Transient
 
 @MappedSuperclass
-abstract class BaseIdentity(existId: UUID? = null): Persistable<UUID> {
+abstract class BaseIdentity(existId: Long? = null): Persistable<Long> {
+
+// UUID ID GENERATOR
+// abstract class BaseIdentity(existId: UUID? = null): Persistable<UUID> {
+//    @Id
+//    @GeneratedValue(generator = "UUID")
+//    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+//    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "uuid")
+//    private val id: UUID = UUID.randomUUID()
+
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "uuid")
-    private val id: UUID = UUID.randomUUID()
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false, unique = true, updatable = false)
+    private val id: Long = 0
 
     @Transient
     private var persisted: Boolean = existId != null
 
-    override fun getId(): UUID = id
+    override fun getId(): Long = id
 
     override fun isNew(): Boolean = !persisted
 

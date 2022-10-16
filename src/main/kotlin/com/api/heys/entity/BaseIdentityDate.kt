@@ -10,12 +10,11 @@ import javax.persistence.*
 import kotlin.jvm.Transient
 
 @MappedSuperclass
-abstract class BaseIdentityDate(existId: UUID? = null): Persistable<UUID> {
+abstract class BaseIdentityDate(existId: Long? = null): Persistable<Long> {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "uuid")
-    private val id: UUID = UUID.randomUUID()
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false, unique = true, updatable = false)
+    private val id: Long = 0
 
     @JsonFormat(pattern = "yyyy-mm-dd")
     @CreationTimestamp
@@ -35,7 +34,7 @@ abstract class BaseIdentityDate(existId: UUID? = null): Persistable<UUID> {
     @Transient
     private var persisted: Boolean = existId != null
 
-    override fun getId(): UUID = id
+    override fun getId(): Long = id
 
     override fun isNew(): Boolean = !persisted
 

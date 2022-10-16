@@ -8,18 +8,19 @@ import javax.persistence.*
 @Entity
 @Table(name = "users")
 class User(
+        isAvailable: Boolean = false,
+        reasonForWithdrawal: String = "",
+): BaseIdentityDate() {
         @Column(name = "is_available")
-        var isAvailable: Boolean = false,
+        var isAvailable: Boolean = isAvailable
 
         @Column(name = "reason_for_withdrawal")
-        var reasonForWithdrawal: String = "",
+        var reasonForWithdrawal: String = reasonForWithdrawal
 
-        @Enumerated(EnumType.ORDINAL)
-        @Column(name = "gender")
-        val gender: Gender
+        @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL])
+        var detail: UserDetail? = null
 
-        // val user_detail
-        // user_channel_rels
-        // notifications
-): BaseIdentityDate() {
+        // var user_channel_rels: MutableSet<UserChannelRel>
+
+        // var notifications: MutableSet<Notification>
 }
