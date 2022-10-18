@@ -1,13 +1,12 @@
 package com.api.heys.entity
 
-import com.api.heys.constants.enums.Gender
-import lombok.Getter
 import javax.persistence.*
 
-@Getter
 @Entity
 @Table(name = "users")
-class User(
+class Users(
+        phone: String,
+        password: String,
         isAvailable: Boolean = false,
         reasonForWithdrawal: String = "",
 ): BaseIdentityDate() {
@@ -17,10 +16,21 @@ class User(
         @Column(name = "reason_for_withdrawal")
         var reasonForWithdrawal: String = reasonForWithdrawal
 
-        @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL])
+        @Column(name = "phone", length = 15)
+        var phone: String = phone
+
+        @Column(name = "password")
+        var password: String = password
+
+        @OneToOne(mappedBy = "users", cascade = [CascadeType.ALL])
         var detail: UserDetail? = null
+
+        @OneToMany(mappedBy = "users", cascade = [CascadeType.ALL])
+        var authentications: MutableSet<Authentication> = mutableSetOf()
 
         // var user_channel_rels: MutableSet<UserChannelRel>
 
         // var notifications: MutableSet<Notification>
+
+        fun addAuthentication(auth: Authentication) { authentications.add(auth) }
 }

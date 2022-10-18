@@ -39,23 +39,30 @@ dependencies {
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.postgresql:postgresql")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+	// Querydsl dependency
+	implementation("com.querydsl:querydsl-jpa:$queryDslVersion")
+	kapt("com.querydsl:querydsl-apt:$queryDslVersion:jpa")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude("org.junit.vintage", "junit-vintage-engine")
 		exclude("org.mockito", "mockito-core")
 	}
-	testImplementation("org.mockito:mockito-inline")
-	testImplementation("org.junit.jupiter:junit-jupiter-engine") // Kotlin TEST CODE PACKAGE
-	testImplementation("com.ninja-squad:springmockk:3.1.1") // Kotlin TEST CODE PACKAGE
 	testImplementation("org.springframework.amqp:spring-rabbit-test")
 	testImplementation("org.springframework.security:spring-security-test")
-	// querydsl dependency
-	implementation("com.querydsl:querydsl-jpa:$queryDslVersion")
-	kapt("com.querydsl:querydsl-apt:$queryDslVersion:jpa")
+
+	// Kotlin TEST CODE PACKAGE
+	testImplementation("org.mockito:mockito-inline")
+	testImplementation("org.junit.jupiter:junit-jupiter-engine")
+	testImplementation("com.ninja-squad:springmockk:3.1.1")
 }
 
 tasks.withType<KotlinCompile> {

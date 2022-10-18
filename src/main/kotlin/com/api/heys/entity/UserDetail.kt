@@ -9,10 +9,9 @@ import javax.persistence.*
 @Entity
 @Table(name = "user_detail")
 class UserDetail(
-        user: User,
+        users: Users,
         gender: Gender,
         age: Int,
-        phone: String,
         username: String,
         interests: MutableSet<Interest>,
 ): Serializable {
@@ -23,7 +22,7 @@ class UserDetail(
         @MapsId
         @OneToOne
         @JoinColumn(name = "user_id")
-        var user: User = user
+        var users: Users = users
 
         @OneToMany(fetch = FetchType.EAGER)
         @JoinColumn(name = "id")
@@ -32,9 +31,6 @@ class UserDetail(
         @Enumerated(EnumType.ORDINAL)
         @Column(name = "gender", nullable = false)
         var gender: Gender = gender
-
-        @Column(name = "phone", unique = true, nullable = false, length = 20)
-        var phone: String = phone
 
         @Column(name = "username", nullable = false, length = 50)
         var username: String = username

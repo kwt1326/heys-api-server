@@ -2,6 +2,7 @@ package com.api.heys.domain.user
 
 import com.api.heys.domain.user.dto.SignUpData
 import com.api.heys.entity.*
+import com.querydsl.core.BooleanBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
@@ -12,14 +13,14 @@ class UserService(
         @Autowired private val userRepository: IUserRepository,
         @Autowired private val userDetailRepository: IUserDetailRepository,
         @Autowired private val interestRepository: IInterestRepository,
-        @Autowired private val authenticationRepository: IAuthenticationRepository,
 ): IUserService {
 
     @Transactional
-    override fun signUp(dto: SignUpData): User? {
+    override fun signUp(dto: SignUpData, roles: List<String>): Users? {
         val userDetail: UserDetail? = userDetailRepository.findByUsername(dto.username)
 
         if (userDetail == null) {
+            // Create Interest Categories
             val interests: MutableSet<Interest> = dto.interests.map {
                 var interest: Interest? = interestRepository.findByName(it)
                 if (interest == null) {
@@ -29,26 +30,28 @@ class UserService(
                 interest
             }.toMutableSet()
 
-            val newUser = User(isAvailable = true)
+            // Create User
+            val newUsers = Users(
+                    isAvailable = true,
+                    phone = dto.phone,
+                    password = dto.password,
+            )
             val newUserDetail = UserDetail(
-                    user = newUser,
+                    users = newUsers,
                     username = dto.username,
                     gender = dto.gender,
-                    phone = dto.phone,
                     age = dto.age,
                     interests = interests
             )
-            val newAuthentication = Authentication(
-                    user = newUser,
-                    phone = dto.phone,
-                    password = dto.password, // Front 에서 암호화되어 전송되어 올 예정(서버 측 암호화 X)
-            )
-            newUser.detail = newUserDetail
+            newUsers.detail = newUserDetail
 
-            userRepository.save(newUser)
-            authenticationRepository.save(newAuthentication)
+            userRepository.save(newUsers)
 
-            return newUser
+            roles.map {
+                newUsers.addAuthentication(Authentication(users = newUsers, role = it))
+            }
+
+            return newUsers
         }
         return null
     }

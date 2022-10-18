@@ -1,27 +1,28 @@
 package com.api.heys.config
 
+import com.api.heys.utils.JwtUtil
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.header.writers.frameoptions.WhiteListedAllowFromStrategy
-import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfiguration {
+
+    private val jwtUtil: JwtUtil = JwtUtil(168)
+
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        return http.cors()
+        http.cors()
                 .and()
-                .csrf().disable()
+                .csrf().disable() // Rest API
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/h2-console/**").permitAll()
@@ -35,8 +36,11 @@ class SecurityConfiguration {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .build()
+
+        // Custom Security Filter
+        http.apply(CustomSecurityDsl.customSecurityDsl(jwtUtil))
+
+        return http.build()
     }
 
 //    @Bean
