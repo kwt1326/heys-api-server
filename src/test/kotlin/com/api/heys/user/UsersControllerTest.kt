@@ -4,7 +4,7 @@ import com.api.heys.constants.enums.Gender
 import com.api.heys.domain.user.UserController
 import com.api.heys.domain.user.UserService
 import com.api.heys.domain.user.dto.SignUpData
-import com.api.heys.entity.User
+import com.api.heys.entity.Users
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -19,12 +19,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @WebMvcTest(UserController::class)
-class UserControllerTest(@Autowired val mockMvc: MockMvc) {
+class UsersControllerTest(@Autowired val mockMvc: MockMvc) {
     @MockkBean
     lateinit var userService: UserService
 
     private val mapper = jacksonObjectMapper()
-    private val user = User()
+    private val users = Users()
     private val signUpData = SignUpData(
             phone = "01012341234",
             username = "TESTER",
@@ -48,7 +48,7 @@ class UserControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     @WithMockUser
     fun signUp_givenSuccessStatus() {
-        every { userService.signUp(signUpData) } returns user
+        every { userService.signUp(signUpData) } returns users
 
         mockMvc.perform(post("/user/signUp")
                 .content(mapper.writeValueAsString(signUpData))

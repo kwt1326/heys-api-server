@@ -3,4 +3,6 @@ package com.api.heys.entity
 import org.springframework.data.querydsl.QuerydslPredicateExecutor
 import org.springframework.data.repository.CrudRepository
 
-interface IUserRepository: CrudRepository<User, Long>, QuerydslPredicateExecutor<User>
+interface IUserRepository: CrudRepository<Users, Long>, QuerydslPredicateExecutor<Users> {
+    fun findByPhone(phone: String): Users?
+}
