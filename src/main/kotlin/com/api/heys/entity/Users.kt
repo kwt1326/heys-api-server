@@ -25,7 +25,7 @@ class Users(
         @OneToOne(mappedBy = "users", cascade = [CascadeType.ALL])
         var detail: UserDetail? = null
 
-        @OneToMany(mappedBy = "users", cascade = [CascadeType.ALL])
+        @OneToMany(mappedBy = "users", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
         var authentications: MutableSet<Authentication> = mutableSetOf()
 
         // var user_channel_rels: MutableSet<UserChannelRel>

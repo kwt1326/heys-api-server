@@ -16,7 +16,13 @@ import org.springframework.security.web.SecurityFilterChain
 @EnableWebSecurity
 class SecurityConfiguration {
 
-    private val jwtUtil: JwtUtil = JwtUtil(168)
+    @Bean
+    fun jwtUtil(): JwtUtil { return JwtUtil(168) }
+
+    @Bean
+    fun passwordEncoder(): PasswordEncoder? {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder()
+    }
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -38,7 +44,7 @@ class SecurityConfiguration {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
         // Custom Security Filter
-        http.apply(CustomSecurityDsl.customSecurityDsl(jwtUtil))
+        http.apply(CustomSecurityDsl.customSecurityDsl(jwtUtil()))
 
         return http.build()
     }
@@ -52,9 +58,4 @@ class SecurityConfiguration {
 //                .build()
 //        return InMemoryUserDetailsManager(userDetails)
 //    }
-
-    @Bean
-    fun passwordEncoder(): PasswordEncoder? {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder()
-    }
 }

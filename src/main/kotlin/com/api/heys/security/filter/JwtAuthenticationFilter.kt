@@ -2,10 +2,12 @@ package com.api.heys.security.filter
 
 import com.api.heys.constants.SecurityString
 import com.api.heys.utils.JwtUtil
+import org.springframework.boot.configurationprocessor.json.JSONObject
 
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
@@ -42,5 +44,14 @@ class JwtAuthenticationFilter(
 
             response?.addHeader(SecurityString.HEADER_AUTHORIZATION, SecurityString.PREFIX_TOKEN + token)
         }
+    }
+
+    override fun unsuccessfulAuthentication(request: HttpServletRequest?, response: HttpServletResponse?, failed: AuthenticationException?) {
+        val map: HashMap<String, String?> = HashMap()
+        map["result"] = "false"
+        map["statusCode"] = "401"
+        map["message"] = failed?.message
+        response?.status = 401
+        response?.writer?.print(JSONObject(map))
     }
 }
