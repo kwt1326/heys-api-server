@@ -48,7 +48,7 @@ class UsersControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     @WithMockUser
     fun signUp_givenSuccessStatus() {
-        every { userService.signUp(signUpData, listOf("COMMON_USER")) } returns users
+        every { userService.signUp(signUpData, listOf("COMMON_USER")) } returns "token"
 
         mockMvc.perform(post("/user/signUp")
                 .content(mapper.writeValueAsString(signUpData))
