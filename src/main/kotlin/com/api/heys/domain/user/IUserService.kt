@@ -5,5 +5,5 @@ import com.api.heys.entity.Users
 import org.springframework.security.core.userdetails.UserDetailsService
 
 interface IUserService: UserDetailsService {
-    fun signUp(dto: SignUpData, roles: List<String>): Users?
+    fun signUp(dto: SignUpData, roles: List<String>): String?
 }

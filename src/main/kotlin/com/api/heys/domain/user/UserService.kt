@@ -3,6 +3,7 @@ package com.api.heys.domain.user
 import com.api.heys.domain.user.dto.SignUpData
 import com.api.heys.entity.*
 import com.api.heys.security.domain.CustomUser
+import com.api.heys.utils.JwtUtil
 import com.querydsl.core.BooleanBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -19,10 +20,11 @@ class UserService(
         @Autowired private val userDetailRepository: IUserDetailRepository,
         @Autowired private val interestRepository: IInterestRepository,
         @Autowired private val passwordEncoder: PasswordEncoder,
+        @Autowired private val jwtUtil: JwtUtil,
 ): IUserService {
 
     @Transactional
-    override fun signUp(dto: SignUpData, roles: List<String>): Users? {
+    override fun signUp(dto: SignUpData, roles: List<String>): String? {
         val userDetail: UserDetail? = userDetailRepository.findByUsername(dto.username)
 
         if (userDetail == null) {
@@ -57,7 +59,7 @@ class UserService(
                 newUsers.addAuthentication(Authentication(users = newUsers, role = it))
             }
 
-            return newUsers
+            return jwtUtil.createJwt(newUsers.phone, newUsers.authentications.map { it.role })
         }
         return null
     }
