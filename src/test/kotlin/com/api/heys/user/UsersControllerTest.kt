@@ -24,7 +24,7 @@ class UsersControllerTest(@Autowired val mockMvc: MockMvc) {
     lateinit var userService: UserService
 
     private val mapper = jacksonObjectMapper()
-    private val users = Users()
+    private val users = Users(phone = "01012341234", password = "12341234")
     private val signUpData = SignUpData(
             phone = "01012341234",
             username = "TESTER",
@@ -32,11 +32,11 @@ class UsersControllerTest(@Autowired val mockMvc: MockMvc) {
             age = 29,
             gender = Gender.male,
             interests = mutableSetOf("교육", "자기계발"),
-    ) // Mockito.mock(SignUpData::class.java)
+    )
 
     @Test
     fun signUp_alreadyExistUsername_givenBadRequestStatus() {
-        every { userService.signUp(signUpData) } returns null
+        every { userService.signUp(signUpData, listOf("COMMON_USER")) } returns null
 
         mockMvc.perform(post("/user/signUp")
                 .content(mapper.writeValueAsString(signUpData))
@@ -48,7 +48,7 @@ class UsersControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     @WithMockUser
     fun signUp_givenSuccessStatus() {
-        every { userService.signUp(signUpData) } returns users
+        every { userService.signUp(signUpData, listOf("COMMON_USER")) } returns users
 
         mockMvc.perform(post("/user/signUp")
                 .content(mapper.writeValueAsString(signUpData))
