@@ -30,7 +30,7 @@ class UsersControllerTest(@Autowired val mockMvc: MockMvc) {
             username = "TESTER",
             password = "12341234",
             age = 29,
-            gender = Gender.male,
+            gender = Gender.Male,
             interests = mutableSetOf("교육", "자기계발"),
     )
 

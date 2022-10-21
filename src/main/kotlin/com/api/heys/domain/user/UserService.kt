@@ -17,42 +17,49 @@ import kotlin.jvm.Throws
 @Service
 class UserService(
         @Autowired private val userRepository: IUserRepository,
-        @Autowired private val userDetailRepository: IUserDetailRepository,
         @Autowired private val interestRepository: IInterestRepository,
         @Autowired private val passwordEncoder: PasswordEncoder,
         @Autowired private val jwtUtil: JwtUtil,
 ): IUserService {
-
+    /**
+     * 회원가입
+     * User, UserDetail 생성 및 Interest(관심분야 테이블) Associate Table 관계 설정 포함
+     * */
     @Transactional
     override fun signUp(dto: SignUpData, roles: List<String>): String? {
-        val userDetail: UserDetail? = userDetailRepository.findByUsername(dto.username)
+        val user: Users? = userRepository.findByPhone(dto.phone)
 
-        if (userDetail == null) {
-            // Create Interest Categories
-            val interests: MutableSet<Interest> = dto.interests.map {
-                var interest: Interest? = interestRepository.findByName(it)
-                if (interest == null) {
-                    interest = Interest(it)
-                    interestRepository.save(interest)
-                }
-                interest
-            }.toMutableSet()
-
+        if (user == null) {
             // Create User
             val newUsers = Users(
                     isAvailable = true,
                     phone = dto.phone,
                     password = passwordEncoder.encode(dto.password),
             )
+            // Create UserDetail
             val newUserDetail = UserDetail(
                     users = newUsers,
                     username = dto.username,
                     gender = dto.gender,
                     age = dto.age,
-                    interests = interests
             )
-            newUsers.detail = newUserDetail
 
+            dto.interests.map {
+                // Create Interest Categories
+                var interest: Interest? = interestRepository.findByName(it)
+                if (interest == null) {
+                    interest = Interest(name = it)
+                }
+
+                // InterestRelation Linking
+                val rel = InterestRelations()
+                rel.interest = interest
+                rel.userDetail = newUserDetail
+                newUserDetail.interestRelations.add(rel)
+                interest.interestRelations.add(rel)
+            }
+
+            newUsers.detail = newUserDetail
             userRepository.save(newUsers)
 
             roles.map {
@@ -64,7 +71,7 @@ class UserService(
         return null
     }
 
-    @Throws(UsernameNotFoundException::class)
+    @Throws(UsernameNotFoundException::class) // Require Security User Service
     override fun loadUserByUsername(username: String?): UserDetails? {
         val phone: String? = username // username 을 phone 으로 체크합니다.
 

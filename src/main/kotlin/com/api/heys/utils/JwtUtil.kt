@@ -13,8 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails
 import java.util.*
 import javax.crypto.SecretKey
 
-
-@Getter
 open class JwtUtil(
         expireHour: Int
 ) {

@@ -2,6 +2,10 @@ package com.api.heys.entity
 
 import javax.persistence.*
 
+/**
+ * 유저 테이블 코어
+ * */
+
 @Entity
 @Table(name = "users")
 class Users(
@@ -28,9 +32,8 @@ class Users(
         @OneToMany(mappedBy = "users", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
         var authentications: MutableSet<Authentication> = mutableSetOf()
 
-        // var user_channel_rels: MutableSet<UserChannelRel>
-
-        // var notifications: MutableSet<Notification>
+        @OneToMany(mappedBy = "writer", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+        var notifications: MutableSet<Notification> = mutableSetOf()
 
         fun addAuthentication(auth: Authentication) { authentications.add(auth) }
 }

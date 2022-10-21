@@ -1,11 +1,13 @@
 package com.api.heys.entity
 
 import com.api.heys.constants.enums.Gender
-import lombok.Getter
 import java.io.Serializable
 import javax.persistence.*
 
-@Getter
+/**
+ * 유저 상세 정보 테이블
+ * */
+
 @Entity
 @Table(name = "user_detail")
 class UserDetail(
@@ -13,7 +15,6 @@ class UserDetail(
         gender: Gender,
         age: Int,
         username: String,
-        interests: MutableSet<Interest>,
 ): Serializable {
         @Id
         @Column(name = "user_id")
@@ -24,9 +25,8 @@ class UserDetail(
         @JoinColumn(name = "user_id")
         var users: Users = users
 
-        @OneToMany(fetch = FetchType.EAGER)
-        @JoinColumn(name = "id")
-        var interests: MutableSet<Interest> = interests
+        @OneToMany(mappedBy = "userDetail", cascade = [CascadeType.PERSIST])
+        var interestRelations: MutableSet<InterestRelations> = mutableSetOf()
 
         @Enumerated(EnumType.ORDINAL)
         @Column(name = "gender", nullable = false)
