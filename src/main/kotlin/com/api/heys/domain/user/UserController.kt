@@ -2,9 +2,14 @@ package com.api.heys.domain.user
 
 import com.api.heys.constants.SecurityString
 import com.api.heys.domain.user.dto.SignUpData
-import com.api.heys.entity.Users
+import com.api.heys.domain.user.dto.SignUpResponse
+
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.parameters.RequestBody as OASRequestBody // 기존 RequestBody 와 이름이 같다.
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.configurationprocessor.json.JSONObject
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -18,23 +23,41 @@ import javax.validation.Valid
 class UserController(
         @Autowired private val userService: UserService
 ) {
-    @PostMapping("signUp")
-    fun signUp(@Valid @RequestBody body: SignUpData): ResponseEntity<Map<String, Any>> {
+    @Operation(
+            summary = "회원가입",
+            description = "회원가입 API 입니다.",
+            responses = [
+                ApiResponse(responseCode = "200", description = "successful operation", content = [
+                    Content(schema = Schema(implementation = SignUpResponse::class), mediaType = "application/json")
+                ]),
+            ]
+    )
+    @PostMapping("signUp") // TODO: @OASRequestBody 사용했을때 age Int 가 null 로 들어오는 문제 수정
+    fun signUp(@Valid @RequestBody body: SignUpData): ResponseEntity<SignUpResponse> {
         val token: String? = userService.signUp(body, listOf("COMMON_USER"))
         if (token != null) {
-            val result: Map<String, Any> = mapOf("token" to SecurityString.PREFIX_TOKEN + token, "statusCode" to 200)
-            return ResponseEntity.ok(result)
+            return ResponseEntity.ok(SignUpResponse(
+                    token = SecurityString.PREFIX_TOKEN + token,
+                    statusCode = HttpStatus.OK
+            ))
         }
-        return ResponseEntity(HttpStatus.BAD_REQUEST)
+        return ResponseEntity<SignUpResponse>(SignUpResponse(
+                "", HttpStatus.BAD_REQUEST, "Already Exist User"), HttpStatus.BAD_REQUEST
+        )
     }
 
+    @Operation(summary = "회원가입 어드민", description = "회원가입 어드민 API 입니다. 가입은 가능하나, 현재 사용되지 않습니다.")
     @PostMapping("signUp/admin")
-    fun signUpAdmin(@Valid @RequestBody body: SignUpData): ResponseEntity<Map<String, Any>> {
+    fun signUpAdmin(@Valid @OASRequestBody body: SignUpData): ResponseEntity<SignUpResponse> {
         val token: String? = userService.signUp(body, listOf("ADMIN_USER", "COMMON_USER"))
         if (token != null) {
-            val result: Map<String, Any> = mapOf("token" to SecurityString.PREFIX_TOKEN + token, "statusCode" to 200)
-            return ResponseEntity.ok(result)
+            return ResponseEntity.ok(SignUpResponse(
+                    token = SecurityString.PREFIX_TOKEN + token,
+                    statusCode = HttpStatus.OK
+            ))
         }
-        return ResponseEntity(HttpStatus.BAD_REQUEST)
+        return ResponseEntity<SignUpResponse>(SignUpResponse(
+                "", HttpStatus.BAD_REQUEST, "Already Exist User"), HttpStatus.BAD_REQUEST
+        )
     }
 }
