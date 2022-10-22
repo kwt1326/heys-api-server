@@ -1,16 +1,23 @@
 package com.api.heys.config
 
 import com.api.heys.utils.JwtUtil
-import org.springframework.beans.factory.annotation.Autowired
+import io.swagger.v3.oas.models.Components
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Info
+import io.swagger.v3.oas.models.info.License
+import io.swagger.v3.oas.models.security.SecurityScheme
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+
 
 @Configuration
 @EnableWebSecurity
@@ -25,6 +32,14 @@ class SecurityConfiguration {
     }
 
     @Bean
+    fun customOpenAPI(@Value("\${springdoc.version}") appVersion: String?): OpenAPI? {
+        return OpenAPI()
+                .components(Components().addSecuritySchemes("User Token",
+                        SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("Bearer")))
+                .info(Info().title("Heys Dev API").version(appVersion).description("Heys API Back-end"))
+    }
+
+    @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http.cors()
                 .and()
@@ -34,7 +49,10 @@ class SecurityConfiguration {
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/common/**").permitAll()
                 .antMatchers("/user/**").permitAll()
-                .antMatchers("/css/**", "/js/**", "/img/**", "/favicon.ico").anonymous()
+                .antMatchers(
+                        "/css/**", "/js/**", "/img/**", "/favicon.ico",
+                        "/swagger-ui/**", "/api-docs", "/v3/api-docs", "/v3/api-docs/swagger-config"
+                ).anonymous()
                 .anyRequest().authenticated()
                 .and()
                 .headers().frameOptions().sameOrigin() // because: h2 console render issue

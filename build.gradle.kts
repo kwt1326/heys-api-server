@@ -39,20 +39,28 @@ dependencies {
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.postgresql:postgresql")
-	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
-	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
 	implementation("org.springframework.boot:spring-boot-configuration-processor")
 //	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+	// Jwt
+	implementation("io.jsonwebtoken:jjwt-api:0.11.5") // jwt
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5") // jwt
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5") // jwt
+
+	// Swagger
+	implementation("org.springdoc:springdoc-openapi-ui:1.6.12")
+	implementation("org.springdoc:springdoc-openapi-kotlin:1.6.12")
+	implementation("org.springdoc:springdoc-openapi-data-rest:1.6.12")
 
 	// Querydsl dependency
 	implementation("com.querydsl:querydsl-jpa:$queryDslVersion")
 	kapt("com.querydsl:querydsl-apt:$queryDslVersion:jpa")
 
+	// Test Code
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude("org.junit.vintage", "junit-vintage-engine")
 		exclude("org.mockito", "mockito-core")
