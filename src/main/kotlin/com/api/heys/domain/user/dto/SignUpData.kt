@@ -27,7 +27,7 @@ data class SignUpData(
         val age: Int,
 
         @NotNull
-        @field:Schema(example = "NonBinary", type = "string", description = "성별")
+        @field:Schema(example = "NonBinary", description = "성별", implementation = Gender::class)
         val gender: Gender,
 
         @NotNull

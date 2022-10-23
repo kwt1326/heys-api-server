@@ -48,7 +48,7 @@ class UserController(
 
     @Operation(summary = "회원가입 어드민", description = "회원가입 어드민 API 입니다. 가입은 가능하나, 현재 사용되지 않습니다.")
     @PostMapping("signUp/admin")
-    fun signUpAdmin(@Valid @OASRequestBody body: SignUpData): ResponseEntity<SignUpResponse> {
+    fun signUpAdmin(@Valid @RequestBody body: SignUpData): ResponseEntity<SignUpResponse> {
         val token: String? = userService.signUp(body, listOf("ADMIN_USER", "COMMON_USER"))
         if (token != null) {
             return ResponseEntity.ok(SignUpResponse(
