@@ -10,14 +10,14 @@ import javax.persistence.*
 @Entity
 @Table(name = "content_view")
 class ContentView(
-        content: Contents,
+        contents: Contents,
 ): BaseIdentity() {
     @Column(name = "count")
     var count: Long = 0
 
     @OneToOne
     @JoinColumn(name = "content_id")
-    var content: Contents = content
+    var contents: Contents = contents
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

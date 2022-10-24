@@ -4,14 +4,13 @@ import com.api.heys.utils.JwtUtil
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
-import io.swagger.v3.oas.models.info.License
+import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
@@ -33,9 +32,11 @@ class SecurityConfiguration {
 
     @Bean
     fun customOpenAPI(@Value("\${springdoc.version}") appVersion: String?): OpenAPI? {
+        val schemeName = "User Token"
         return OpenAPI()
-                .components(Components().addSecuritySchemes("User Token",
-                        SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("Bearer")))
+                .components(Components().addSecuritySchemes(schemeName,
+                        SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("Bearer").bearerFormat("JWT")))
+                .security(listOf(SecurityRequirement().addList(schemeName)))
                 .info(Info().title("Heys Dev API").version(appVersion).description("Heys API Back-end"))
     }
 
@@ -66,14 +67,4 @@ class SecurityConfiguration {
 
         return http.build()
     }
-
-//    @Bean
-//    fun userDetailsService(): UserDetailsService {
-//        val userDetails = User.withDefaultPasswordEncoder()
-//                .username("user")
-//                .password("password")
-//                .roles("USER")
-//                .build()
-//        return InMemoryUserDetailsManager(userDetails)
-//    }
 }

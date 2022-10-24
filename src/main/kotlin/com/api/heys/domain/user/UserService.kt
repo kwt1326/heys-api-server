@@ -62,9 +62,7 @@ class UserService(
             newUsers.detail = newUserDetail
             userRepository.save(newUsers)
 
-            roles.map {
-                newUsers.addAuthentication(Authentication(users = newUsers, role = it))
-            }
+            roles.map { newUsers.authentications.add(Authentication(users = newUsers, role = it)) }
 
             return jwtUtil.createJwt(newUsers.phone, newUsers.authentications.map { it.role })
         }

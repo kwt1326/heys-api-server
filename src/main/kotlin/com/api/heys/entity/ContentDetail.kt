@@ -1,5 +1,6 @@
 package com.api.heys.entity
 
+import com.api.heys.constants.enums.Online
 import com.api.heys.constants.enums.RecruitMethod
 import java.io.Serializable
 import javax.persistence.*
@@ -16,7 +17,7 @@ class ContentDetail(
         purpose: String,
         location: String,
         contentText: String,
-        online: String,
+        online: Online,
         limitPeople: Int,
         recruitPeriod: Int,
         recruitMethod: RecruitMethod,
@@ -40,17 +41,18 @@ class ContentDetail(
     @Column(name = "purpose", nullable = false)
     var purpose: String = purpose
 
-    // 활동 지역
-    @Column(name = "location", nullable = false)
-    var location: String = location
-
     // 소개글
+    @Lob
     @Column(name = "content_text", nullable = false)
     var contentText: String = contentText
 
     // 활동 형태
     @Column(name = "online", nullable = false)
-    var online: String = online
+    var online: Online = online
+
+    // 활동 지역 (online = '온라인' 일 경우 blank)
+    @Column(name = "location", nullable = false)
+    var location: String = location
 
     // 참여 제한 인원 수
     @Column(name = "limit_people")

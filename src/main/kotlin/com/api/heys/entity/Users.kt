@@ -34,6 +34,4 @@ class Users(
 
         @OneToMany(mappedBy = "writer", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
         var notifications: MutableSet<Notification> = mutableSetOf()
-
-        fun addAuthentication(auth: Authentication) { authentications.add(auth) }
 }

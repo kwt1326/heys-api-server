@@ -20,6 +20,10 @@ class Contents(
     @OneToOne(mappedBy = "contents", cascade = [CascadeType.ALL])
     var detail: ContentDetail? = null
 
-    @OneToMany(mappedBy = "contents")
+    // 컨텐츠 조회 테이블
+    @OneToOne(mappedBy = "contents", cascade = [CascadeType.ALL])
+    var contentView: ContentView? = null
+
+    @OneToMany(mappedBy = "contents", cascade = [CascadeType.ALL])
     var channels: MutableSet<Channels> = mutableSetOf()
 }
