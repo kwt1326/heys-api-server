@@ -44,8 +44,7 @@ class ContentDetail(
     var purpose: String = purpose
 
     // 소개글
-    @Lob
-    @Column(name = "content_text", nullable = false)
+    @Column(columnDefinition = "TEXT", name = "content_text", nullable = false)
     var contentText: String = contentText
 
     // 활동 형태

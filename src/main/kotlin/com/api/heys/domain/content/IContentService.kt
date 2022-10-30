@@ -9,6 +9,6 @@ import com.api.heys.entity.Contents
 interface IContentService {
     fun createContent(dto: CreateContentData): Contents?
     fun getContentDetail(type: ContentType, id: Long): GetContentDetailData?
-
-    fun editContentDetail(dto: EditContentData): Boolean
+    fun putContentDetail(id: Long, dto: EditContentData): Boolean
+    fun increaseContentView(id: Long, token: String): Boolean
 }

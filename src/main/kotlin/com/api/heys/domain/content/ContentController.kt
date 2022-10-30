@@ -3,10 +3,7 @@ package com.api.heys.domain.content
 import com.api.heys.constants.enums.ContentType
 import com.api.heys.domain.channel.ChannelService
 import com.api.heys.domain.channel.dto.CreateChannelData
-import com.api.heys.domain.content.dto.CreateContentData
-import com.api.heys.domain.content.dto.CreateContentResponse
-import com.api.heys.domain.content.dto.GetContentDetailData
-import com.api.heys.domain.content.dto.GetContentDetailResponse
+import com.api.heys.domain.content.dto.*
 import com.api.heys.entity.Channels
 import com.api.heys.entity.Contents
 
@@ -72,6 +69,42 @@ class ContentController(
         }
 
         return ResponseEntity(CreateContentResponse(message = "스터디 컨텐츠 생성 실패"), HttpStatus.BAD_REQUEST)
+    }
+
+    @Operation(
+            summary = "컨텐츠 내용 수정하기",
+            description = "컨텐츠 내용 수정 API 입니다.",
+            responses = [
+                ApiResponse(responseCode = "200", description = "successful operation", content = [
+                    Content(schema = Schema(implementation = EditContentResponse::class), mediaType = "application/json")
+                ]),
+            ]
+    )
+    @PutMapping("/{id}")
+    fun putContent(@PathVariable id: Long, @Valid @RequestBody body: EditContentData): ResponseEntity<EditContentResponse> {
+        val isModified = contentService.putContentDetail(id, body)
+
+        if (isModified) {
+            return ResponseEntity.ok(EditContentResponse(message = "컨텐츠 수정 성공"))
+        }
+        return ResponseEntity(EditContentResponse(message = "컨텐츠 수정 실패"), HttpStatus.BAD_REQUEST)
+    }
+
+    @Operation(
+            summary = "컨텐츠 조회수 증가",
+            description = "컨텐츠 조회수를 1만큼 증가시킵니다. 로그인 중인 유저 1명당 하나의 컨텐츠의 조회수만 상승합니다.",
+            responses = [ApiResponse(responseCode = "200", description = "successful operation")]
+    )
+    @PutMapping("/count-up/{id}")
+    fun putIncreaseViewCount(
+            @PathVariable id: Long,
+            @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<Boolean> {
+        val isIncreased = contentService.increaseContentView(id, bearer)
+        if (isIncreased) {
+            return ResponseEntity.ok(true)
+        }
+        return ResponseEntity(false, HttpStatus.BAD_REQUEST)
     }
 
 //    @Operation(

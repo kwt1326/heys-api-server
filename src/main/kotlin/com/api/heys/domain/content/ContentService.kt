@@ -1,21 +1,30 @@
 package com.api.heys.domain.content
 
 import com.api.heys.constants.enums.ContentType
+import com.api.heys.constants.enums.Online
 import com.api.heys.domain.content.dto.CreateContentData
 import com.api.heys.domain.content.dto.EditContentData
 import com.api.heys.domain.content.dto.GetContentDetailData
 import com.api.heys.entity.*
+import com.api.heys.utils.JwtUtil
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.Duration
 import java.time.LocalDateTime
-import javax.transaction.Transactional
 
 @Service
 class ContentService(
         @Autowired private val contentRepository: IContentsRepository,
+        @Autowired private val contentViewRepository: IContentViewRepository,
         @Autowired private val interestRepository: IInterestRepository,
+        @Autowired private val userRepository: IUserRepository,
+        @Autowired private val jwtUtil: JwtUtil,
 ): IContentService {
+    private fun isOffline(online: Online): Boolean {
+        return listOf(Online.Offline, Online.OnOffLine).contains(online)
+    }
+
     /**
      * 컨텐츠 생성
      * Contents, ContentDetail 생성 및 Interest(관심분야 테이블) Associate Table 관계 설정 포함
@@ -30,7 +39,7 @@ class ContentService(
                 purpose = dto.purpose,
                 contentText = dto.contentText,
                 online = dto.online,
-                location = dto.location ?: "",
+                location = if (isOffline(dto.online)) dto.location ?: "" else "",
                 limitPeople = dto.limitPeople,
                 lastRecruitDate = dto.lastRecruitDate,
                 recruitMethod = dto.recruitMethod,
@@ -56,9 +65,9 @@ class ContentService(
         return contentRepository.save(newContents)
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     override fun getContentDetail(type: ContentType, id: Long): GetContentDetailData? {
-        val content = contentRepository.getContentDetail(type, id)
+        val content = contentRepository.getContentDetail(id)
         if (content?.detail != null) {
             val detail: ContentDetail = content.detail!!
 
@@ -102,9 +111,46 @@ class ContentService(
     }
 
     @Transactional
-    override fun editContentDetail(dto: EditContentData): Boolean {
+    override fun putContentDetail(id: Long, dto: EditContentData): Boolean {
+        val content = contentRepository.getContentDetail(id)
+        if (content?.detail != null) {
+            val detail = content.detail!!
+            detail.contentText = dto.contentText
+            detail.name = dto.name
+            detail.online = dto.online
+            detail.purpose = dto.purpose
+            detail.limitPeople = dto.limitPeople
+            detail.lastRecruitDate = dto.lastRecruitDate
+            detail.recruitMethod = dto.recruitMethod
 
+            if (isOffline(dto.online)) {
+                detail.location = dto.location ?: ""
+            }
+
+            // TIP: save 호출하지 않아도 영속성 context 에서 엔티티를 저장한다.
+            contentRepository.save(content)
+            return true
+        }
         return false
     }
 
+    override fun increaseContentView(id: Long, token: String): Boolean {
+        val contentView = contentViewRepository.getContentView(id)
+        val phone: String = jwtUtil.extractUsername(token)
+        val user: Users? = userRepository.findByPhone(phone)
+
+        println(contentView.toString())
+
+        if (contentView != null && user != null) {
+            val foundUser = contentView.viewers.find { it.id == user.id }
+            if (foundUser == null) {
+                contentView.count += 1
+                contentView.viewers.add(user)
+                contentViewRepository.save(contentView)
+                return true
+            }
+        }
+
+        return false
+    }
 }
