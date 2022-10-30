@@ -61,7 +61,7 @@ class ContentDetail(
     var limitPeople: Int = limitPeople
 
     // 모집 마감 날짜
-    @Column(name = "recruit_period", nullable = false)
+    @Column(name = "last_recruit_date", nullable = false)
     var lastRecruitDate: LocalDateTime = lastRecruitDate
 
     // 모집 방식
