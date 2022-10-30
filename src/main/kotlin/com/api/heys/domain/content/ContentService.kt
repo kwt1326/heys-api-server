@@ -55,6 +55,7 @@ class ContentService(
         return contentRepository.save(newContents)
     }
 
+    @Transactional
     override fun getContentDetail(type: ContentType, id: Long): GetContentDetailData? {
         val content = contentRepository.getContentDetail(type, id)
         if (content?.detail != null) {
