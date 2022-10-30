@@ -3,6 +3,7 @@ package com.api.heys.entity
 import com.api.heys.constants.enums.Online
 import com.api.heys.constants.enums.RecruitMethod
 import java.io.Serializable
+import java.time.LocalDateTime
 import javax.persistence.*
 
 /**
@@ -19,7 +20,7 @@ class ContentDetail(
         contentText: String,
         online: Online,
         limitPeople: Int,
-        recruitPeriod: Int,
+        lastRecruitDate: LocalDateTime,
         recruitMethod: RecruitMethod,
 ): Serializable {
     @Id
@@ -34,6 +35,7 @@ class ContentDetail(
     @OneToMany(mappedBy = "contentDetail", cascade = [CascadeType.PERSIST])
     var interestRelations: MutableSet<InterestRelations> = mutableSetOf()
 
+    // 컨텐츠 이름 (타이틀)
     @Column(name = "name", nullable = false)
     var name: String = name
 
@@ -58,9 +60,9 @@ class ContentDetail(
     @Column(name = "limit_people")
     var limitPeople: Int = limitPeople
 
-    // 모집 기간
+    // 모집 마감 날짜
     @Column(name = "recruit_period", nullable = false)
-    var recruitPeriod: Int = recruitPeriod
+    var lastRecruitDate: LocalDateTime = lastRecruitDate
 
     // 모집 방식
     @Enumerated(EnumType.STRING)

@@ -1,9 +1,12 @@
 package com.api.heys.domain.content
 
+import com.api.heys.constants.enums.ContentType
 import com.api.heys.domain.channel.ChannelService
 import com.api.heys.domain.channel.dto.CreateChannelData
 import com.api.heys.domain.content.dto.CreateContentData
 import com.api.heys.domain.content.dto.CreateContentResponse
+import com.api.heys.domain.content.dto.GetContentDetailData
+import com.api.heys.domain.content.dto.GetContentDetailResponse
 import com.api.heys.entity.Channels
 import com.api.heys.entity.Contents
 
@@ -24,6 +27,24 @@ class ContentController(
         @Autowired private val contentService: ContentService,
         @Autowired private val channelService: ChannelService,
 ) {
+    @Operation(
+            summary = "컨텐츠 상세 정보",
+            description = "컨텐츠 상세 정보 API 입니다.",
+            responses = [
+                ApiResponse(responseCode = "200", description = "successful operation", content = [
+                    Content(schema = Schema(implementation = GetContentDetailResponse::class), mediaType = "application/json")
+                ]),
+            ]
+    )
+    @GetMapping("/{type}/{id}")
+    fun getContentDetail(@PathVariable type: ContentType, @PathVariable id: Long): ResponseEntity<GetContentDetailResponse> {
+        val data: GetContentDetailData? = contentService.getContentDetail(type, id)
+        if (data != null) {
+            return ResponseEntity.ok(GetContentDetailResponse(data = data, message = "컨텐츠 상세 정보 가져오기 성공"))
+        }
+        return ResponseEntity(GetContentDetailResponse(data = null, message = "컨텐츠 상세 정보 가져오기 실패"), HttpStatus.BAD_REQUEST)
+    }
+
     @Operation(
             summary = "스터디 컨텐츠 생성",
             description = "스터디 컨텐츠 생성 API 입니다. 스터디 타입은 채널을 동시에 생성합니다.",
@@ -47,10 +68,10 @@ class ContentController(
                 return ResponseEntity.ok(CreateContentResponse(message = "스터디 컨텐츠 생성 성공"))
             }
 
-            return ResponseEntity<CreateContentResponse>(CreateContentResponse(message = "스터디 컨텐츠 - 채널 생성 실패"), HttpStatus.BAD_REQUEST)
+            return ResponseEntity(CreateContentResponse(message = "스터디 컨텐츠 - 채널 생성 실패"), HttpStatus.BAD_REQUEST)
         }
 
-        return ResponseEntity<CreateContentResponse>(CreateContentResponse(message = "스터디 컨텐츠 생성 실패"), HttpStatus.BAD_REQUEST)
+        return ResponseEntity(CreateContentResponse(message = "스터디 컨텐츠 생성 실패"), HttpStatus.BAD_REQUEST)
     }
 
 //    @Operation(
@@ -75,7 +96,7 @@ class ContentController(
 //            )
 //        }
 //
-//        return ResponseEntity<CreateContentResponse>(CreateContentResponse(
+//        return ResponseEntity(CreateContentResponse(
 //                statusCode = HttpStatus.BAD_REQUEST,
 //                message = "스터디 컨텐츠 생성 실패"
 //        ), HttpStatus.BAD_REQUEST)

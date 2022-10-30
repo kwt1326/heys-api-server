@@ -4,6 +4,7 @@ import com.api.heys.constants.enums.ContentType
 import com.api.heys.constants.enums.Online
 import com.api.heys.constants.enums.RecruitMethod
 import io.swagger.v3.oas.annotations.media.Schema
+import java.time.LocalDateTime
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
@@ -38,8 +39,8 @@ data class CreateContentData(
         val limitPeople: Int,
 
         @NotNull
-        @field:Schema(description = "모집 기간", example = "7")
-        var recruitPeriod: Int,
+        @field:Schema(description = "마감 날짜 (format : yyyy-MM-ddTHH:mm:ss)", example = "2022-11-07T14:00:00")
+        var lastRecruitDate: LocalDateTime,
 
         @NotNull
         @NotBlank
