@@ -14,7 +14,7 @@ class Contents(
         contentType: ContentType,
 ): BaseIdentityDate() {
     @Enumerated(EnumType.STRING)
-    @Column(name = "content_type", nullable = false, unique = true)
+    @Column(name = "content_type", nullable = false)
     var contentType: ContentType = contentType
 
     @OneToOne(mappedBy = "contents", cascade = [CascadeType.ALL])
