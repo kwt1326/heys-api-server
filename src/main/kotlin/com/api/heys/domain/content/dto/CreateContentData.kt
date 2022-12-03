@@ -34,6 +34,9 @@ data class CreateContentData(
         @field:Schema(description = "참여 지역 (online == '온라인' 일 경우 필요하지 않음)", example = "서울시")
         val location: String?,
 
+        @field:Schema(description = "주최/주관 (스터디 포함 안됨)", example = "(주)넥슨")
+        val company: String?,
+
         @NotNull
         @field:Schema(description = "인원 제한", example = "50")
         val limitPeople: Int,
@@ -44,12 +47,15 @@ data class CreateContentData(
 
         @NotNull
         @NotBlank
-        @field:Schema(description = "모집 방식", example = "Immediately")
+        @field:Schema(implementation = RecruitMethod::class, description = "모집 방식")
         var recruitMethod: RecruitMethod,
 
         @NotNull
         @field:Schema(description = "소개글", example = "단순 소개글 입니다~!")
         var contentText: String,
+
+        @field:Schema(description = "썸네일 이미지 URI", example = "https://res.cloudinary.com/dyfuiigbw/image/upload/v1670047057/heys-dev/test1_jnkego.jpg")
+        var thumbnailUri: String?,
 
         @field:Schema(description = "관심분야", example = "[\"자기계발\", \"연애\"]")
         val interests: MutableSet<String> = mutableSetOf(),

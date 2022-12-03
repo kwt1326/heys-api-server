@@ -2,10 +2,8 @@ package com.api.heys.entity
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.GenericGenerator
 import org.springframework.data.domain.Persistable
 import java.time.LocalDateTime
-import java.util.UUID
 import javax.persistence.*
 import kotlin.jvm.Transient
 

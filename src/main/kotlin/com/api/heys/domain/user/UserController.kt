@@ -1,6 +1,8 @@
 package com.api.heys.domain.user
 
 import com.api.heys.constants.SecurityString
+import com.api.heys.domain.user.dto.CheckMemberData
+import com.api.heys.domain.user.dto.CheckMemberResponse
 import com.api.heys.domain.user.dto.SignUpData
 import com.api.heys.domain.user.dto.SignUpResponse
 
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -49,5 +52,19 @@ class UserController(
             return ResponseEntity.ok(SignUpResponse(token = SecurityString.PREFIX_TOKEN + token))
         }
         return ResponseEntity<SignUpResponse>(SignUpResponse("", "Already Exist User"), HttpStatus.BAD_REQUEST)
+    }
+
+    @Operation(
+            summary = "가입 여부 확인",
+            description = "회원가입 여부 확인 API 입니다.",
+            responses = [
+                ApiResponse(responseCode = "200", description = "successful operation", content = [
+                    Content(schema = Schema(implementation = CheckMemberResponse::class), mediaType = "application/json")
+                ]),
+            ]
+    )
+    @PutMapping("check-member")
+    fun checkMember(@Valid @RequestBody body: CheckMemberData): ResponseEntity<CheckMemberResponse> {
+        return ResponseEntity.ok(CheckMemberResponse(result = userService.checkMember(body)))
     }
 }

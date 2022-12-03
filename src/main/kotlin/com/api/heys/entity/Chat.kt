@@ -10,6 +10,8 @@ import javax.persistence.OneToOne
 import javax.persistence.Table
 
 /**
+ * deprecated
+ *
  * 채팅 메시지 객체 테이블
  * !!! 채팅 방식이 확정되지 않았으므로, 현재 테이블의 구조는 변동이 클수 있음 !!!
  */

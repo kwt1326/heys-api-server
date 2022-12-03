@@ -2,6 +2,10 @@ package com.api.heys.entity
 
 import javax.persistence.*
 
+/**
+ * deprecated
+ * */
+
 @Entity
 @Table(name = "message_reaction_relations")
 class MessageReactionRelations(): BaseIdentity() {

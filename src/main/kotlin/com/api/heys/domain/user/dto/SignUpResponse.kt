@@ -10,5 +10,5 @@ data class SignUpResponse(
         val token: String,
 
         @field:Schema(example = "success", type = "string")
-        override val message: String = "success"
+        override var message: String = "success"
 ): BaseResponse

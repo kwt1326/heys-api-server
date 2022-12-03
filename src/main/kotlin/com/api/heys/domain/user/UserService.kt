@@ -1,5 +1,6 @@
 package com.api.heys.domain.user
 
+import com.api.heys.domain.user.dto.CheckMemberData
 import com.api.heys.domain.user.dto.SignUpData
 import com.api.heys.entity.*
 import com.api.heys.security.domain.CustomUser
@@ -67,6 +68,11 @@ class UserService(
             return jwtUtil.createJwt(newUsers.phone, newUsers.authentications.map { it.role })
         }
         return null
+    }
+
+    override fun checkMember(dto: CheckMemberData): Boolean {
+        val user: Users? = userRepository.findByPhone(dto.phone)
+        return user != null
     }
 
     @Throws(UsernameNotFoundException::class) // Require Security User Service

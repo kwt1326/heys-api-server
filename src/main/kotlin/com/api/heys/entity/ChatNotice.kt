@@ -7,6 +7,8 @@ import javax.persistence.OneToMany
 import javax.persistence.Table
 
 /**
+ * deprecated
+ *
  * 채팅방 공지 메시지 테이블
  * 채팅방 테이블이 필요 할 것 같다. (채팅 방식에 따라 결정될 것)
  */

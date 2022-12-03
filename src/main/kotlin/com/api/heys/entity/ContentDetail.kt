@@ -22,6 +22,8 @@ class ContentDetail(
         limitPeople: Int,
         lastRecruitDate: LocalDateTime,
         recruitMethod: RecruitMethod,
+        company: String,
+        thumbnailUri: String,
 ): Serializable {
     @Id
     @Column(name = "contents_id")
@@ -38,6 +40,10 @@ class ContentDetail(
     // 컨텐츠 이름 (타이틀)
     @Column(name = "name", nullable = false)
     var name: String = name
+
+    // 주최/주관 이름, 스터디는 해당되지 않음
+    @Column(name = "company", nullable = false)
+    var company: String = company
 
     // 활동 목적
     @Column(name = "purpose", nullable = false)
@@ -67,4 +73,8 @@ class ContentDetail(
     @Enumerated(EnumType.STRING)
     @Column(name = "recruit_method", nullable = false)
     var recruitMethod: RecruitMethod = recruitMethod
+
+    // 썸네일 이미지 URI (dev 에서는 개별 cloudinary 미디어 저장소 사용, prod 배포는 AWS S3 사용 예정)
+    @Column(columnDefinition = "TEXT", name = "thumbnail_uri")
+    var thumbnailUri: String = thumbnailUri
 }

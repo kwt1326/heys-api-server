@@ -14,6 +14,9 @@ data class EditContentData(
         @field:Schema(description = "컨텐츠 제목 ('스터디'의 경우 채널명으로 공유되어 사용)", example = "환승연애학개론 스터디 채널 2")
         val name: String,
 
+        @field:Schema(description = "주최/주관 (스터디 해당 안됨)", example = "(주)넥슨")
+        val company: String?,
+
         @NotNull
         @field:Schema(description = "소개글", example = "단순 소개글 입니다~!")
         var contentText: String,
@@ -40,6 +43,9 @@ data class EditContentData(
 
         @NotNull
         @NotBlank
-        @field:Schema(description = "모집 방식", example = "Immediately")
+        @field:Schema(description = "모집 방식", example = "Immediately", implementation = RecruitMethod::class)
         var recruitMethod: RecruitMethod,
+
+        @field:Schema(description = "썸네일 이미지 URI", example = "https://res.cloudinary.com/dyfuiigbw/image/upload/v1670047057/heys-dev/test1_jnkego.jpg")
+        var thumbnailUri: String?,
 )

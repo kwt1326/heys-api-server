@@ -7,5 +7,4 @@ if [ -z "$CURRENT_PID" ]; then
 else
         echo "*** kill -15 $CURRENT_PID, Done ***"
         kill -15 $CURRENT_PID
-        sleep 5
 fi

@@ -4,6 +4,8 @@ import com.api.heys.constants.enums.Reaction
 import javax.persistence.*
 
 /**
+ * deprecated
+ *
  * 리액션 테이블
  * 리액션은 공지의 리액션일 수 있고 채팅의 리액션일 수 있다.
  * MessageReactionRelations 관계 설정 필수

@@ -1,17 +1,16 @@
 package com.api.heys.domain.content
 
+import com.api.heys.constants.DefaultString
 import com.api.heys.constants.enums.ContentType
 import com.api.heys.constants.enums.Online
-import com.api.heys.domain.content.dto.CreateContentData
-import com.api.heys.domain.content.dto.EditContentData
-import com.api.heys.domain.content.dto.GetContentDetailData
+import com.api.heys.domain.content.dto.*
 import com.api.heys.entity.*
+import com.api.heys.utils.ChannelUtil
+import com.api.heys.utils.CommonUtil
 import com.api.heys.utils.JwtUtil
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.time.Duration
-import java.time.LocalDateTime
 
 @Service
 class ContentService(
@@ -19,6 +18,8 @@ class ContentService(
         @Autowired private val contentViewRepository: IContentViewRepository,
         @Autowired private val interestRepository: IInterestRepository,
         @Autowired private val userRepository: IUserRepository,
+        @Autowired private val channelUtil: ChannelUtil,
+        @Autowired private val commonUtil: CommonUtil,
         @Autowired private val jwtUtil: JwtUtil,
 ): IContentService {
     private fun isOffline(online: Online): Boolean {
@@ -36,13 +37,15 @@ class ContentService(
         val newContentsDetail = ContentDetail(
                 contents = newContents,
                 name = dto.name,
-                purpose = dto.purpose,
-                contentText = dto.contentText,
                 online = dto.online,
-                location = if (isOffline(dto.online)) dto.location ?: "" else "",
+                purpose = dto.purpose,
+                company = dto.company ?: "",
                 limitPeople = dto.limitPeople,
-                lastRecruitDate = dto.lastRecruitDate,
+                contentText = dto.contentText,
                 recruitMethod = dto.recruitMethod,
+                lastRecruitDate = dto.lastRecruitDate,
+                location = if (isOffline(dto.online)) dto.location ?: "" else "",
+                thumbnailUri = dto.thumbnailUri ?: DefaultString.defaultThumbnailUri
         )
 
         dto.interests.map {
@@ -75,26 +78,24 @@ class ContentService(
             // 이외의 타입일 경우 컨텐츠만 보여주고 채널을 생성하도록 유도하므로 channel count 만 내보낸다.
             val joinedUsers =
                     if (type == ContentType.Study)
-                        if (content.channels.size > 0) content.channels.first().joinedChannelRelationUsers
-                                .filter { it.channelUser != null }
-                                .map { it.channelUser!! }.toList()
+                        if (content.channels.size > 0) channelUtil.relationsToChannelUsersData(
+                                content.channels.first().joinedChannelRelationUsers
+                        )
                         else listOf()
                     else listOf()
 
             val waitingUsers =
                     if (type == ContentType.Study)
-                        if (content.channels.size > 0) content.channels.first().waitingChannelRelationUsers
-                                .filter { it.channelUser != null }
-                                .map { it.channelUser!! }.toList()
+                        if (content.channels.size > 0) channelUtil.relationsToChannelUsersData(
+                                content.channels.first().waitingChannelRelationUsers
+                        )
                         else listOf()
                     else listOf()
 
-            val duration = Duration.between(LocalDateTime.now(), detail.lastRecruitDate)
-            val dDay: Long = duration.toDays()
-
             return GetContentDetailData(
-                    dDay = dDay,
+                    dDay = commonUtil.calculateDday(detail.lastRecruitDate),
                     title = detail.name,
+                    company = detail.company ?: "", // DB Sync
                     purpose = detail.purpose,
                     location = detail.location,
                     contentText = detail.contentText,
@@ -103,6 +104,7 @@ class ContentService(
                     recruitMethod = detail.recruitMethod,
                     viewCount = content.contentView?.count ?: -1,
                     channelCount = content.channels.size,
+                    thumbnailUri = detail.thumbnailUri ?: DefaultString.defaultThumbnailUri,
                     usersJoined = joinedUsers,
                     usersWaitingApprove = waitingUsers,
             )
@@ -110,11 +112,19 @@ class ContentService(
         return null
     }
 
+    @Transactional(readOnly = true)
+    override fun getContents(params: GetContentsParam): List<ContentListItemData>? {
+        // TODO('Filter Query 구현')
+        return null
+    }
+
+
     @Transactional
     override fun putContentDetail(id: Long, dto: EditContentData): Boolean {
         val content = contentRepository.getContentDetail(id)
         if (content?.detail != null) {
             val detail = content.detail!!
+
             detail.contentText = dto.contentText
             detail.name = dto.name
             detail.online = dto.online

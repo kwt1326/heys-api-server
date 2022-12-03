@@ -1,5 +1,7 @@
 package com.api.heys.config
 
+import com.api.heys.utils.ChannelUtil
+import com.api.heys.utils.CommonUtil
 import com.api.heys.utils.JwtUtil
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
@@ -24,6 +26,10 @@ class SecurityConfiguration {
 
     @Bean
     fun jwtUtil(): JwtUtil { return JwtUtil(168) }
+    @Bean
+    fun channelUtil(): ChannelUtil { return ChannelUtil() }
+    @Bean
+    fun commonUtil(): CommonUtil { return CommonUtil() }
 
     @Bean
     fun passwordEncoder(): PasswordEncoder? {
