@@ -42,23 +42,24 @@ class ContentController(
         return ResponseEntity(GetContentDetailResponse(data = null, message = "컨텐츠 상세 정보 가져오기 실패"), HttpStatus.BAD_REQUEST)
     }
 
-    @Operation(
-            summary = "컨텐츠 필터링 리스트",
-            description = "컨텐츠 리스트의 필터링 결과를 가져오는 API 입니다.",
-            responses = [
-                ApiResponse(responseCode = "200", description = "successful operation", content = [
-                    Content(schema = Schema(implementation = GetContentsResponse::class), mediaType = "application/json")
-                ]),
-            ]
-    )
-    @GetMapping
-    fun getContents(param: GetContentsParam): ResponseEntity<GetContentsResponse> {
-        val result = contentService.getContents(param)
-        if (result != null) {
-            return ResponseEntity.ok(GetContentsResponse(data = result, message = "컨텐츠 필터링 리스트 가져오기 성공"))
-        }
-        return ResponseEntity(GetContentsResponse(data = listOf(), message = "컨텐츠 필터링 리스트 가져오기 실패"), HttpStatus.BAD_REQUEST)
-    }
+    // TODO("Service 구현 필요")
+//    @Operation(
+//            summary = "컨텐츠 필터링 리스트",
+//            description = "컨텐츠 리스트의 필터링 결과를 가져오는 API 입니다.",
+//            responses = [
+//                ApiResponse(responseCode = "200", description = "successful operation", content = [
+//                    Content(schema = Schema(implementation = GetContentsResponse::class), mediaType = "application/json")
+//                ]),
+//            ]
+//    )
+//    @GetMapping
+//    fun getContents(param: GetContentsParam): ResponseEntity<GetContentsResponse> {
+//        val result = contentService.getContents(param)
+//        if (result != null) {
+//            return ResponseEntity.ok(GetContentsResponse(data = result, message = "컨텐츠 필터링 리스트 가져오기 성공"))
+//        }
+//        return ResponseEntity(GetContentsResponse(data = listOf(), message = "컨텐츠 필터링 리스트 가져오기 실패"), HttpStatus.BAD_REQUEST)
+//    }
 
     @Operation(
             summary = "스터디 컨텐츠 생성",
