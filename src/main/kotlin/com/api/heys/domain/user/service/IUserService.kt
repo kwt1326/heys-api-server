@@ -1,8 +1,7 @@
-package com.api.heys.domain.user
+package com.api.heys.domain.user.service
 
 import com.api.heys.domain.user.dto.CheckMemberData
 import com.api.heys.domain.user.dto.SignUpData
-import com.api.heys.entity.Users
 import org.springframework.security.core.userdetails.UserDetailsService
 
 interface IUserService: UserDetailsService {
