@@ -4,6 +4,7 @@ import com.api.heys.constants.DefaultString
 import com.api.heys.constants.enums.ContentType
 import com.api.heys.constants.enums.Online
 import com.api.heys.domain.content.dto.*
+import com.api.heys.domain.interest.repository.InterestRepository
 import com.api.heys.entity.*
 import com.api.heys.utils.ChannelUtil
 import com.api.heys.utils.CommonUtil
@@ -16,12 +17,12 @@ import org.springframework.stereotype.Service
 class ContentService(
         @Autowired private val contentRepository: IContentsRepository,
         @Autowired private val contentViewRepository: IContentViewRepository,
-        @Autowired private val interestRepository: IInterestRepository,
+        @Autowired private val interestRepository: InterestRepository,
         @Autowired private val userRepository: IUserRepository,
         @Autowired private val channelUtil: ChannelUtil,
         @Autowired private val commonUtil: CommonUtil,
         @Autowired private val jwtUtil: JwtUtil,
-) : IContentService {
+): IContentService {
     private fun isOffline(online: Online): Boolean {
         return listOf(Online.Offline, Online.OnOffLine).contains(online)
     }

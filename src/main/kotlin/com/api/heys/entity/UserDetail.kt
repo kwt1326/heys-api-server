@@ -1,8 +1,10 @@
 package com.api.heys.entity
 
 import com.api.heys.constants.enums.Gender
+import net.minidev.json.annotate.JsonIgnore
 import java.io.Serializable
 import javax.persistence.*
+import javax.persistence.FetchType.*
 
 /**
  * 유저 상세 정보 테이블
@@ -18,10 +20,10 @@ class UserDetail(
 ): Serializable {
         @Id
         @Column(name = "user_id")
-        private var id: Long = 0
+        var id: Long = 0
 
         @MapsId
-        @OneToOne
+        @OneToOne(fetch = LAZY)
         @JoinColumn(name = "user_id")
         var users: Users = users
 

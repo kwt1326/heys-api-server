@@ -1,26 +1,26 @@
-package com.api.heys.domain.user
+package com.api.heys.domain.user.service
 
+import com.api.heys.domain.interest.repository.InterestRepository
 import com.api.heys.domain.user.dto.CheckMemberData
 import com.api.heys.domain.user.dto.SignUpData
 import com.api.heys.entity.*
 import com.api.heys.security.domain.CustomUser
 import com.api.heys.utils.JwtUtil
-import com.querydsl.core.BooleanBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import javax.transaction.Transactional
-import kotlin.jvm.Throws
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class UserService(
-        @Autowired private val userRepository: IUserRepository,
-        @Autowired private val interestRepository: IInterestRepository,
-        @Autowired private val passwordEncoder: PasswordEncoder,
-        @Autowired private val jwtUtil: JwtUtil,
+    @Autowired private val userRepository: IUserRepository,
+    @Autowired private val interestRepository: InterestRepository,
+    @Autowired private val passwordEncoder: PasswordEncoder,
+    @Autowired private val jwtUtil: JwtUtil,
 ): IUserService {
     /**
      * 회원가입

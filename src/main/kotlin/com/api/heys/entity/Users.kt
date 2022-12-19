@@ -1,6 +1,7 @@
 package com.api.heys.entity
 
 import javax.persistence.*
+import javax.persistence.FetchType.*
 
 /**
  * 유저 테이블 코어
@@ -26,12 +27,12 @@ class Users(
         @Column(name = "password")
         var password: String = password
 
-        @OneToOne(mappedBy = "users", cascade = [CascadeType.ALL])
+        @OneToOne(mappedBy = "users", fetch = LAZY, cascade = [CascadeType.ALL])
         var detail: UserDetail? = null
 
-        @OneToMany(mappedBy = "users", fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+        @OneToMany(mappedBy = "users", fetch = EAGER, cascade = [CascadeType.ALL])
         var authentications: MutableSet<Authentication> = mutableSetOf()
 
-        @OneToMany(mappedBy = "writer", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+        @OneToMany(mappedBy = "writer", fetch = LAZY, cascade = [CascadeType.ALL])
         var notifications: MutableSet<Notification> = mutableSetOf()
 }

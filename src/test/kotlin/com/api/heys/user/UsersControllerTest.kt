@@ -1,9 +1,9 @@
 package com.api.heys.user
 
 import com.api.heys.constants.enums.Gender
-import com.api.heys.domain.user.UserController
-import com.api.heys.domain.user.UserService
+import com.api.heys.domain.user.controller.UserController
 import com.api.heys.domain.user.dto.SignUpData
+import com.api.heys.domain.user.service.UserService
 import com.api.heys.entity.Users
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean

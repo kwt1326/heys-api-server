@@ -1,10 +1,11 @@
-package com.api.heys.domain.user
+package com.api.heys.domain.user.controller
 
 import com.api.heys.constants.SecurityString
 import com.api.heys.domain.user.dto.CheckMemberData
 import com.api.heys.domain.user.dto.CheckMemberResponse
 import com.api.heys.domain.user.dto.SignUpData
 import com.api.heys.domain.user.dto.SignUpResponse
+import com.api.heys.domain.user.service.UserService
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
