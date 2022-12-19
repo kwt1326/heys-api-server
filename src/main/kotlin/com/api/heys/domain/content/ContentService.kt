@@ -21,7 +21,7 @@ class ContentService(
         @Autowired private val channelUtil: ChannelUtil,
         @Autowired private val commonUtil: CommonUtil,
         @Autowired private val jwtUtil: JwtUtil,
-): IContentService {
+) : IContentService {
     private fun isOffline(online: Online): Boolean {
         return listOf(Online.Offline, Online.OnOffLine).contains(online)
     }
@@ -113,9 +113,20 @@ class ContentService(
     }
 
     @Transactional(readOnly = true)
-    override fun getContents(params: GetContentsParam): List<ContentListItemData>? {
-        // TODO('Filter Query 구현')
-        return null
+    override fun getContents(params: GetContentsParam): List<ContentListItemData> {
+        return contentRepository.findContents(params).mapNotNull {
+            it.detail?.let { detail ->
+                ContentListItemData(
+                        id = it.id,
+                        name = detail.name,
+                        company = detail.company,
+                        viewCount = it.contentView?.count ?: 0,
+                        channelCount = it.channels.size,
+                        dDay = commonUtil.calculateDday(detail.lastRecruitDate),
+                        thumbnailUri = detail.thumbnailUri ?: DefaultString.defaultThumbnailUri,
+                )
+            }
+        }
     }
 
 

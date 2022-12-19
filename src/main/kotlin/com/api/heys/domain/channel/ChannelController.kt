@@ -12,7 +12,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import javax.validation.Valid
 
 @RestController
 @RequestMapping("channel")
@@ -49,11 +48,21 @@ class ChannelController(
     @GetMapping("list/{contentId}")
     fun getChannels(@PathVariable contentId: Long): ResponseEntity<GetChannelsResponse> {
         val result = channelService.getChannels(contentId)
-        if (result != null) {
-            return ResponseEntity.ok(GetChannelsResponse(data = result, message = "채널 리스트 가져오기 성공"))
-        }
+                ?: return ResponseEntity(GetChannelsResponse(data = listOf(), message = "채널 리스트 가져오기 실패"), HttpStatus.BAD_REQUEST)
 
-        return ResponseEntity(GetChannelsResponse(data = listOf(), message = "채널 리스트 가져오기 실패"), HttpStatus.BAD_REQUEST)
+        return ResponseEntity.ok(GetChannelsResponse(data = result, message = "채널 리스트 가져오기 성공"))
+    }
+
+    @Operation(
+            summary = "나의 합류/대기 채널 수",
+            description = "나의 합류/대기 채널 수를 카운팅 해주는 API 입니다. (추후 마이페이지 관리 페이지 API 로 병합 할 수 있음)",
+    )
+    @GetMapping("my-count")
+    fun getChannelCounts(@Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String): ResponseEntity<HashMap<String, Long>> {
+        val result = channelService.getJoinAndWaitingChannelCounts(bearer)
+                ?: return ResponseEntity.ok(hashMapOf<String, Long>())
+
+        return ResponseEntity.ok(result)
     }
 
     @Operation(
@@ -71,5 +80,58 @@ class ChannelController(
             @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
     ): ResponseEntity<GetChannelFollowersResponse> {
         return ResponseEntity.ok(channelService.getChannelFollowers(id, bearer))
+    }
+
+    @Operation(
+            summary = "가입 요청 승인",
+            description = "채널 가입 요청 대기 중인 유저를 승인 처리합니다.",
+            responses = [
+                ApiResponse(responseCode = "200", description = "successful operation", content = [
+                    Content(schema = Schema(implementation = Boolean::class), mediaType = "application/json")
+                ]),
+            ]
+    )
+    @PutMapping("request-allow/{id}/{followerId}")
+    fun putChannelRequestAllow(
+            @PathVariable id: Long,
+            @PathVariable followerId: Long,
+            @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<Boolean> {
+        return ResponseEntity.ok(channelService.requestAllowReject(true, followerId, id, bearer))
+    }
+
+    @Operation(
+            summary = "가입 요청 거부",
+            description = "채널 가입 요청 대기 중인 유저를 거부 처리합니다.",
+            responses = [
+                ApiResponse(responseCode = "200", description = "successful operation", content = [
+                    Content(schema = Schema(implementation = Boolean::class), mediaType = "application/json")
+                ]),
+            ]
+    )
+    @PutMapping("request-reject/{id}/{followerId}")
+    fun putChannelRequestReject(
+            @PathVariable id: Long,
+            @PathVariable followerId: Long,
+            @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<Boolean> {
+        return ResponseEntity.ok(channelService.requestAllowReject(false, followerId, id, bearer))
+    }
+
+    @Operation(
+            summary = "채널 알림 활성화",
+            description = "채널 알림 활성화 상태 변경을 위한 API 입니다.",
+            responses = [
+                ApiResponse(responseCode = "200", description = "successful operation", content = [
+                    Content(schema = Schema(implementation = Boolean::class), mediaType = "application/json")
+                ]),
+            ]
+    )
+    @PutMapping("active-notify/{id}")
+    fun putToggleActiveNotify(
+            @PathVariable id: Long,
+            @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<Boolean> {
+        return ResponseEntity.ok(channelService.toggleActiveNotify(id, bearer))
     }
 }

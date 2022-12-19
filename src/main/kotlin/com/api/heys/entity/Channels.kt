@@ -24,6 +24,10 @@ class Channels(
     @JoinColumn(name = "leader_user_id")
     var leader: Users = leader
 
+    // 채널 알림 여부
+    @Column(name = "active_notify")
+    var activeNotify: Boolean = false
+
     // 채널 조회 테이블
     @OneToOne(mappedBy = "channel", cascade = [CascadeType.ALL])
     var channelView: ChannelView? = null

@@ -16,5 +16,5 @@ data class ContentListItemData(
         @field:Schema(example = "1", type = "long")
         var dDay: Long,
         @field:Schema(example = "https://res.cloudinary.com/dyfuiigbw/image/upload/v1670047057/heys-dev/test1_jnkego.jpg", type = "string")
-        var thumbnailUri: Long,
+        var thumbnailUri: String,
 )
