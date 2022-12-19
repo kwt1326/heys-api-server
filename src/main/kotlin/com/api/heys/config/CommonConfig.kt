@@ -26,15 +26,4 @@ class CommonConfig {
     fun passwordEncoder(): PasswordEncoder? {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder()
     }
-
-    /**
-     * TODO: 범수님 코드로 사용 예정, 병합시 아래 코드 제거
-     * */
-    @PersistenceContext
-    lateinit var em: EntityManager
-
-    @Bean
-    fun jpaQueryFactory(): JPAQueryFactory {
-        return JPAQueryFactory(em)
-    }
 }

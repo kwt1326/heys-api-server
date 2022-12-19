@@ -35,9 +35,9 @@ class UserDetailService(
             ?.map { it.interest?.name }
             ?.collect(Collectors.toSet())
 
-        val channels: HashMap<String, Int>? = channelService.getJoinAndWaitingChannelCounts(token)
-        val joinChannelCount: Int? = if(channels?.get(DefaultString.joinChannelKey) == null) 0 else channels[DefaultString.joinChannelKey]
-        val waitingChannelCount: Int? = if(channels?.get(DefaultString.waitChannelKey) == null) 0 else channels[DefaultString.waitChannelKey];
+        val channels: HashMap<String, Long>? = channelService.getJoinAndWaitingChannelCounts(token)
+        val joinChannelCount: Long? = if(channels?.get(DefaultString.joinChannelKey) == null) 0 else channels[DefaultString.joinChannelKey]
+        val waitingChannelCount: Long? = if(channels?.get(DefaultString.waitChannelKey) == null) 0 else channels[DefaultString.waitChannelKey];
 
         return UserDetailResponse(
             userName = userWithUserDetail.username,

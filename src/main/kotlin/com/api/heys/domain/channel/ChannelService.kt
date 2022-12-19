@@ -5,6 +5,7 @@ import com.api.heys.constants.enums.ChannelMemberStatus
 import com.api.heys.domain.channel.dto.ChannelListItemData
 import com.api.heys.domain.channel.dto.CreateChannelData
 import com.api.heys.domain.channel.dto.GetChannelFollowersResponse
+import com.api.heys.domain.channel.repository.IChannelsRepository
 import com.api.heys.helpers.findUserByToken
 import com.api.heys.utils.JwtUtil
 import com.api.heys.entity.*

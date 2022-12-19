@@ -32,8 +32,8 @@ data class UserDetailResponse(
     val interests: MutableSet<String?>? = mutableSetOf(),
 
     @field:Schema(example = "2", type = "int")
-    val joinChannelCount: Int? = 0,
+    val joinChannelCount: Long? = 0,
 
     @field:Schema(example = "1", type = "int")
-    val waitingChannelCount: Int? = 0,
+    val waitingChannelCount: Long? = 0,
 )
