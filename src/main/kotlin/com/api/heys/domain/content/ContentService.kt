@@ -70,30 +70,28 @@ class ContentService(
     }
 
     @Transactional(readOnly = true)
-    override fun getContentDetail(type: ContentType, id: Long): GetContentDetailData? {
+    override fun getContentDetail(id: Long): GetContentDetailData? {
         val content = contentRepository.getContentDetail(id)
         if (content?.detail != null) {
             val detail: ContentDetail = content.detail!!
+            val checkStudyType = (content.contentType == ContentType.Study) && content.channels.size > 0
 
             // Study 타입일 경우 채널이 항상 1개이므로(컨텐츠당 하나), channels list 의 첫번째 요소를 가져온다.
             // 이외의 타입일 경우 컨텐츠만 보여주고 채널을 생성하도록 유도하므로 channel count 만 내보낸다.
             val joinedUsers =
-                    if (type == ContentType.Study)
-                        if (content.channels.size > 0) channelUtil.relationsToChannelUsersData(
-                                content.channels.first().joinedChannelRelationUsers
-                        )
-                        else listOf()
-                    else listOf()
+                    if (checkStudyType)
+                        channelUtil.relationsToChannelUsersData(content.channels.first().joinedChannelRelationUsers)
+                    else
+                        listOf()
 
             val waitingUsers =
-                    if (type == ContentType.Study)
-                        if (content.channels.size > 0) channelUtil.relationsToChannelUsersData(
-                                content.channels.first().waitingChannelRelationUsers
-                        )
-                        else listOf()
-                    else listOf()
+                    if (checkStudyType)
+                        channelUtil.relationsToChannelUsersData(content.channels.first().waitingChannelRelationUsers)
+                    else
+                        listOf()
 
             return GetContentDetailData(
+                    type = content.contentType,
                     dDay = commonUtil.calculateDday(detail.lastRecruitDate),
                     title = detail.name,
                     company = detail.company ?: "", // DB Sync

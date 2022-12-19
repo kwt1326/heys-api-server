@@ -33,9 +33,9 @@ class ContentController(
                 ]),
             ]
     )
-    @GetMapping("/{type}/{id}")
-    fun getContentDetail(@PathVariable type: ContentType, @PathVariable id: Long): ResponseEntity<GetContentDetailResponse> {
-        val data: GetContentDetailData? = contentService.getContentDetail(type, id)
+    @GetMapping("/{id}")
+    fun getContentDetail(@PathVariable id: Long): ResponseEntity<GetContentDetailResponse> {
+        val data: GetContentDetailData? = contentService.getContentDetail(id)
         if (data != null) {
             return ResponseEntity.ok(GetContentDetailResponse(data = data, message = "컨텐츠 상세 정보 가져오기 성공"))
         }
