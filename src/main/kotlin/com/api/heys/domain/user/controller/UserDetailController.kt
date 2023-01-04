@@ -2,6 +2,7 @@ package com.api.heys.domain.user.controller
 
 import com.api.heys.domain.common.dto.ApiResponse
 import com.api.heys.domain.common.dto.BaseResponse
+import com.api.heys.domain.user.dto.OtherUserDetailResponse
 import com.api.heys.domain.user.dto.SignUpData
 import com.api.heys.domain.user.dto.UserDetailRequest
 import com.api.heys.domain.user.dto.UserDetailResponse
@@ -25,7 +26,6 @@ class UserDetailController (
     @GetMapping("/me")
     fun getMyInfo(@Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String) : ResponseEntity<ApiResponse<UserDetailResponse>?>? {
         val userDetailResponse = userDetailService.getMyInfo(bearer)
-
         return ResponseEntity.ok(ApiResponse(data = userDetailResponse))
     }
 
@@ -35,5 +35,13 @@ class UserDetailController (
                     @RequestBody body: UserDetailRequest): ResponseEntity<ApiResponse<Any>?>? {
         userDetailService.modifyMyInfo(bearer, body)
         return ResponseEntity.ok(ApiResponse())
+    }
+
+    @Operation(summary = "다른 유저 상세 정보 조회", description = "다른 유저의 상세 정보를 반환하는 API 입니다.")
+    @GetMapping("/users/{userId}")
+    fun getOtherUserInfo(@Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String,
+                         @PathVariable(name = "userId") userId: Long) : ResponseEntity<ApiResponse<OtherUserDetailResponse>?>? {
+        val otherUserDetailResponse = userDetailService.findOtherUserDetail(userId)
+        return ResponseEntity.ok(ApiResponse(data = otherUserDetailResponse))
     }
 }
