@@ -5,7 +5,6 @@ import com.api.heys.entity.*
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Repository
 class ContentCustomRepositoryImpl(
@@ -36,7 +35,9 @@ class ContentCustomRepositoryImpl(
                 .join(qContentDetail.interestRelations, qInterestRelations).fetchJoin()
                 .join(qInterestRelations.interest, qInterest).fetchJoin()
 
-        // includeClosed filter (조건 : DDay 남은것, 정원 안찬것)
+        // includeClosed filter (마감된 컨텐츠 포함 여부 - 조건 : DDay 남은것, 정원 안찬것)
+        // includeClosed == true 이면 '마감 일자' 및 '제한 인원' 쿼리 무시
+        // includeClosed == false 이거나 null 이면 '오늘 이후에 마감 일자' 및 '제한 인원수 보다 작은 것'만 쿼리
         if (params.includeClosed == null || params.includeClosed == false) {
             query = query.where(
                     qContentDetail.lastRecruitDate.after(LocalDateTime.now()),
@@ -50,13 +51,6 @@ class ContentCustomRepositoryImpl(
 
         if (params.online != null) {
             query = query.where(qContentDetail.online.eq(params.online))
-        }
-
-        if (params.lastRecruitDate != null) {
-            val date = LocalDateTime.parse(params.lastRecruitDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-            query = query.where(
-                    qContentDetail.lastRecruitDate.between(date, LocalDateTime.now())
-            )
         }
 
         return query

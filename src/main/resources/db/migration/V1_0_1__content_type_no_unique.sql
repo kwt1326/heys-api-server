@@ -1,1 +1,0 @@
-ALTER TABLE contents DROP CONSTRAINT UK_9nmres2gx0eifs7ky57y8yn5i;

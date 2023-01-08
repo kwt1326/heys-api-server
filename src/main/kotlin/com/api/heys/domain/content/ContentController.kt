@@ -1,6 +1,5 @@
 package com.api.heys.domain.content
 
-import com.api.heys.constants.enums.ContentType
 import com.api.heys.domain.channel.ChannelService
 import com.api.heys.domain.channel.dto.CreateChannelData
 import com.api.heys.domain.content.dto.*
@@ -75,19 +74,19 @@ class ContentController(
             @Valid @RequestBody body: CreateContentData,
             @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String,
     ): ResponseEntity<CreateContentResponse> {
-        val content: Contents? = contentService.createContent(body)
-        if (content != null) {
-            val createChannelDto = CreateChannelData(name = body.name, contentId = content.id)
-            val channel: Channels? = channelService.createChannel(createChannelDto, bearer)
+        val result = contentService.createContent(body, bearer)
+        val contentId = result.contentId ?: return ResponseEntity.status(result.statusCode).body(result)
 
-            if (channel != null) {
-                return ResponseEntity.ok(CreateContentResponse(message = "스터디 컨텐츠 생성 성공"))
-            }
+        val createChannelDto = CreateChannelData(name = body.name, contentId = contentId)
+        val createChannelResponse = channelService.createChannel(createChannelDto, bearer)
 
-            return ResponseEntity(CreateContentResponse(message = "스터디 컨텐츠 - 채널 생성 실패"), HttpStatus.BAD_REQUEST)
+        if (createChannelResponse.statusCode != HttpStatus.OK) {
+            result.message = createChannelResponse.message
+            result.statusCode = createChannelResponse.statusCode
+            return ResponseEntity.status(result.statusCode).body(result)
         }
 
-        return ResponseEntity(CreateContentResponse(message = "스터디 컨텐츠 생성 실패"), HttpStatus.BAD_REQUEST)
+        return ResponseEntity.ok(result)
     }
 
     @Operation(

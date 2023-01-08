@@ -1,1 +1,0 @@
-ALTER TABLE channels ADD active_notify boolean DEFAULT false;

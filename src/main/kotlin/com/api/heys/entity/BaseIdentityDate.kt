@@ -17,16 +17,15 @@ abstract class BaseIdentityDate(existId: Long? = null): Persistable<Long> {
     @JsonFormat(pattern = "yyyy-mm-dd")
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-    val createdAt: LocalDateTime? = LocalDateTime.now()
+    val createdAt: LocalDateTime? = null
 
     @JsonFormat(pattern = "yyyy-mm-dd")
     @CreationTimestamp
-    @Column(name = "updated_at", updatable = false)
-    var updatedAt: LocalDateTime? = createdAt
+    @Column(name = "updated_at", updatable = true)
+    var updatedAt: LocalDateTime? = null
 
     @JsonFormat(pattern = "yyyy-mm-dd")
-    @CreationTimestamp
-    @Column(name = "removed_at", updatable = false)
+    @Column(name = "removed_at", updatable = true)
     var removedAt: LocalDateTime? = null
 
     @Transient

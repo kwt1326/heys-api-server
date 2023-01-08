@@ -5,7 +5,7 @@ import com.api.heys.domain.content.dto.*
 import com.api.heys.entity.Contents
 
 interface IContentService {
-    fun createContent(dto: CreateContentData): Contents?
+    fun createContent(dto: CreateContentData, token: String): CreateContentResponse
     fun getContentDetail(id: Long): GetContentDetailData?
     fun getContents(params: GetContentsParam): List<ContentListItemData>
     fun putContentDetail(id: Long, dto: EditContentData): Boolean

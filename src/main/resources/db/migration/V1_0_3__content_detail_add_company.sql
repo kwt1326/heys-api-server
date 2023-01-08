@@ -1,1 +1,0 @@
-ALTER TABLE content_detail ADD company varchar(255);

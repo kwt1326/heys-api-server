@@ -1,16 +1,20 @@
 package com.api.heys.domain.content
 
 import com.api.heys.constants.DefaultString
+import com.api.heys.constants.MessageString
+import com.api.heys.constants.enums.ChannelMemberStatus
 import com.api.heys.constants.enums.ContentType
 import com.api.heys.constants.enums.Online
 import com.api.heys.domain.content.dto.*
 import com.api.heys.domain.interest.repository.InterestRepository
 import com.api.heys.entity.*
+import com.api.heys.helpers.findUserByToken
 import com.api.heys.utils.ChannelUtil
 import com.api.heys.utils.CommonUtil
 import com.api.heys.utils.JwtUtil
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
 @Service
@@ -32,7 +36,16 @@ class ContentService(
      * Contents, ContentDetail 생성 및 Interest(관심분야 테이블) Associate Table 관계 설정 포함
      */
     @Transactional
-    override fun createContent(dto: CreateContentData): Contents? {
+    override fun createContent(dto: CreateContentData, token: String): CreateContentResponse {
+        val result = CreateContentResponse(statusCode = HttpStatus.OK, message = "success", contentId = null)
+        val user = findUserByToken(token, jwtUtil, userRepository)
+
+        if (user == null) {
+            result.statusCode = HttpStatus.NOT_FOUND
+            result.message = MessageString.INVALID_USER
+            return result
+        }
+
         val newContents = Contents(contentType = dto.contentType)
         val newContentView = ContentView(contents = newContents)
         val newContentsDetail = ContentDetail(
@@ -66,7 +79,9 @@ class ContentService(
 
         newContents.contentView = newContentView
 
-        return contentRepository.save(newContents)
+        result.contentId = contentRepository.save(newContents).id
+
+        return result
     }
 
     @Transactional(readOnly = true)
@@ -75,18 +90,23 @@ class ContentService(
         if (content?.detail != null) {
             val detail: ContentDetail = content.detail!!
             val checkStudyType = (content.contentType == ContentType.Study) && content.channels.size > 0
+            val channels = content.channels
 
             // Study 타입일 경우 채널이 항상 1개이므로(컨텐츠당 하나), channels list 의 첫번째 요소를 가져온다.
             // 이외의 타입일 경우 컨텐츠만 보여주고 채널을 생성하도록 유도하므로 channel count 만 내보낸다.
             val joinedUsers =
                     if (checkStudyType)
-                        channelUtil.relationsToChannelUsersData(content.channels.first().joinedChannelRelationUsers)
+                        channelUtil.relationsToChannelUsersData(channels.first().channelUserRelations.filter {
+                            it.status == ChannelMemberStatus.Approved && it.removedAt == null
+                        })
                     else
                         listOf()
 
             val waitingUsers =
                     if (checkStudyType)
-                        channelUtil.relationsToChannelUsersData(content.channels.first().waitingChannelRelationUsers)
+                        channelUtil.relationsToChannelUsersData(channels.first().channelUserRelations.filter {
+                            it.status == ChannelMemberStatus.Waiting && it.removedAt == null
+                        })
                     else
                         listOf()
 
@@ -94,7 +114,7 @@ class ContentService(
                     type = content.contentType,
                     dDay = commonUtil.calculateDday(detail.lastRecruitDate),
                     title = detail.name,
-                    company = detail.company ?: "", // DB Sync
+                    company = detail.company,
                     purpose = detail.purpose,
                     location = detail.location,
                     contentText = detail.contentText,
@@ -103,7 +123,7 @@ class ContentService(
                     recruitMethod = detail.recruitMethod,
                     viewCount = content.contentView?.count ?: -1,
                     channelCount = content.channels.size,
-                    thumbnailUri = detail.thumbnailUri ?: DefaultString.defaultThumbnailUri,
+                    thumbnailUri = detail.thumbnailUri,
                     usersJoined = joinedUsers,
                     usersWaitingApprove = waitingUsers,
             )
@@ -122,7 +142,7 @@ class ContentService(
                         viewCount = it.contentView?.count ?: 0,
                         channelCount = it.channels.size,
                         dDay = commonUtil.calculateDday(detail.lastRecruitDate),
-                        thumbnailUri = detail.thumbnailUri ?: DefaultString.defaultThumbnailUri,
+                        thumbnailUri = detail.thumbnailUri,
                 )
             }
         }

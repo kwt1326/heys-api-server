@@ -1,30 +1,42 @@
 package com.api.heys.entity
 
-import javax.persistence.Entity
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.Table
+import com.api.heys.constants.enums.ChannelMemberStatus
+import com.fasterxml.jackson.annotation.JsonFormat
+import org.hibernate.annotations.CreationTimestamp
+import java.time.LocalDateTime
+import javax.persistence.*
 
 /**
- * 채널 *-* 채널유저 Associate Table
- *
- * joinedChannel 이 있다면 합류된 것
- * waitingChannel 이 있다면 대기중인 것
- * 즉, 두 엔티티 컬럼이 동시에 값이 존재하면 안됨
+ * 채널 *-* 유저 Associate Table
  */
 
 @Entity
 @Table(name = "channel_user_relations")
-class ChannelUserRelations: BaseIdentity() {
+class ChannelUserRelations(
+    user: Users
+): BaseIdentityDate() {
     @ManyToOne
-    @JoinColumn(name = "channel_user_id")
-    var channelUser: ChannelUsers? = null
+    @JoinColumn(name = "user_id")
+    var user: Users = user
 
     @ManyToOne
-    @JoinColumn(name = "joined_channel_id")
-    var joinedChannel: Channels? = null
+    @JoinColumn(name = "channel_id")
+    var channel: Channels? = null
 
-    @ManyToOne
-    @JoinColumn(name = "waiting_channel_id")
-    var waitingChannel: Channels? = null
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    var status: ChannelMemberStatus = ChannelMemberStatus.Waiting
+
+    // 탈퇴 사유
+    @Column(name = "exit_message", nullable = true)
+    var exitMessage: String = ""
+
+    // 승인 거절 사유
+    @Column(name = "refuse_message", nullable = true)
+    var refuseMessage: String = ""
+
+    // 승인 요청 날짜
+    @JsonFormat(pattern = "yyyy-mm-dd")
+    @Column(name = "approve_request_at")
+    var approveRequestAt: LocalDateTime? = null
 }

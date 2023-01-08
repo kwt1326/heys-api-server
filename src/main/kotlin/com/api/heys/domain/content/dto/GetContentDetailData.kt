@@ -4,7 +4,6 @@ import com.api.heys.constants.enums.ContentType
 import com.api.heys.constants.enums.Online
 import com.api.heys.constants.enums.RecruitMethod
 import com.api.heys.domain.channel.dto.ChannelUserData
-import com.api.heys.entity.ChannelUsers
 import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "getContentDetail 반환 데이터")

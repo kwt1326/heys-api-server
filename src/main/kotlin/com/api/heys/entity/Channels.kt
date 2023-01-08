@@ -1,6 +1,5 @@
 package com.api.heys.entity
 
-import org.hibernate.annotations.Fetch
 import java.io.Serializable
 import javax.persistence.*
 
@@ -33,10 +32,6 @@ class Channels(
     var channelView: ChannelView? = null
 
     // 합류 채널 리스트 조인 테이블
-    @OneToMany(mappedBy = "joinedChannel", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
-    var joinedChannelRelationUsers: MutableSet<ChannelUserRelations> = mutableSetOf()
-
-    // 대기 채널 리스트 조인 테이블
-    @OneToMany(mappedBy = "waitingChannel", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
-    var waitingChannelRelationUsers: MutableSet<ChannelUserRelations> = mutableSetOf()
+    @OneToMany(mappedBy = "channel", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    var channelUserRelations: MutableSet<ChannelUserRelations> = mutableSetOf()
 }

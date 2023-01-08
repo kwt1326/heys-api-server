@@ -1,8 +1,6 @@
 package com.api.heys.domain.channel
 
-import com.api.heys.domain.channel.dto.GetChannelFollowersResponse
-import com.api.heys.domain.channel.dto.GetChannelsResponse
-import com.api.heys.domain.channel.dto.JoinChannelResponse
+import com.api.heys.domain.channel.dto.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -12,126 +10,185 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("channel")
 class ChannelController(
-        @Autowired private val channelService: IChannelService
+    @Autowired private val channelService: IChannelService
 ) {
     @Operation(
-            summary = "채널 참가 신청",
-            description = "채널 참가 신청(공통) API 입니다. 참가 신청 후, 대기 리스트로 들어갑니다.",
-            responses = [ApiResponse(responseCode = "200", description = "successful operation")]
+        summary = "채널 참가 신청",
+        description = "채널 참가 신청(공통) API 입니다. 참가 신청 후, 대기 리스트로 들어갑니다.",
+        responses = [ApiResponse(responseCode = "200", description = "successful operation")]
     )
     @PostMapping("join/{id}")
     fun joinChannel(
-            @PathVariable id: Long,
-            @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+        @PathVariable id: Long,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
     ): ResponseEntity<JoinChannelResponse> {
-        val result = channelService.joinChannel(id, bearer)
-        if (result) {
-            return ResponseEntity.ok(JoinChannelResponse(message = "채널 참가 요청 완료"))
-        }
-
-        return ResponseEntity(JoinChannelResponse(message = "채널 참가 요청 실패"), HttpStatus.BAD_REQUEST)
+        return channelService.joinChannel(id, bearer)
     }
 
     @Operation(
-            summary = "컨텐츠 채널 리스트",
-            description = "컨텐츠에 속한 채널 리스트 입니다.",
-            responses = [
-                ApiResponse(responseCode = "200", description = "successful operation", content = [
-                    Content(schema = Schema(implementation = GetChannelsResponse::class), mediaType = "application/json")
-                ]),
-            ]
+        summary = "컨텐츠 채널 리스트",
+        description = "컨텐츠에 속한 채널 리스트 입니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(
+                        schema = Schema(implementation = GetChannelsResponse::class),
+                        mediaType = "application/json"
+                    )
+                ]
+            ),
+        ]
     )
     @GetMapping("list/{contentId}")
     fun getChannels(@PathVariable contentId: Long): ResponseEntity<GetChannelsResponse> {
         val result = channelService.getChannels(contentId)
-                ?: return ResponseEntity(GetChannelsResponse(data = listOf(), message = "채널 리스트 가져오기 실패"), HttpStatus.BAD_REQUEST)
+            ?: return ResponseEntity(
+                GetChannelsResponse(data = listOf(), message = "채널 리스트 가져오기 실패"),
+                HttpStatus.BAD_REQUEST
+            )
 
         return ResponseEntity.ok(GetChannelsResponse(data = result, message = "채널 리스트 가져오기 성공"))
     }
 
     @Operation(
-            summary = "나의 합류/대기 채널 수",
-            description = "나의 합류/대기 채널 수를 카운팅 해주는 API 입니다. (추후 마이페이지 관리 페이지 API 로 병합 할 수 있음)",
+        summary = "나의 합류/대기 채널 수",
+        description = "나의 합류/대기 채널 수를 카운팅 해주는 API 입니다. (추후 마이페이지 관리 페이지 API 로 병합 할 수 있음)",
     )
     @GetMapping("my-count")
     fun getChannelCounts(@Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String): ResponseEntity<HashMap<String, Long>> {
         val result = channelService.getJoinAndWaitingChannelCounts(bearer)
-                ?: return ResponseEntity.ok(hashMapOf<String, Long>())
+            ?: return ResponseEntity.ok(hashMapOf<String, Long>())
 
         return ResponseEntity.ok(result)
     }
 
     @Operation(
-            summary = "채널 팔로워 리스트",
-            description = "채널에 팔로우(승인 대기/참여중)한 유저들의 리스트 입니다. 컨텐츠 상세 페이지에서 사용할 수 있습니다.",
-            responses = [
-                ApiResponse(responseCode = "200", description = "successful operation", content = [
-                    Content(schema = Schema(implementation = GetChannelFollowersResponse::class), mediaType = "application/json")
-                ]),
-            ]
+        summary = "채널 팔로워 리스트",
+        description = "채널에 팔로우(승인 대기/참여중)한 유저들의 리스트 입니다. 컨텐츠 상세 페이지에서 사용할 수 있습니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(
+                        schema = Schema(implementation = GetChannelFollowersResponse::class),
+                        mediaType = "application/json"
+                    )
+                ]
+            ),
+        ]
     )
     @GetMapping("follow/{id}")
     fun getChannelFollowers(
-            @PathVariable id: Long,
-            @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+        @PathVariable id: Long,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
     ): ResponseEntity<GetChannelFollowersResponse> {
-        return ResponseEntity.ok(channelService.getChannelFollowers(id, bearer))
+        return channelService.getChannelFollowers(id, bearer)
     }
 
     @Operation(
-            summary = "가입 요청 승인",
-            description = "채널 가입 요청 대기 중인 유저를 승인 처리합니다.",
-            responses = [
-                ApiResponse(responseCode = "200", description = "successful operation", content = [
-                    Content(schema = Schema(implementation = Boolean::class), mediaType = "application/json")
-                ]),
-            ]
+        summary = "가입 요청 승인",
+        description = "채널 가입 요청 대기 중인 유저를 승인 처리합니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(schema = Schema(implementation = ChannelPutResponse::class), mediaType = "application/json")
+                ]
+            ),
+        ]
     )
     @PutMapping("request-allow/{id}/{followerId}")
     fun putChannelRequestAllow(
-            @PathVariable id: Long,
-            @PathVariable followerId: Long,
-            @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
-    ): ResponseEntity<Boolean> {
-        return ResponseEntity.ok(channelService.requestAllowReject(true, followerId, id, bearer))
+        @Valid @RequestBody dto: ChannelPutData,
+        @PathVariable id: Long,
+        @PathVariable followerId: Long,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<ChannelPutResponse> {
+        return channelService.requestAllowReject(true, followerId, id, dto.message, bearer)
     }
 
     @Operation(
-            summary = "가입 요청 거부",
-            description = "채널 가입 요청 대기 중인 유저를 거부 처리합니다.",
-            responses = [
-                ApiResponse(responseCode = "200", description = "successful operation", content = [
+        summary = "가입 요청 거부",
+        description = "채널 가입 요청 대기 중인 유저를 거부 처리합니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
                     Content(schema = Schema(implementation = Boolean::class), mediaType = "application/json")
-                ]),
-            ]
+                ]
+            ),
+        ]
     )
     @PutMapping("request-reject/{id}/{followerId}")
     fun putChannelRequestReject(
-            @PathVariable id: Long,
-            @PathVariable followerId: Long,
-            @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
-    ): ResponseEntity<Boolean> {
-        return ResponseEntity.ok(channelService.requestAllowReject(false, followerId, id, bearer))
+        @Valid @RequestBody dto: ChannelPutData,
+        @PathVariable id: Long,
+        @PathVariable followerId: Long,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<ChannelPutResponse> {
+        return channelService.requestAllowReject(false, followerId, id, dto.message, bearer)
     }
 
     @Operation(
-            summary = "채널 알림 활성화",
-            description = "채널 알림 활성화 상태 변경을 위한 API 입니다.",
-            responses = [
-                ApiResponse(responseCode = "200", description = "successful operation", content = [
+        summary = "채널 알림 활성화",
+        description = "채널 알림 활성화 상태 변경을 위한 API 입니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
                     Content(schema = Schema(implementation = Boolean::class), mediaType = "application/json")
-                ]),
-            ]
+                ]
+            ),
+        ]
     )
     @PutMapping("active-notify/{id}")
     fun putToggleActiveNotify(
-            @PathVariable id: Long,
-            @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
-    ): ResponseEntity<Boolean> {
-        return ResponseEntity.ok(channelService.toggleActiveNotify(id, bearer))
+        @PathVariable id: Long,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<ChannelPutResponse> {
+        return channelService.toggleActiveNotify(id, bearer)
+    }
+
+    @Operation(
+        summary = "멤버 가입 요청 취소",
+        description = "채널 가입 요청을 멤버가 취소합니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(schema = Schema(implementation = Boolean::class), mediaType = "application/json")
+                ]
+            ),
+        ]
+    )
+    @PutMapping("member-abort-request/{id}/{followerId}")
+    fun putMemberAbortRequest(
+        @Valid @RequestBody dto: ChannelPutData,
+        @PathVariable id: Long,
+        @PathVariable followerId: Long,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<ChannelPutResponse> {
+        return channelService.memberAbortRequest(dto.message, followerId, id, bearer)
+    }
+
+    @Operation(
+        summary = "멤버 채널 탈퇴",
+        description = "멤버가 채널을 탈퇴합니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(schema = Schema(implementation = Boolean::class), mediaType = "application/json")
+                ]
+            ),
+        ]
+    )
+    @PutMapping("member-exit-channel/{id}/{followerId}")
+    fun putMemberExitChannel(
+        @Valid @RequestBody dto: ChannelPutData,
+        @PathVariable id: Long,
+        @PathVariable followerId: Long,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<ChannelPutResponse> {
+        return channelService.memberExitChannel(dto.message, followerId, id, bearer)
     }
 }
