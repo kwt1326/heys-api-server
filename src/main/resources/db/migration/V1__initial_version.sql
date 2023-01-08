@@ -1,29 +1,29 @@
-alter table channel_user_relations
-    drop constraint FKogc3t1kjj8o3vpoq4mlg3k1vb;
-alter table channel_view
-    drop constraint FK8mstc5arypj30qao75d862j1u;
-alter table channels
-    drop constraint FKei9ht6c7ayf1fdpp2f3rvwep1;
-alter table channels
-    drop constraint FKtqm3jdqqhs0ymp4w47c4bsxsb;
-alter table content_detail
-    drop constraint FK5uhvb46t5wkxvi2b0tqooq0b9;
-alter table content_view
-    drop constraint FKm4g3rhrdo24wuefy4x4r88yb2;
-alter table interest_relations
-    drop constraint FKo9b570lgvv22opvyd4rbriaxt;
-alter table interest_relations
-    drop constraint FKa0yvq6l0hr3jxl59fub5hcoo0;
-alter table interest_relations
-    drop constraint FKggqkgp0xibjmno96mmq007jlb;
-alter table interest_relations
-    drop constraint FKr5ttutm0om7yfiyifbg33jb35;
-alter table notification
-    drop constraint FKnk4ftb5am9ubmkv1661h15ds9;
-alter table user_detail
-    drop constraint FKr6i0t96qgu9l8l5nn2vqo8rcl;
-alter table users
-    drop constraint FKjogqshccrcue0m1009j4pquln;
+--alter table channel_user_relations
+--    drop constraint FKogc3t1kjj8o3vpoq4mlg3k1vb;
+--alter table channel_view
+--    drop constraint FK8mstc5arypj30qao75d862j1u;
+--alter table channels
+--    drop constraint FKei9ht6c7ayf1fdpp2f3rvwep1;
+--alter table channels
+--    drop constraint FKtqm3jdqqhs0ymp4w47c4bsxsb;
+--alter table content_detail
+--    drop constraint FK5uhvb46t5wkxvi2b0tqooq0b9;
+--alter table content_view
+--    drop constraint FKm4g3rhrdo24wuefy4x4r88yb2;
+--alter table interest_relations
+--    drop constraint FKo9b570lgvv22opvyd4rbriaxt;
+--alter table interest_relations
+--    drop constraint FKa0yvq6l0hr3jxl59fub5hcoo0;
+--alter table interest_relations
+--    drop constraint FKggqkgp0xibjmno96mmq007jlb;
+--alter table interest_relations
+--    drop constraint FKr5ttutm0om7yfiyifbg33jb35;
+--alter table notification
+--    drop constraint FKnk4ftb5am9ubmkv1661h15ds9;
+--alter table user_detail
+--    drop constraint FKr6i0t96qgu9l8l5nn2vqo8rcl;
+--alter table users
+--    drop constraint FKjogqshccrcue0m1009j4pquln;
 
 drop table if exists authentication cascade;
 drop table if exists channel_user_relations cascade;
