@@ -1,4 +1,4 @@
-FROM --platform=arm64 eclipse-temurin:17
+FROM eclipse-temurin:17
 EXPOSE 8090
 ARG ENV=prod
 ENV ENVIRONMENT=$ENV
