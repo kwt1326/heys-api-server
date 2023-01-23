@@ -1,13 +1,10 @@
-# JAR BUILD STAGE
-# DB_HOST_URL format: $DB_HOST:$DB_PORT/$DB_NAME
-FROM --platform=arm64 eclipse-temurin:17 AS builder
-ARG ENVIRONMENT=prod
-ENV PORT=8090
-WORKDIR /app
-COPY . .
-RUN chmod +x ./gradlew
-RUN ./gradlew bootJar
-COPY ./build/libs/*.jar deploy-jar.jar
-EXPOSE $PORT
-RUN ls -al
-ENTRYPOINT [ "java", "-jar", "-Dspring.config.location=file:$ENVIRONMENT-application.yml", "deploy-jar.jar" ]
+FROM --platform=arm64 eclipse-temurin:17
+EXPOSE 8090
+ARG ENV=prod
+ENV ENVIRONMENT=$ENV
+ENV JAR_NAME=heys-api-server.jar
+COPY build/libs/\*.jar $JAR_NAME
+COPY *-application.yml .
+RUN java -version
+RUN echo $ENVIRONMENT
+CMD java -jar -Dspring.config.location=file:$ENVIRONMENT-application.yml $JAR_NAME

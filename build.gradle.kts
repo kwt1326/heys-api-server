@@ -92,6 +92,10 @@ tasks.getByName<Jar>("jar") {
   enabled = false
 }
 
+tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+  this.archiveFileName.set("${archiveBaseName.get()}.${archiveExtension.get()}")
+}
+
 // Not working
 //tasks.register<Copy>("Serve Deploy Jar") {
 //	description = "Deploy jar to root"
