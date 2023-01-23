@@ -1,0 +1,38 @@
+custom:
+  secret:
+server:
+  port: 8090
+user:
+  timezone: Asia/Seoul
+cloud:
+  aws:
+    credentials:
+      accessKey:
+      secretKey:
+springdoc:
+  version: v1.0.0
+  swagger-ui:
+    path: /api-docs
+spring:
+  profiles:
+    active:
+  config:
+    location:
+  datasource:
+    url:
+    username:
+    password:
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: validate
+      jdbc:
+        time_zone: Asia/Seoul
+      connection:
+        characterEncoding: UTF8
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    baseline-on-migrate: true

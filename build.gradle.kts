@@ -72,6 +72,9 @@ dependencies {
 	testImplementation("org.mockito:mockito-inline")
 	testImplementation("org.junit.jupiter:junit-jupiter-engine")
 	testImplementation("com.ninja-squad:springmockk:3.1.1")
+
+	// AWS
+	implementation("ca.pjer:logback-awslogs-appender:1.6.0")
 }
 
 tasks.withType<KotlinCompile> {
@@ -83,6 +86,10 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.getByName<Jar>("jar") {
+  enabled = false
 }
 
 // Not working

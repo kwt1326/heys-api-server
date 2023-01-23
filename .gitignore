@@ -44,6 +44,6 @@ secrets.yml
 nohup*
 springlog.log*
 /*.jar
-/*.yml
-/*.yaml
 /*.log
+/dev-application.yml
+/local-application.yml
