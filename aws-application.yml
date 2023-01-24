@@ -1,27 +1,17 @@
-custom:
-  secret:
+# DEV, PROD value on AWS
 server:
   port: 8090
-user:
-  timezone: Asia/Seoul
-cloud:
-  aws:
-    credentials:
-      accessKey:
-      secretKey:
+custom:
+  secret: ${SECRET}
 springdoc:
   version: v1.0.0
   swagger-ui:
     path: /api-docs
 spring:
-  profiles:
-    active:
-  config:
-    location:
   datasource:
-    url:
-    username:
-    password:
+    url: ${DB_HOST_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     properties:
       hibernate:

@@ -4,5 +4,6 @@
 *.log
 *.log.*
 *.md
-nohup.txt
 Dockerfile
+nohup.txt
+local-application.yml
