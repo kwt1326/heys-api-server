@@ -2,7 +2,7 @@
 server:
   port: 8090
 custom:
-  secret: ${SECRET}
+  secret: ${CUSTOM_SECRET}
 springdoc:
   version: v1.0.0
   swagger-ui:
@@ -26,3 +26,6 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+logging:
+  level:
+    root: error
