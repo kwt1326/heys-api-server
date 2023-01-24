@@ -14,12 +14,6 @@ DB_PASSWORD=
 AWS_ACCESS_KEY=test
 AWS_SECRET_KEY=test1
 
-# docker build .
-
-# docker build -t $DOCKER_REPO/$DOCKER_IMAGE_NAME:$IMAGE_TAG -f $DOCKER_FILE --progress=plain --no-cache --build-arg ENVIRONMENT=$ENVIRONMENT
-
-# docker build --no-cache -t kwt1326/heys-api-server:1.0.0 . -f Dockerfile --build-arg ENVIRONMENT=local
-
 docker build \
   -t $DOCKER_REPO/$DOCKER_IMAGE_NAME:$IMAGE_TAG \
   -f $DOCKER_FILE \
@@ -53,5 +47,3 @@ else
 fi
 
 docker run -p $PORT:$PORT $DOCKER_REPO/$DOCKER_IMAGE_NAME:$IMAGE_TAG
-
-# docker push $DOCKER_REPO/$DOCKER_IMAGE_NAME:$IMAGE_TAG
