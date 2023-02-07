@@ -1,6 +1,7 @@
 package com.api.heys.entity
 
 import com.api.heys.constants.enums.Gender
+import com.api.heys.constants.enums.UserPersonality
 import net.minidev.json.annotate.JsonIgnore
 import java.io.Serializable
 import javax.persistence.*
@@ -49,6 +50,11 @@ class UserDetail(
         @Column(name = "introduce_text")
         var introduceText: String = ""
 
-        @Column(name = "profile_picture_uri")
-        var profilePictureUri: String = ""
+        @Enumerated(EnumType.STRING)
+        @Column(name = "user_personality")
+        var userPersonality: UserPersonality? = null
+
+        @OneToMany(mappedBy = "userDetail")
+        var profileLink: Set<UserProfileLink> = setOf();
+
 }

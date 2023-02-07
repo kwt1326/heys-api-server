@@ -1,9 +1,9 @@
 package com.api.heys.domain.user.repository
 
 import com.api.heys.domain.user.dto.UserDetailSearchDto
-import com.api.heys.entity.*
-import com.api.heys.entity.QUserDetail.*
-import com.api.heys.entity.QUsers.*
+import com.api.heys.entity.QUserDetail.userDetail
+import com.api.heys.entity.QUsers.users
+import com.api.heys.entity.UserDetail
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.stereotype.Repository
@@ -14,7 +14,7 @@ class UserDetailCustomRepositoryImpl (
 ) : UserDetailCustomRepository {
 
     override fun findUserDetail(userDetailSearchDto: UserDetailSearchDto): UserDetail? {
-        return jpaQueryFactory.select(userDetail).from(userDetail)
+        return jpaQueryFactory.selectFrom(userDetail)
             .join(userDetail.users, users).fetchJoin()
             .where(equalUserId(userDetailSearchDto.userId), equalUserPhone(userDetailSearchDto.phone))
             .fetchOne()
