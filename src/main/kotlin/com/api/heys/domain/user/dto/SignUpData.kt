@@ -30,7 +30,6 @@ data class SignUpData(
         @field:Schema(example = "NonBinary", description = "성별", implementation = Gender::class)
         val gender: Gender,
 
-        @NotNull
         @field:Schema(example = "[\"자기계발\", \"스터디\"]", type = "array<string>", description = "관심분야")
-        val interests: MutableSet<String>,
+        val interests: MutableSet<String>? = null,
 )

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko" class="h-100">
+<head th:replace="layout/header :: main_header(~{::title})">
+    <title>Heys Admin Login Page</title>
+</head>
+<body th:replace="layout/container :: main_container(~{::main})">
+<main class="m-auto" style="width: 350px !important">
+    <div id="form-div" class="form-signin">
+        <div class="mb-3">
+            <span class="h3 fw-bold">Heys</span>
+            <span class="h5 fw-normal">관리자 페이지</span>
+        </div>
+
+        <div class="form-floating">
+            <input type="text" id="data-username" class="form-control" placeholder="01012345678">
+            <label for="data-username">Phone</label>
+        </div>
+        <div class="form-floating mt-1">
+            <input type="password" id="data-password" class="form-control" placeholder="Password">
+            <label for="data-password">Password</label>
+        </div>
+        <div id="login-fail-msg" class="invalid-feedback"></div>
+
+        <button id="submit" class="w-100 mt-3 btn btn-lg btn-primary" th:onclick="login();">Sign in</button>
+    </div>
+    <a th:href="@{/admin/sign-up}" class="w-100 mt-3 btn btn-lg btn-primary">Sign up</a>
+    <script th:src="@{/js/callApi.js}"></script>
+    <script th:src="@{/js/login.js}"></script>
+    <script th:src="@{/js/addEventSubmitBtn.js}"></script>
+</main>
+</body>
+</html>

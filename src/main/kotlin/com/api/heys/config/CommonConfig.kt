@@ -3,6 +3,7 @@ package com.api.heys.config
 import com.api.heys.utils.ChannelUtil
 import com.api.heys.utils.CommonUtil
 import com.api.heys.utils.JwtUtil
+import com.api.heys.utils.UserUtil
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -15,6 +16,9 @@ import javax.persistence.PersistenceContext
 class CommonConfig {
     @Bean
     fun jwtUtil(): JwtUtil { return JwtUtil(168) }
+
+    @Bean
+    fun userUtil(): UserUtil { return UserUtil() }
 
     @Bean
     fun channelUtil(): ChannelUtil { return ChannelUtil() }

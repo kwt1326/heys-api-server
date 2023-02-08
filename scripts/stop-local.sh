@@ -1,4 +1,4 @@
-JAR_NAME=deploy-jar.jar
+JAR_NAME=heys-api-server.jar
 
 CURRENT_PID=$(pgrep -f $JAR_NAME)
 

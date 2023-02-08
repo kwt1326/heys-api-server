@@ -1,6 +1,6 @@
-package com.api.heys.entity
+package com.api.heys.domain.content.repository
 
-import com.api.heys.domain.content.repository.ContentCustomRepository
+import com.api.heys.entity.Contents
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.querydsl.QuerydslPredicateExecutor
 import org.springframework.data.repository.CrudRepository

@@ -43,8 +43,9 @@ dependencies {
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.postgresql:postgresql")
+	compileOnly("org.springframework.boot:spring-boot-devtools")
 	implementation("org.springframework.boot:spring-boot-configuration-processor")
-//	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
 	// Jwt
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5") // jwt
@@ -75,6 +76,9 @@ dependencies {
 
 	// AWS
 	implementation("ca.pjer:logback-awslogs-appender:1.6.0")
+
+	// Template Engine
+	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 }
 
 tasks.withType<KotlinCompile> {
@@ -95,14 +99,3 @@ tasks.getByName<Jar>("jar") {
 tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
   this.archiveFileName.set("${archiveBaseName.get()}.${archiveExtension.get()}")
 }
-
-// Not working
-//tasks.register<Copy>("Serve Deploy Jar") {
-//	description = "Deploy jar to root"
-//	dependsOn("assemble")
-//	outputs.upToDateWhen { false }
-//	from("build/libs") {
-//		include("*.jar")
-//	}
-//	into("/")
-//}

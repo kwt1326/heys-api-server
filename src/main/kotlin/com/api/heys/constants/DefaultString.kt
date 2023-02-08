@@ -6,4 +6,6 @@ object DefaultString {
     const val defaultDateFormat = "yyyy-MM-dd"
     const val joinChannelKey = "joined"
     const val waitChannelKey = "waiting"
+    const val commonRole = "COMMON_USER"
+    const val adminRole = "ADMIN_USER"
 }
