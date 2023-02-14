@@ -4,6 +4,7 @@ import com.api.heys.constants.enums.Gender
 import com.api.heys.constants.enums.UserPersonality
 import net.minidev.json.annotate.JsonIgnore
 import java.io.Serializable
+import java.time.LocalDate
 import javax.persistence.*
 import javax.persistence.FetchType.*
 
@@ -16,7 +17,7 @@ import javax.persistence.FetchType.*
 class UserDetail(
         users: Users,
         gender: Gender,
-        age: Int,
+        age: LocalDate,
         username: String,
 ): Serializable {
         @Id
@@ -39,7 +40,7 @@ class UserDetail(
         var username: String = username
 
         @Column(name = "age", nullable = false, length = 20)
-        var age: Int = age
+        var age: LocalDate = age
 
         @Column(name = "job", length = 50)
         var job: String = ""

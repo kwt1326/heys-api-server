@@ -2,6 +2,7 @@ package com.api.heys.domain.user.dto
 
 import com.api.heys.constants.enums.Gender
 import io.swagger.v3.oas.annotations.media.Schema
+import java.time.LocalDate
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
@@ -23,8 +24,8 @@ data class SignUpData(
         val password: String,
 
         @NotNull
-        @field:Schema(example = "29", type = "int", description = "나이")
-        val age: Int,
+        @field:Schema(example = "29", type = "localDate", description = "생년월일")
+        val age: LocalDate,
 
         @NotNull
         @field:Schema(example = "NonBinary", description = "성별", implementation = Gender::class)

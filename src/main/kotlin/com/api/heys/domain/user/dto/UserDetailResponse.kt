@@ -3,6 +3,7 @@ package com.api.heys.domain.user.dto
 import com.api.heys.constants.enums.Gender
 import com.api.heys.constants.enums.UserPersonality
 import io.swagger.v3.oas.annotations.media.Schema
+import java.time.LocalDate
 
 data class UserDetailResponse(
     @field:Schema(example = "Joenna", type = "string")
@@ -14,8 +15,8 @@ data class UserDetailResponse(
     @field:Schema(example = "NonBinary", type = "string")
     val gender: Gender? = null,
 
-    @field:Schema(example = "29", type = "int")
-    val age: Int? = 10,
+    @field:Schema(example = "29", type = "localDate")
+    val age: LocalDate? = null,
 
     @field:Schema(example = "개발자", type = "string")
     val job: String? = null,
