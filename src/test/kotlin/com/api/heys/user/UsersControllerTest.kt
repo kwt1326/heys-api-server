@@ -3,9 +3,9 @@ package com.api.heys.user
 import com.api.heys.constants.DefaultString
 import com.api.heys.constants.enums.Gender
 import com.api.heys.domain.user.controller.UserController
-import com.api.heys.domain.user.dto.SignUpData
+import com.api.heys.domain.user.dto.AdminSignUpData
+import com.api.heys.domain.user.dto.CommonSignUpData
 import com.api.heys.domain.user.service.UserService
-import com.api.heys.entity.Users
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -25,8 +25,7 @@ internal class UsersControllerTest(@Autowired val mockMvc: MockMvc) {
     lateinit var userService: UserService
 
     private val mapper = jacksonObjectMapper()
-    private val users = Users(phone = "01012341234", password = "12341234")
-    private val signUpData = SignUpData(
+    private val signUpData = CommonSignUpData(
             phone = "01012341234",
             username = "TESTER",
             password = "12341234",
@@ -34,12 +33,10 @@ internal class UsersControllerTest(@Autowired val mockMvc: MockMvc) {
             gender = Gender.Male,
             interests = mutableSetOf("교육", "자기계발"),
     )
-    private val adminSignUpData = SignUpData(
+    private val adminSignUpData = AdminSignUpData(
         phone = "01012341234",
         username = "TESTER",
         password = "12341234",
-        age = 29,
-        gender = Gender.Male,
     )
 
     @Test
@@ -59,7 +56,7 @@ internal class UsersControllerTest(@Autowired val mockMvc: MockMvc) {
         every { userService.signUp(signUpData, DefaultString.commonRole) } returns "token"
         every { userService.signUp(adminSignUpData, DefaultString.adminRole) } returns "token"
 
-        mockMvc.perform(post("/user/signUp/common")
+        mockMvc.perform(post("/user/signUp")
                 .content(mapper.writeValueAsString(signUpData))
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf().asHeader())

@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.userdetails.UserDetailsService
 
 interface IUserService: UserDetailsService {
-    fun signUp(dto: SignUpData, role: String): String?
+    fun <T: SignUpData>signUp(dto: T, role: String): String?
     fun withDrawal(id: Number, role: String): ResponseEntity<Boolean>
     fun checkMember(dto: CheckMemberData): Boolean
 }

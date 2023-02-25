@@ -1,5 +1,6 @@
 package com.api.heys.domain.channel
 
+import com.api.heys.constants.enums.ChannelType
 import com.api.heys.domain.channel.dto.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -7,7 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
@@ -17,6 +17,73 @@ import javax.validation.Valid
 class ChannelController(
     @Autowired private val channelService: IChannelService
 ) {
+    @Operation(
+        summary = "채널 생성",
+        description = "채널 생성 (공모전, 대외활동 등) API 입니다.",
+        responses = [ApiResponse(responseCode = "200", description = "successful operation")]
+    )
+    @PostMapping
+    fun createChannel(
+        @Valid @RequestBody body: CreateChannelData,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<CreateChannelResponse> {
+        return channelService.createChannel(body, bearer)
+    }
+
+    @Operation(
+        summary = "스터디 채널 생성",
+        description = "스터디 채널 생성 API 입니다.",
+        responses = [ApiResponse(responseCode = "200", description = "successful operation")]
+    )
+    @PostMapping("study")
+    fun createStudyChannel(
+        @Valid @RequestBody body: CreateStudyChannelData,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<CreateChannelResponse> {
+        return channelService.createChannel(body, bearer)
+    }
+
+    @Operation(
+        summary = "컨텐츠 소속 채널 리스트",
+        description = "컨텐츠에 속한 채널 리스트 입니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(
+                        schema = Schema(implementation = GetChannelsResponse::class),
+                        mediaType = "application/json"
+                    )
+                ]
+            ),
+        ]
+    )
+    @GetMapping("extra/{contentId}")
+    fun getContentChannels(
+        @PathVariable contentId: Long,
+        params: GetChannelsParam
+    ): ResponseEntity<GetChannelsResponse> {
+        return channelService.getChannels(ChannelType.Content, params, contentId)
+    }
+
+    @Operation(
+        summary = "스터디 채널 리스트",
+        description = "스터디 채널 리스트 입니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(
+                        schema = Schema(implementation = GetChannelsResponse::class),
+                        mediaType = "application/json"
+                    )
+                ]
+            ),
+        ]
+    )
+    @GetMapping("study")
+    fun getStudyChannels(params: GetChannelsParam): ResponseEntity<GetChannelsResponse> {
+        return channelService.getChannels(ChannelType.Study, params, null)
+    }
+
     @Operation(
         summary = "채널 참가 신청",
         description = "채널 참가 신청(공통) API 입니다. 참가 신청 후, 대기 리스트로 들어갑니다.",
@@ -31,40 +98,12 @@ class ChannelController(
     }
 
     @Operation(
-        summary = "컨텐츠 채널 리스트",
-        description = "컨텐츠에 속한 채널 리스트 입니다.",
-        responses = [
-            ApiResponse(
-                responseCode = "200", description = "successful operation", content = [
-                    Content(
-                        schema = Schema(implementation = GetChannelsResponse::class),
-                        mediaType = "application/json"
-                    )
-                ]
-            ),
-        ]
-    )
-    @GetMapping("list/{contentId}")
-    fun getChannels(@PathVariable contentId: Long): ResponseEntity<GetChannelsResponse> {
-        val result = channelService.getChannels(contentId)
-            ?: return ResponseEntity(
-                GetChannelsResponse(data = listOf(), message = "채널 리스트 가져오기 실패"),
-                HttpStatus.BAD_REQUEST
-            )
-
-        return ResponseEntity.ok(GetChannelsResponse(data = result, message = "채널 리스트 가져오기 성공"))
-    }
-
-    @Operation(
         summary = "나의 합류/대기 채널 수",
         description = "나의 합류/대기 채널 수를 카운팅 해주는 API 입니다. (추후 마이페이지 관리 페이지 API 로 병합 할 수 있음)",
     )
     @GetMapping("my-count")
     fun getChannelCounts(@Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String): ResponseEntity<HashMap<String, Long>> {
-        val result = channelService.getJoinAndWaitingChannelCounts(bearer)
-            ?: return ResponseEntity.ok(hashMapOf<String, Long>())
-
-        return ResponseEntity.ok(result)
+        return ResponseEntity.ok(channelService.getJoinAndWaitingChannelCounts(bearer))
     }
 
     @Operation(

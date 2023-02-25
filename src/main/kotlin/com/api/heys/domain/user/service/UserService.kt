@@ -1,7 +1,9 @@
 package com.api.heys.domain.user.service
 
+import com.api.heys.constants.enums.Gender
 import com.api.heys.domain.interest.repository.InterestRepository
 import com.api.heys.domain.user.dto.CheckMemberData
+import com.api.heys.domain.user.dto.CommonSignUpData
 import com.api.heys.domain.user.dto.SignUpData
 import com.api.heys.entity.*
 import com.api.heys.security.domain.CustomUser
@@ -28,10 +30,11 @@ class UserService(
      * User, UserDetail 생성 및 Interest(관심분야 테이블) Associate Table 관계 설정 포함
      * 가입되어 있으면, 새로운 Role 추가. 이미 해당 Role 이 있으면, 실패 처리
      * 미가입시, User 생성 및 Role 추가
+     * [admin user created -> common user role add] flow 의 경우 common user 에 필요한 데이터 업데이트
      * 로그인 가능한 토큰 반환
      * */
     @Transactional
-    override fun signUp(dto: SignUpData, role: String): String? {
+    override fun <T: SignUpData> signUp(dto: T, role: String): String? {
         var user: Users? = userRepository.findByPhone(dto.phone)
         var detail: UserDetail? = null
 
@@ -47,22 +50,19 @@ class UserService(
             detail = UserDetail(
                 users = user,
                 username = dto.username,
-                gender = dto.gender,
-                age = dto.age,
+                gender = if (dto is CommonSignUpData) dto.gender else Gender.NonBinary,
+                age = if (dto is CommonSignUpData) dto.age else -1,
             )
         } else {
-            // Update UserDetail
             detail = user.detail
-            if (detail != null) {
-                detail.username = dto.username
-                detail.gender = dto.gender
-                detail.age = dto.age
-            }
         }
 
-        // Admin 가입은 관심분야 항목이 필요없다. 하지만 Common Role 추가시 업데이트 가능
-        if (dto.interests != null) {
+        // Admin 가입은 성별, 나이, 관심분야 항목이 필요없다. Common Role 추가 혹은 생성시 업데이트
+        if (dto is CommonSignUpData) {
             val presentDetail: UserDetail = detail!!
+
+            presentDetail.gender = dto.gender
+            presentDetail.age = dto.age
 
             dto.interests.map {
                 // Create Interest Categories
@@ -102,7 +102,10 @@ class UserService(
         return user != null
     }
 
-    @Throws(UsernameNotFoundException::class) // Require Security User Service
+    /**
+     * Require Spring Security User Service
+     * */
+    @Throws(UsernameNotFoundException::class)
     override fun loadUserByUsername(username: String?): UserDetails? {
         val phone: String? = username // username 을 phone 으로 체크합니다.
 
@@ -112,6 +115,7 @@ class UserService(
                 return CustomUser(
                     usersEntity.phone,
                     usersEntity.password,
+                    usersEntity.isAvailable,
                     usersEntity.authentications.map { SimpleGrantedAuthority(it.role) }
                 )
             }

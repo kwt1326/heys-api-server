@@ -1,17 +1,19 @@
 package com.api.heys.domain.channel
 
+import com.api.heys.constants.enums.ChannelType
 import com.api.heys.domain.channel.dto.*
-import com.api.heys.entity.Channels
 import org.springframework.http.ResponseEntity
 
 interface IChannelService {
-    fun createChannel(dto: CreateChannelData, token: String): CreateChannelResponse
+    fun createChannel(dto: CreateChannelData, token: String): ResponseEntity<CreateChannelResponse>
+
+    fun createChannel(dto: CreateStudyChannelData, token: String): ResponseEntity<CreateChannelResponse>
 
     fun joinChannel(channelId: Long, token: String): ResponseEntity<JoinChannelResponse>
 
-    fun getChannels(contentId: Long): List<ChannelListItemData>?
+    fun getChannels(type: ChannelType, params: GetChannelsParam, contentId: Long?): ResponseEntity<GetChannelsResponse>
 
-    fun getJoinAndWaitingChannelCounts(token: String): HashMap<String, Long>?
+    fun getJoinAndWaitingChannelCounts(token: String): HashMap<String, Long>
 
     fun getChannelFollowers(channelId: Long, token: String): ResponseEntity<GetChannelFollowersResponse>
 

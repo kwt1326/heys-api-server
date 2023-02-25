@@ -8,24 +8,16 @@
     <form th:action="@{/admin/sign-up-result}" th:object="${dto}" method="post">
         <h3 class="mb-3 h3 fw-normal">Heys 관리자 생성</h3>
         <div class="form-floating mb-3">
-            <input th:field="*${phone}" type="text" name="phone" class="form-control" id="data-phone" placeholder="99912345678">
+            <input th:field="*{phone}" type="text" name="phone" class="form-control" id="data-phone" placeholder="99912345678">
             <label for="data-phone">Phone</label>
         </div>
         <div class="form-floating mb-3">
-            <input th:field="*${phone}" type="text" name="username" class="form-control" id="data-username" placeholder="Joanna">
+            <input th:field="*{username}" type="text" name="username" class="form-control" id="data-username" placeholder="Joanna">
             <label for="data-username">Username</label>
         </div>
         <div class="form-floating mb-3">
-            <input th:field="*${phone}" type="password" name="password" class="form-control" id="data-password" placeholder="******">
+            <input th:field="*{password}" type="password" name="password" class="form-control" id="data-password" placeholder="******">
             <label for="data-password">Password</label>
-        </div>
-        <div class="form-floating mb-3">
-            <input th:field="*${phone}" type="number" name="age" class="form-control" id="data-age" placeholder="29">
-            <label for="data-age">Age</label>
-        </div>
-        <div class="form-floating mb-3">
-            <input th:field="*${phone}" type="text" name="gender" class="form-control" id="data-gender" placeholder="Male">
-            <label for="data-gender">Gender</label>
         </div>
         <button class="w-100 mt-3 btn btn-lg btn-primary" type="submit">Join us</button>
     </form>

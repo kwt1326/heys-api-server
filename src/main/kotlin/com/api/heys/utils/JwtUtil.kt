@@ -57,7 +57,7 @@ open class JwtUtil(
 
     open fun makeUserDetail(token: String): UserDetails {
         val prefixRemovedToken: String = subStringToken(token)
-        return CustomUser(extractUsername(prefixRemovedToken), "", extractAuthorities(prefixRemovedToken))
+        return CustomUser(extractUsername(prefixRemovedToken), "", true, extractAuthorities(prefixRemovedToken))
     }
 
     open fun validateToken(token: String, userDetails: UserDetails): Boolean {

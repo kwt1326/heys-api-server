@@ -3,6 +3,7 @@ package com.api.heys.domain.channel
 import com.api.heys.constants.DefaultString
 import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.ChannelMemberStatus
+import com.api.heys.constants.enums.ChannelType
 import com.api.heys.domain.channel.dto.*
 import com.api.heys.domain.channel.repository.IChannelsRepository
 import com.api.heys.domain.content.repository.IContentsRepository
@@ -10,7 +11,6 @@ import com.api.heys.helpers.findUserByToken
 import com.api.heys.utils.JwtUtil
 import com.api.heys.entity.*
 import com.api.heys.utils.ChannelUtil
-import com.api.heys.utils.CommonUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -27,41 +27,108 @@ class ChannelService(
     @Autowired private val IChannelUserRelationRepository: IChannelUserRelationsRepository,
     @Autowired private val userRepository: IUserRepository,
     @Autowired private val channelUtil: ChannelUtil,
-    @Autowired private val commonUtil: CommonUtil,
     @Autowired private val jwtUtil: JwtUtil,
 ) : IChannelService {
+    /**
+     * 컨텐츠 기반 채널 생성
+     * 공모전, 대외활동 등 컨텐츠 기반 채널은 반드시 컨텐츠 엔티티와 linking 시켜야 한다.
+     * */
     @Transactional
-    override fun createChannel(dto: CreateChannelData, token: String): CreateChannelResponse {
+    override fun createChannel(dto: CreateChannelData, token: String): ResponseEntity<CreateChannelResponse> {
         val result = CreateChannelResponse(message = "success")
-        val content: Optional<Contents> = IContentsRepository.findById(dto.contentId)
         val user: Users? = findUserByToken(token, jwtUtil, userRepository)
 
         if (user == null) {
             result.message = MessageString.INVALID_USER
             result.statusCode = HttpStatus.NOT_FOUND
-            return result
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result)
         }
+
+        val content: Optional<Contents> = IContentsRepository.findById(dto.contentId)
 
         if (!content.isPresent) {
-            result.message = "컨텐츠가 존재하지 않습니다."
+            result.message = MessageString.NOT_FOUND_CONTENT
             result.statusCode = HttpStatus.NOT_FOUND
-            return result
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result)
         }
 
-        val contentEntity = content.get()
-        val newChannel = Channels(
-            content = contentEntity,
-            leader = user,
-        )
+        val newChannel = Channels(leader = user, type = ChannelType.Content)
         val newChannelView = ChannelView(newChannel)
+        val newChannelDetail = ChannelDetail(
+            channel = newChannel,
+            name = dto.name,
+            purpose = dto.purpose,
+            location = dto.location ?: "",
+            contentText = dto.contentText,
+            recruitText = dto.recruitText,
+            online = dto.online,
+            limitPeople = dto.limitPeople,
+            lastRecruitDate = dto.lastRecruitDate,
+            recruitMethod = dto.recruitMethod,
+            thumbnailUri = dto.thumbnailUri ?: DefaultString.defaultThumbnailUri
+        )
 
+        newChannel.detail = newChannelDetail
         newChannel.channelView = newChannelView
+
+        val contentEntity = content.get()
+
         contentEntity.channels.add(newChannel)
 
         IContentsRepository.save(contentEntity)
+
+        return ResponseEntity.ok(result)
+    }
+
+    /**
+     * 스터디 채널 생성
+     * 스터디 채널은 컨텐츠 엔티티와 관계가 없다. 따라서 단독 채널로 생성 및 관리
+     * */
+    override fun createChannel(dto: CreateStudyChannelData, token: String): ResponseEntity<CreateChannelResponse> {
+        val result = CreateChannelResponse(message = "success")
+        val user: Users? = findUserByToken(token, jwtUtil, userRepository)
+
+        if (user == null) {
+            result.message = MessageString.INVALID_USER
+            result.statusCode = HttpStatus.NOT_FOUND
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result)
+        }
+
+        val newChannel = Channels(leader = user, type = ChannelType.Study)
+        val newChannelView = ChannelView(newChannel)
+        val newChannelDetail = ChannelDetail(
+            channel = newChannel,
+            name = dto.name,
+            purpose = dto.purpose,
+            location = dto.location ?: "",
+            contentText = dto.contentText,
+            recruitText = dto.recruitText,
+            online = dto.online,
+            limitPeople = dto.limitPeople,
+            lastRecruitDate = dto.lastRecruitDate,
+            recruitMethod = dto.recruitMethod,
+            thumbnailUri = dto.thumbnailUri ?: DefaultString.defaultThumbnailUri
+        )
+
+        newChannel.detail = newChannelDetail
+        newChannel.channelView = newChannelView
+
         IChannelsRepository.save(newChannel)
 
-        return result
+        return ResponseEntity.ok(result)
+    }
+
+    @Transactional(readOnly = true)
+    override fun getChannels(type: ChannelType, params: GetChannelsParam, contentId: Long?): ResponseEntity<GetChannelsResponse> {
+        return ResponseEntity.ok(
+            GetChannelsResponse(
+                data = IChannelsRepository.getChannels(type, params, contentId),
+                message = "채널 리스트 가져오기 성공"
+            )
+        )
     }
 
     @Transactional
@@ -114,29 +181,10 @@ class ChannelService(
     }
 
     @Transactional(readOnly = true)
-    override fun getChannels(contentId: Long): List<ChannelListItemData>? {
-        return IChannelsRepository.getChannels(contentId).map {
-            val contentDetail = it.contents.detail
-
-            ChannelListItemData(
-                id = it.id,
-                name = contentDetail?.name ?: "",
-                dDay = if (contentDetail?.lastRecruitDate != null) commonUtil.calculateDday(contentDetail.lastRecruitDate) else -999,
-                thumbnailUri = contentDetail?.thumbnailUri ?: DefaultString.defaultThumbnailUri,
-                viewCount = it.channelView?.count ?: -1,
-                joinRemainCount = contentDetail?.limitPeople?.toLong()?.minus(
-                    it.channelUserRelations.map {
-                            itt -> itt.status == ChannelMemberStatus.Approved && itt.removedAt == null
-                    }.size
-                ) ?: 0,
-            )
-        }
-    }
-
-    @Transactional(readOnly = true)
-    override fun getJoinAndWaitingChannelCounts(token: String): HashMap<String, Long>? {
-        val user: Users = findUserByToken(token, jwtUtil, userRepository) ?: return null
-        return IChannelsRepository.getJoinAndWaitingChannelCounts(user.id)
+    override fun getJoinAndWaitingChannelCounts(token: String): HashMap<String, Long> {
+        val user: Users =
+            findUserByToken(token, jwtUtil, userRepository) ?: return hashMapOf()
+        return IChannelsRepository.getJoinAndWaitingChannelCounts(user.id) ?: return hashMapOf()
     }
 
     @Transactional(readOnly = true)
@@ -150,7 +198,7 @@ class ChannelService(
             response.message = MessageString.INVALID_USER
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response)
         }
-        
+
         if (!channel.isPresent) {
             response.message = MessageString.NOT_FOUND_CHANNEL
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response)
@@ -214,7 +262,13 @@ class ChannelService(
     }
 
     @Transactional
-    override fun requestAllowReject(isAllow: Boolean, userId: Long, channelId: Long, msg: String, token: String): ResponseEntity<ChannelPutResponse> {
+    override fun requestAllowReject(
+        isAllow: Boolean,
+        userId: Long,
+        channelId: Long,
+        msg: String,
+        token: String
+    ): ResponseEntity<ChannelPutResponse> {
         val response = ChannelPutResponse(message = "success")
 
         /* only leader user usage */
@@ -270,7 +324,12 @@ class ChannelService(
     }
 
     @Transactional
-    override fun memberAbortRequest(msg: String, userId: Long, channelId: Long, token: String): ResponseEntity<ChannelPutResponse> {
+    override fun memberAbortRequest(
+        msg: String,
+        userId: Long,
+        channelId: Long,
+        token: String
+    ): ResponseEntity<ChannelPutResponse> {
         val response = ChannelPutResponse(message = "success")
         val channel: Optional<Channels> = IChannelsRepository.findById(channelId)
         val user: Users? = findUserByToken(token, jwtUtil, userRepository)
@@ -293,7 +352,8 @@ class ChannelService(
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response)
         }
 
-        val channelUserRelation = channelEntity.channelUserRelations.find { it.user.id == userId && it.removedAt == null }
+        val channelUserRelation =
+            channelEntity.channelUserRelations.find { it.user.id == userId && it.removedAt == null }
 
         if (channelUserRelation == null) {
             response.message = "채널 가입 요청이 존재하지 않습니다."
@@ -315,7 +375,12 @@ class ChannelService(
     }
 
     @Transactional
-    override fun memberExitChannel(msg: String, userId: Long, channelId: Long, token: String): ResponseEntity<ChannelPutResponse> {
+    override fun memberExitChannel(
+        msg: String,
+        userId: Long,
+        channelId: Long,
+        token: String
+    ): ResponseEntity<ChannelPutResponse> {
         val response = ChannelPutResponse(message = "success")
         val channel: Optional<Channels> = IChannelsRepository.findById(channelId)
         val user: Users? = findUserByToken(token, jwtUtil, userRepository)
@@ -339,7 +404,8 @@ class ChannelService(
         }
 
         // 승인된 유저 대상으로 나가기 동작 수행
-        val channelUserRelation = channelEntity.channelUserRelations.find { it.user.id == userId && it.removedAt == null }
+        val channelUserRelation =
+            channelEntity.channelUserRelations.find { it.user.id == userId && it.removedAt == null }
 
         if (channelUserRelation == null) {
             response.message = "채널에 가입되어 있지 않습니다."

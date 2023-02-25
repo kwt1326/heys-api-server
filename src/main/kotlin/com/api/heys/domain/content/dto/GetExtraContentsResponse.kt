@@ -5,9 +5,9 @@ import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "getContents 요청 결과")
-data class GetContentsResponse(
-        @field:ArraySchema(schema = Schema(implementation = ContentListItemData::class))
-        val data: List<ContentListItemData>,
+data class GetExtraContentsResponse(
+        @field:ArraySchema(schema = Schema(implementation = ExtraContentListItemData::class))
+        val data: List<ExtraContentListItemData>,
 
         @field:Schema(example = "success", type = "string")
         override var message: String = "success"

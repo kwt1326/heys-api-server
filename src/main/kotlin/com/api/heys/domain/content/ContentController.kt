@@ -1,44 +1,33 @@
 package com.api.heys.domain.content
 
-import com.api.heys.domain.channel.ChannelService
-import com.api.heys.domain.channel.dto.CreateChannelData
 import com.api.heys.domain.content.dto.*
-import com.api.heys.entity.Channels
-import com.api.heys.entity.Contents
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
 @RequestMapping("content")
-class ContentController(
-        @Autowired private val contentService: ContentService,
-        @Autowired private val channelService: ChannelService,
-) {
+class ContentController(@Autowired private val contentService: ContentService) {
     @Operation(
             summary = "컨텐츠 상세 정보",
             description = "컨텐츠 상세 정보 API 입니다.",
             responses = [
                 ApiResponse(responseCode = "200", description = "successful operation", content = [
-                    Content(schema = Schema(implementation = GetContentDetailResponse::class), mediaType = "application/json")
+                    Content(schema = Schema(implementation = GetExtraContentDetailResponse::class), mediaType = "application/json")
                 ]),
             ]
     )
-    @GetMapping("/{id}")
-    fun getContentDetail(@PathVariable id: Long): ResponseEntity<GetContentDetailResponse> {
-        val data: GetContentDetailData? = contentService.getContentDetail(id)
-        if (data != null) {
-            return ResponseEntity.ok(GetContentDetailResponse(data = data, message = "컨텐츠 상세 정보 가져오기 성공"))
-        }
-        return ResponseEntity(GetContentDetailResponse(data = null, message = "컨텐츠 상세 정보 가져오기 실패"), HttpStatus.BAD_REQUEST)
+    @GetMapping("extra/{id}")
+    fun getExtraContentDetail(@PathVariable id: Long): ResponseEntity<GetExtraContentDetailResponse> {
+        return contentService.getExtraContentDetail(id)
     }
 
     @Operation(
@@ -46,47 +35,30 @@ class ContentController(
             description = "컨텐츠 리스트의 필터링 결과를 가져오는 API 입니다.",
             responses = [
                 ApiResponse(responseCode = "200", description = "successful operation", content = [
-                    Content(schema = Schema(implementation = GetContentsResponse::class), mediaType = "application/json")
+                    Content(schema = Schema(implementation = GetExtraContentsResponse::class), mediaType = "application/json")
                 ]),
             ]
     )
-    @GetMapping
-    fun getContents(param: GetContentsParam): ResponseEntity<GetContentsResponse> {
-        return ResponseEntity.ok(
-                GetContentsResponse(
-                        data = contentService.getContents(param),
-                        message = "컨텐츠 필터링 리스트 가져오기 성공"
-                )
-        )
+    @GetMapping("extra")
+    fun getExtraContents(params: GetExtraContentsParam): ResponseEntity<GetExtraContentsResponse> {
+        return contentService.getExtraContents(params)
     }
 
     @Operation(
-            summary = "스터디 컨텐츠 생성",
-            description = "스터디 컨텐츠 생성 API 입니다. 스터디 타입은 채널을 동시에 생성합니다.",
-            responses = [
-                ApiResponse(responseCode = "200", description = "successful operation", content = [
-                    Content(schema = Schema(implementation = CreateContentResponse::class), mediaType = "application/json")
-                ]),
-            ]
+        summary = "공모전/대외활동 등 외부 컨텐츠 생성",
+        description = "공모전/대외활동 등 외부 컨텐츠 생성 API 입니다.",
+        responses = [
+            ApiResponse(responseCode = "200", description = "successful operation", content = [
+                Content(examples = [ExampleObject(value = "success")])
+            ]),
+        ]
     )
-    @PostMapping("study")
-    fun createStudyContent(
-            @Valid @RequestBody body: CreateContentData,
-            @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String,
-    ): ResponseEntity<CreateContentResponse> {
-        val result = contentService.createContent(body, bearer)
-        val contentId = result.contentId ?: return ResponseEntity.status(result.statusCode).body(result)
-
-        val createChannelDto = CreateChannelData(name = body.name, contentId = contentId)
-        val createChannelResponse = channelService.createChannel(createChannelDto, bearer)
-
-        if (createChannelResponse.statusCode != HttpStatus.OK) {
-            result.message = createChannelResponse.message
-            result.statusCode = createChannelResponse.statusCode
-            return ResponseEntity.status(result.statusCode).body(result)
-        }
-
-        return ResponseEntity.ok(result)
+    @PostMapping("extra")
+    fun createExtraContent(
+        @Valid @RequestBody body: CreateExtraContentData,
+        @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String,
+    ): ResponseEntity<String> {
+        return contentService.createExtraContent(body, bearer)
     }
 
     @Operation(
@@ -94,62 +66,29 @@ class ContentController(
             description = "컨텐츠 내용 수정 API 입니다.",
             responses = [
                 ApiResponse(responseCode = "200", description = "successful operation", content = [
-                    Content(schema = Schema(implementation = EditContentResponse::class), mediaType = "application/json")
+                    Content(examples = [ExampleObject(value = "success")])
                 ]),
             ]
     )
-    @PutMapping("/{id}")
-    fun putContent(@PathVariable id: Long, @Valid @RequestBody body: EditContentData): ResponseEntity<EditContentResponse> {
-        val isModified = contentService.putContentDetail(id, body)
-
-        if (isModified) {
-            return ResponseEntity.ok(EditContentResponse(message = "컨텐츠 수정 성공"))
-        }
-        return ResponseEntity(EditContentResponse(message = "컨텐츠 수정 실패"), HttpStatus.BAD_REQUEST)
+    @PutMapping("extra/{id}")
+    fun putExtraContent(@PathVariable id: Long, @Valid @RequestBody body: PutExtraContentData): ResponseEntity<String> {
+        return contentService.putExtraContentDetail(id, body)
     }
 
     @Operation(
             summary = "컨텐츠 조회수 증가",
             description = "컨텐츠 조회수를 1만큼 증가시킵니다. 로그인 중인 유저 1명당 하나의 컨텐츠의 조회수만 상승합니다.",
-            responses = [ApiResponse(responseCode = "200", description = "successful operation")]
+            responses = [
+                ApiResponse(responseCode = "200", description = "successful operation", content = [
+                    Content(examples = [ExampleObject(value = "success")])
+                ])
+            ]
     )
     @PutMapping("/count-up/{id}")
     fun putIncreaseViewCount(
             @PathVariable id: Long,
             @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
-    ): ResponseEntity<Boolean> {
-        val isIncreased = contentService.increaseContentView(id, bearer)
-        if (isIncreased) {
-            return ResponseEntity.ok(true)
-        }
-        return ResponseEntity(false, HttpStatus.BAD_REQUEST)
+    ): ResponseEntity<String> {
+        return contentService.increaseContentView(id, bearer)
     }
-
-//    @Operation(
-//            summary = "공모전/대외활동 등 외부 컨텐츠 생성",
-//            description = "공모전/대외활동 등 외부 컨텐츠 생성 API 입니다.",
-//            responses = [
-//                ApiResponse(responseCode = "200", description = "successful operation", content = [
-//                    Content(schema = Schema(implementation = CreateContentResponse::class), mediaType = "application/json")
-//                ]),
-//            ]
-//    )
-//    @PostMapping("external")
-//    fun createExternalContent(
-//            @Valid @RequestBody body: CreateContentData,
-//            @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String,
-//    ): ResponseEntity<CreateContentResponse> {
-//        val content: Contents? = contentService.createContent(body)
-//        if (content != null) {
-//            val createChannelDto = CreateChannelData(name = body.name, contentId = content.id)
-//            return ResponseEntity.ok(
-//                    CreateContentResponse(statusCode = HttpStatus.OK, message = "외부 컨텐츠 생성 성공")
-//            )
-//        }
-//
-//        return ResponseEntity(CreateContentResponse(
-//                statusCode = HttpStatus.BAD_REQUEST,
-//                message = "스터디 컨텐츠 생성 실패"
-//        ), HttpStatus.BAD_REQUEST)
-//    }
 }

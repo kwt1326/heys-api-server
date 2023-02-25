@@ -22,21 +22,41 @@ class UserController(
         @Autowired private val userService: UserService
 ) {
     @Operation(
-            summary = "회원가입",
-            description = "회원가입 API 입니다. role = admin/common",
+            summary = "일반 유저 회원가입",
+            description = "일반 유저 회원가입 API 입니다.",
             responses = [
                 ApiResponse(responseCode = "200", description = "successful operation", content = [
                     Content(schema = Schema(implementation = SignUpResponse::class), mediaType = "application/json")
                 ]),
             ]
     )
-    @PostMapping("signUp/{role}") // TODO: @OASRequestBody 사용했을때 age Int 가 null 로 들어오는 문제 수정
-    fun signUp(
-        @PathVariable role: String,
-        @Valid @RequestBody body: SignUpData
+    @PostMapping("signUp") // TODO: @OASRequestBody 사용했을때 age Int 가 null 로 들어오는 문제 수정
+    fun signUpCommon(
+        @Valid @RequestBody body: CommonSignUpData
     ): ResponseEntity<SignUpResponse> {
-        val authRole = if (role == "admin") DefaultString.adminRole else DefaultString.commonRole
-        val token: String? = userService.signUp(body, authRole)
+        val role = DefaultString.commonRole
+        val token: String? = userService.signUp(body, role)
+
+        if (token != null) return ResponseEntity.ok(SignUpResponse(token = SecurityString.PREFIX_TOKEN + token))
+
+        return ResponseEntity<SignUpResponse>(SignUpResponse("", "Already Exist User or Exist Role: $role"), HttpStatus.BAD_REQUEST)
+    }
+
+    @Operation(
+        summary = "어드민 회원가입",
+        description = "어드민 회원가입 API 입니다.",
+        responses = [
+            ApiResponse(responseCode = "200", description = "successful operation", content = [
+                Content(schema = Schema(implementation = SignUpResponse::class), mediaType = "application/json")
+            ]),
+        ]
+    )
+    @PostMapping("signUp/admin")
+    fun signUpAdmin(
+        @Valid @RequestBody body: AdminSignUpData
+    ): ResponseEntity<SignUpResponse> {
+        val role = DefaultString.adminRole
+        val token: String? = userService.signUp(body, role)
 
         if (token != null) return ResponseEntity.ok(SignUpResponse(token = SecurityString.PREFIX_TOKEN + token))
 

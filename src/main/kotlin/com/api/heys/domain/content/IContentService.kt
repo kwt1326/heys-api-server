@@ -1,13 +1,12 @@
 package com.api.heys.domain.content
 
-import com.api.heys.constants.enums.ContentType
 import com.api.heys.domain.content.dto.*
-import com.api.heys.entity.Contents
+import org.springframework.http.ResponseEntity
 
 interface IContentService {
-    fun createContent(dto: CreateContentData, token: String): CreateContentResponse
-    fun getContentDetail(id: Long): GetContentDetailData?
-    fun getContents(params: GetContentsParam): List<ContentListItemData>
-    fun putContentDetail(id: Long, dto: EditContentData): Boolean
-    fun increaseContentView(id: Long, token: String): Boolean
+    fun createExtraContent(dto: CreateExtraContentData, token: String): ResponseEntity<String>
+    fun putExtraContentDetail(id: Long, dto: PutExtraContentData): ResponseEntity<String>
+    fun increaseContentView(id: Long, token: String): ResponseEntity<String>
+    fun getExtraContentDetail(id: Long): ResponseEntity<GetExtraContentDetailResponse>
+    fun getExtraContents(params: GetExtraContentsParam): ResponseEntity<GetExtraContentsResponse>
 }

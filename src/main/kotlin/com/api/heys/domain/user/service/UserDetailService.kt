@@ -35,7 +35,7 @@ class UserDetailService(
             ?.mapNotNull { it.interest?.name }
             ?.toSet()
 
-        val channels: HashMap<String, Long>? = channelService.getJoinAndWaitingChannelCounts(token)
+        val channels: HashMap<String, Long> = channelService.getJoinAndWaitingChannelCounts(token)
         val joinChannelCount: Long? = if(channels?.get(DefaultString.joinChannelKey) == null) 0 else channels[DefaultString.joinChannelKey]
         val waitingChannelCount: Long? = if(channels?.get(DefaultString.waitChannelKey) == null) 0 else channels[DefaultString.waitChannelKey];
 
