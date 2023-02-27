@@ -42,7 +42,7 @@ class UserService(
                     users = newUsers,
                     username = dto.username,
                     gender = dto.gender,
-                    age = dto.age,
+                    birthDate = dto.birthDate,
             )
 
             dto.interests.map {

@@ -24,8 +24,8 @@ data class SignUpData(
         val password: String,
 
         @NotNull
-        @field:Schema(example = "29", type = "localDate", description = "생년월일")
-        val age: LocalDate,
+        @field:Schema(example = "2002-02-22", type = "localDate", description = "생년월일")
+        val birthDate: LocalDate,
 
         @NotNull
         @field:Schema(example = "NonBinary", description = "성별", implementation = Gender::class)

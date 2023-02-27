@@ -15,8 +15,8 @@ data class UserDetailResponse(
     @field:Schema(example = "NonBinary", type = "string")
     val gender: Gender? = null,
 
-    @field:Schema(example = "29", type = "localDate")
-    val age: LocalDate? = null,
+    @field:Schema(example = "2002-02-22", type = "localDate")
+    val birthDate: LocalDate,
 
     @field:Schema(example = "개발자", type = "string")
     val job: String? = null,

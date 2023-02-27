@@ -32,7 +32,7 @@ class UserDetailService(
 
         val interestRelations: Set<InterestRelations> = interestService.findUserInterests(userDetailId = findUserDetail.id)
 
-        val interests: Set<String?>? = interestRelations
+        val interests: Set<String?> = interestRelations
             .mapNotNull { it.interest?.name }
             .toSet()
 
@@ -50,7 +50,7 @@ class UserDetailService(
             userName = findUserDetail.username,
             phone = findUserDetail.users.phone,
             gender = findUserDetail.gender,
-            age = findUserDetail.age,
+            birthDate = findUserDetail.birthDate,
             job = findUserDetail.job,
             introduce = findUserDetail.introduceText,
             capability = findUserDetail.capability,

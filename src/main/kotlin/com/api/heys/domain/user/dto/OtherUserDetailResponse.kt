@@ -15,9 +15,6 @@ data class OtherUserDetailResponse (
     @field:Schema(example = "개발자", type = "string")
     val job: String? = null,
 
-    @field:Schema(example = "https://res.cloudinary.com/dyfuiigbw/image/upload/v1670047057/heys-dev/test1_jnkego.jpg", type = "string")
-    val profileUrl: String? = null,
-
     @field:Schema(example = "안녕하세요!", type = "string")
     val introduce: String? = null,
 

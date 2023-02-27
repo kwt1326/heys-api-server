@@ -17,7 +17,7 @@ import javax.persistence.FetchType.*
 class UserDetail(
         users: Users,
         gender: Gender,
-        age: LocalDate,
+        birthDate: LocalDate,
         username: String,
 ): Serializable {
         @Id
@@ -39,8 +39,8 @@ class UserDetail(
         @Column(name = "username", nullable = false, length = 50)
         var username: String = username
 
-        @Column(name = "age", nullable = false, length = 20)
-        var age: LocalDate = age
+        @Column(name = "birth_date", nullable = false)
+        var birthDate: LocalDate = birthDate
 
         @Column(name = "job", length = 50)
         var job: String = ""
@@ -52,7 +52,7 @@ class UserDetail(
         var introduceText: String = ""
 
         @Enumerated(EnumType.STRING)
-        @Column(name = "user_personality")
+        @Column(name = "user_personality", length = 10)
         var userPersonality: UserPersonality? = null
 
         @OneToMany(mappedBy = "userDetail")
