@@ -17,6 +17,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import java.time.LocalDate
 
 @WebMvcTest(UserController::class)
 class UsersControllerTest(@Autowired val mockMvc: MockMvc) {
@@ -29,7 +30,7 @@ class UsersControllerTest(@Autowired val mockMvc: MockMvc) {
             phone = "01012341234",
             username = "TESTER",
             password = "12341234",
-            age = 29,
+            age = LocalDate.of(1995, 10, 9),
             gender = Gender.Male,
             interests = mutableSetOf("교육", "자기계발"),
     )

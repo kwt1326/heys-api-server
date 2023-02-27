@@ -1,6 +1,7 @@
 package com.api.heys.domain.user.dto
 
 import com.api.heys.constants.enums.Gender
+import com.api.heys.constants.enums.UserPersonality
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class UserDetailRequest(
@@ -21,7 +22,13 @@ data class UserDetailRequest(
     @field:Schema(example = "안녕하세요!", type = "string")
     var introduce: String = "",
 
+    @field:Schema(example = "ISTP", type = "string")
+    var userPersonality: UserPersonality? = null,
+
     @field:Schema(example = "[\"스터디\", \"자기개발\"]", type = "array<string>")
-    var interests: MutableSet<String> = mutableSetOf(),
+    var interests: Set<String> = setOf(),
+
+    @field:Schema(example = "[\"https://www.github.com\", \"https://www.instagram.com/\"]", type = "array<string>")
+    var profileLinks: Set<String> = setOf()
 
 )
