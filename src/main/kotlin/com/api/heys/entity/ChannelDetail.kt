@@ -7,43 +7,42 @@ import java.time.LocalDateTime
 import javax.persistence.*
 
 /**
- * 컨텐츠 상세 정보 테이블
+ * 채널 상세 정보 테이블
  * */
 
 @Entity
-@Table(name = "content_detail")
-class ContentDetail(
-        contents: Contents,
-        name: String,
-        purpose: String,
-        location: String,
-        contentText: String,
-        online: Online,
-        limitPeople: Int,
-        lastRecruitDate: LocalDateTime,
-        recruitMethod: RecruitMethod,
-        company: String,
-        thumbnailUri: String,
+@Table(name = "channel_detail")
+class ChannelDetail(
+    channel: Channels,
+    name: String,
+    purpose: String,
+    location: String,
+    contentText: String,
+    recruitText: String,
+    online: Online,
+    limitPeople: Int,
+    lastRecruitDate: LocalDateTime,
+    recruitMethod: RecruitMethod,
+    thumbnailUri: String,
 ): Serializable {
     @Id
-    @Column(name = "contents_id")
-    private var id: Long = 0
+    @Column(name = "channel_id")
+    var id: Long = 0
 
     @MapsId
     @OneToOne
-    @JoinColumn(name = "contents_id")
-    var contents: Contents = contents
+    @JoinColumn(name = "channel_id")
+    var channel: Channels = channel
 
-    @OneToMany(mappedBy = "contentDetail", cascade = [CascadeType.PERSIST])
+    @OneToMany(mappedBy = "channelDetail", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
     var interestRelations: MutableSet<InterestRelations> = mutableSetOf()
 
-    // 컨텐츠 이름 (타이틀)
+    @OneToMany(mappedBy = "channelDetail", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    var links: MutableSet<ChannelLink> = mutableSetOf()
+
+    // 채널 이름
     @Column(name = "name", nullable = false)
     var name: String = name
-
-    // 주최/주관 이름, 스터디는 해당되지 않음
-    @Column(name = "company", nullable = false)
-    var company: String = company
 
     // 활동 목적
     @Column(name = "purpose", nullable = false)
@@ -52,6 +51,10 @@ class ContentDetail(
     // 소개글
     @Column(columnDefinition = "TEXT", name = "content_text", nullable = false)
     var contentText: String = contentText
+
+    // 이런분을 찾아요! 글
+    @Column(columnDefinition = "TEXT", name = "recruit_text", nullable = false)
+    var recruitText: String = recruitText
 
     // 활동 형태
     @Column(name = "online", nullable = false)
@@ -74,7 +77,7 @@ class ContentDetail(
     @Column(name = "recruit_method", nullable = false)
     var recruitMethod: RecruitMethod = recruitMethod
 
-    // 썸네일 이미지 URI (dev 에서는 개별 cloudinary 미디어 저장소 사용, prod 배포는 AWS S3 사용 예정)
+    // 썸네일 이미지 URI
     @Column(columnDefinition = "TEXT", name = "thumbnail_uri")
     var thumbnailUri: String = thumbnailUri
 }

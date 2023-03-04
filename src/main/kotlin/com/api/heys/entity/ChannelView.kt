@@ -1,5 +1,6 @@
 package com.api.heys.entity
 
+import org.hibernate.annotations.DynamicUpdate
 import javax.persistence.*
 
 /**
@@ -7,18 +8,17 @@ import javax.persistence.*
  */
 
 @Entity
+@DynamicUpdate
 @Table(name = "channel_view")
 class ChannelView(
-        channel: Channels
-): BaseIdentity() {
-    @Column(name = "count")
-    var count: Long = 0
-
-    @OneToOne
+    channel: Channels,
+    users: Users,
+) : BaseIdentity() {
+    @ManyToOne
     @JoinColumn(name = "channel_id")
     var channel: Channels = channel
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id")
-    var viewers: MutableSet<Users> = mutableSetOf()
+    var users: Users = users
 }

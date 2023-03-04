@@ -15,12 +15,12 @@ class InterestRelations: BaseIdentity() {
     var userDetail: UserDetail? = null
 
     @ManyToOne(fetch = LAZY, cascade = [CascadeType.PERSIST])
-    @JoinColumn(name = "content_detail_id")
-    var contentDetail: ContentDetail? = null
+    @JoinColumn(name = "channel_detail_id")
+    var channelDetail: ChannelDetail? = null
 
     @ManyToOne(fetch = LAZY, cascade = [CascadeType.PERSIST])
-    @JoinColumn(name = "channel_id")
-    var channel: Channels? = null
+    @JoinColumn(name = "extra_content_detail_id")
+    var extraDetail: ExtraContentDetail? = null
 
     @ManyToOne(fetch = LAZY, cascade = [CascadeType.PERSIST])
     @JoinColumn(name = "interest_id")

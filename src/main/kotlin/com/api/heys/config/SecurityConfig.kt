@@ -42,8 +42,9 @@ class SecurityConfiguration(
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/common/**").permitAll()
                 .antMatchers("/user/**").permitAll()
+                .antMatchers("/admin/**").permitAll()
                 .antMatchers(
-                        "/css/**", "/js/**", "/img/**", "/favicon.ico",
+                        "/css/**", "/js/**", "/assets/**", "/favicon.ico",
                         "/swagger-ui/**", "/api-docs", "/v3/api-docs", "/v3/api-docs/swagger-config"
                 ).anonymous()
                 .anyRequest().authenticated()

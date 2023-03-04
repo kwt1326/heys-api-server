@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko" class="h-100">
+<head th:replace="layout/header :: main_header(~{::title})">
+    <title>Heys Admin SignUp page</title>
+</head>
+<body th:replace="layout/container :: main_container(~{::main})">
+<main class="m-auto w-50">
+    <form th:action="@{/admin/sign-up-result}" th:object="${dto}" method="post">
+        <h3 class="mb-3 h3 fw-normal">Heys 관리자 생성</h3>
+        <div class="form-floating mb-3">
+            <input th:field="*{phone}" type="text" name="phone" class="form-control" id="data-phone" placeholder="99912345678">
+            <label for="data-phone">Phone</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input th:field="*{username}" type="text" name="username" class="form-control" id="data-username" placeholder="Joanna">
+            <label for="data-username">Username</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input th:field="*{password}" type="password" name="password" class="form-control" id="data-password" placeholder="******">
+            <label for="data-password">Password</label>
+        </div>
+        <button class="w-100 mt-3 btn btn-lg btn-primary" type="submit">Join us</button>
+    </form>
+</main>
+</body>
+</html>

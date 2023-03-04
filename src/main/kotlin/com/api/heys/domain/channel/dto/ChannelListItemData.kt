@@ -10,8 +10,10 @@ data class ChannelListItemData(
         var name: String,
         @field:Schema(example = "123", type = "long")
         var viewCount: Long,
-        @field:Schema(example = "3", type = "long")
+        @field:Schema(example = "3", type = "long", description = "남은 정원")
         var joinRemainCount: Long,
+        @field:Schema(example = "30", type = "long", description = "시작일로 부터 지난 일 수")
+        var pastDay: Long,
         @field:Schema(example = "1", type = "long")
         var dDay: Long,
         @field:Schema(example = "https://res.cloudinary.com/dyfuiigbw/image/upload/v1670047057/heys-dev/test1_jnkego.jpg", type = "string")

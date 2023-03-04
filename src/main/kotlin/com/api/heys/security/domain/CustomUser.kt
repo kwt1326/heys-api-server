@@ -7,10 +7,13 @@ import org.springframework.security.core.userdetails.User
 class CustomUser(
         username: String,
         password: String,
+        isEnabled: Boolean,
         authorities: List<SimpleGrantedAuthority>
 ): User(
         username,
         password,
+        isEnabled,
+        true, true, true,
         authorities
 ) {
     private val serialVersionUID = 1L

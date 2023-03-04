@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body th:fragment="main_container(main)" class="w-100 h-100 d-flex flex-column align-items-center">
+    <header th:replace="layout/header :: main_header_component"></header>
+    <main th:replace="${main}"></main>
+    <footer th:replace="layout/footer :: main_footer"></footer>
+</body>
+</html>

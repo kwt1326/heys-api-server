@@ -1,24 +1,12 @@
 package com.api.heys.domain.content.dto
 
-import com.api.heys.constants.enums.ContentType
-import com.api.heys.constants.enums.Online
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Schema
 
-@Schema(description = "getContents query params")
-data class GetContentsParam(
-        // MVP 단계에서 제거됨
-//        @field:Schema(implementation = ContentFilterSort::class, description = "정렬 기준 키워드")
-//        val sort: ContentFilterSort?,
-
+@Schema(description = "getExtraContentsParam query params")
+data class GetExtraContentsParam(
         @field:ArraySchema(schema = Schema(example = "연애", type = "string"))
         val interests: List<String>?,
-
-        @field:Schema(implementation = ContentType::class, description = "컨텐츠 종류 (Study, Contest, Extracurricular)")
-        val type: ContentType,
-
-        @field:Schema(implementation = Online::class, description = "활동 형태 (OnOffLine, Online, Offline)")
-        val online: Online?,
 
         @field:Schema(example = "2022-12-12T00:08:28", description = "모집 마감 일자")
         val lastRecruitDate: String?,

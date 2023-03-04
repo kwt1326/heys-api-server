@@ -1,15 +1,12 @@
 package com.api.heys.config
 
-import com.api.heys.utils.ChannelUtil
 import com.api.heys.utils.CommonUtil
 import com.api.heys.utils.JwtUtil
-import com.querydsl.jpa.impl.JPAQueryFactory
+import com.api.heys.utils.UserUtil
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
-import javax.persistence.EntityManager
-import javax.persistence.PersistenceContext
 
 @Configuration
 class CommonConfig {
@@ -17,7 +14,7 @@ class CommonConfig {
     fun jwtUtil(): JwtUtil { return JwtUtil(168) }
 
     @Bean
-    fun channelUtil(): ChannelUtil { return ChannelUtil() }
+    fun userUtil(): UserUtil { return UserUtil() }
 
     @Bean
     fun commonUtil(): CommonUtil { return CommonUtil() }
