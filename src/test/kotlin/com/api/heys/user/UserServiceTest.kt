@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.test.context.ActiveProfiles
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -25,7 +26,7 @@ internal class UserServiceTest(
         phone = "01012341234",
         username = "TESTER",
         password = "12341234",
-        age = 29,
+        birthDate = LocalDate.of(1995, 10, 9),
         gender = Gender.Male,
         interests = mutableSetOf("교육", "자기계발"),
     )
@@ -33,6 +34,7 @@ internal class UserServiceTest(
         phone = "01012341234",
         username = "TESTER",
         password = "12341234",
+        birthDate = LocalDate.of(1995, 10, 9),
     )
 
     /**
@@ -58,7 +60,7 @@ internal class UserServiceTest(
         assertThat(user.authentications.find { it.role == DefaultString.commonRole }).isNotNull
         assertThat(user.authentications.find { it.role == DefaultString.adminRole }).isNotNull
 
-        assertThat(userDetail.age).isEqualTo(29)
+        assertThat(userDetail.birthDate).isEqualTo(LocalDate.of(1995, 10, 9))
         assertThat(userDetail.gender).isEqualTo(Gender.Male)
     }
 
@@ -85,7 +87,7 @@ internal class UserServiceTest(
         assertThat(user.authentications.find { it.role == DefaultString.commonRole }).isNotNull
         assertThat(user.authentications.find { it.role == DefaultString.adminRole }).isNotNull
 
-        assertThat(userDetail.age).isEqualTo(29)
+        assertThat(userDetail.birthDate).isEqualTo(LocalDate.of(1995, 10, 9),)
         assertThat(userDetail.gender).isEqualTo(Gender.Male)
     }
 }

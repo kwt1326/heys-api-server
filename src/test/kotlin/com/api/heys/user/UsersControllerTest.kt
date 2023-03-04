@@ -6,6 +6,7 @@ import com.api.heys.domain.user.controller.UserController
 import com.api.heys.domain.user.dto.AdminSignUpData
 import com.api.heys.domain.user.dto.CommonSignUpData
 import com.api.heys.domain.user.service.UserService
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -18,18 +19,19 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import java.time.LocalDate
 
 @WebMvcTest(UserController::class)
 internal class UsersControllerTest(@Autowired val mockMvc: MockMvc) {
     @MockkBean
     lateinit var userService: UserService
 
-    private val mapper = jacksonObjectMapper()
+    private val mapper = jacksonObjectMapper().registerModule(JavaTimeModule())
     private val signUpData = CommonSignUpData(
             phone = "01012341234",
             username = "TESTER",
             password = "12341234",
-            age = 29,
+            birthDate = LocalDate.of(1995, 10, 9),
             gender = Gender.Male,
             interests = mutableSetOf("교육", "자기계발"),
     )
@@ -37,6 +39,7 @@ internal class UsersControllerTest(@Autowired val mockMvc: MockMvc) {
         phone = "01012341234",
         username = "TESTER",
         password = "12341234",
+        birthDate = LocalDate.of(1995, 10, 9),
     )
 
     @Test

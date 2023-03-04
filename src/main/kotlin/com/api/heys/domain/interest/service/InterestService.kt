@@ -17,7 +17,7 @@ class InterestService(
 ) {
 
     @Transactional
-    fun modifyInterests(userDetail: UserDetail, interestNames: MutableSet<String>) : Unit {
+    fun modifyInterests(userDetail: UserDetail, interestNames: Set<String>) {
 
         val interestMap: Map<String, Interest>? =
             interestRepository.findAllByNameIn(interestNames)?.associate { it.name to it }
@@ -45,7 +45,7 @@ class InterestService(
         interestRelationRepository.deleteAllByUserDetailId(userDetailId = userDetailId)
     }
 
-    fun findUserInterests(userDetailId : Long) : MutableSet<InterestRelations>? {
-        return interestRelationRepository.findUserInterestsByUserDetailId(userDetailId)
+    fun findUserInterests(userDetailId : Long) : Set<InterestRelations> {
+        return interestRelationRepository.findUserInterestsByUserDetailId(userDetailId) ?: setOf()
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import java.time.LocalDate
 
 /**
  * Deprecated
@@ -29,7 +30,7 @@ class AdminController(
     @GetMapping("/sign-up")
     fun signUpPage(model: Model): String {
         model.addAttribute("dto", AdminSignUpData(
-            phone = "", username = "", password = ""
+            phone = "", username = "", password = "", birthDate = LocalDate.now()
         ))
         return if (userUtil.isLogging(userService)) "redirect:/" else "signup"
     }

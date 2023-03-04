@@ -1,6 +1,7 @@
 package com.api.heys.domain.user.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
+import java.time.LocalDate
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
@@ -20,4 +21,8 @@ data class AdminSignUpData(
     @NotBlank
     @field:Schema(example = "12341234", type = "string", description = "비밀번호")
     override val password: String,
-): SignUpData
+
+    @NotNull
+    @field:Schema(example = "2002-02-22", type = "localDate", description = "생년월일")
+    override val birthDate: LocalDate,
+) : SignUpData

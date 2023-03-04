@@ -23,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.reflect.typeOf
 
@@ -42,7 +43,7 @@ class ChannelServiceTest(
         phone = "01012341234",
         username = "TESTER",
         password = "12341234",
-        age = 29,
+        birthDate = LocalDate.of(1995, 10, 9),
         gender = Gender.Male,
         interests = mutableSetOf("교육", "자기계발"),
     )
@@ -51,7 +52,7 @@ class ChannelServiceTest(
         phone = "01012345678",
         username = "LEADER",
         password = "12341234",
-        age = 29,
+        birthDate = LocalDate.of(1995, 10, 9),
         gender = Gender.Female,
         interests = mutableSetOf("연애"),
     )

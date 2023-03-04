@@ -1,13 +1,10 @@
 package com.api.heys.domain.user.controller
 
 import com.api.heys.domain.common.dto.ApiResponse
-import com.api.heys.domain.common.dto.BaseResponse
 import com.api.heys.domain.user.dto.OtherUserDetailResponse
-import com.api.heys.domain.user.dto.SignUpData
 import com.api.heys.domain.user.dto.UserDetailRequest
 import com.api.heys.domain.user.dto.UserDetailResponse
 import com.api.heys.domain.user.service.UserDetailService
-import com.api.heys.entity.UserDetail
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Schema
 import lombok.RequiredArgsConstructor

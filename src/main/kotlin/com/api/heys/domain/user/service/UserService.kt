@@ -50,19 +50,18 @@ class UserService(
             detail = UserDetail(
                 users = user,
                 username = dto.username,
+                birthDate = dto.birthDate,
                 gender = if (dto is CommonSignUpData) dto.gender else Gender.NonBinary,
-                age = if (dto is CommonSignUpData) dto.age else -1,
             )
         } else {
             detail = user.detail
         }
 
-        // Admin 가입은 성별, 나이, 관심분야 항목이 필요없다. Common Role 추가 혹은 생성시 업데이트
+        // Admin 가입은 성별, 관심분야 항목이 필요없다. Common Role 추가 혹은 생성시 업데이트
         if (dto is CommonSignUpData) {
             val presentDetail: UserDetail = detail!!
 
             presentDetail.gender = dto.gender
-            presentDetail.age = dto.age
 
             dto.interests.map {
                 // Create Interest Categories

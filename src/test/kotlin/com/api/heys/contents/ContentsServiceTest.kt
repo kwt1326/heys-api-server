@@ -20,6 +20,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
+import java.time.LocalDate
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -32,7 +33,7 @@ internal class ContentsServiceTest(
         phone = "01012341234",
         username = "TESTER",
         password = "12341234",
-        age = 29,
+        birthDate = LocalDate.of(1995, 10, 9),
         gender = Gender.Male,
         interests = mutableSetOf("교육", "자기계발"),
     )
