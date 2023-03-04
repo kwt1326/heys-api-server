@@ -1,16 +1,10 @@
 package com.api.heys.entity
 
-import org.hibernate.annotations.DynamicUpdate
 import javax.persistence.*
 
-/**
- * 컨텐츠 조회 테이블
- */
-
 @Entity
-@DynamicUpdate
-@Table(name = "content_view")
-class ContentView(
+@Table(name = "content_book_mark")
+class ContentBookMark (
     contents: Contents,
     users: Users,
 ) : BaseIdentity() {

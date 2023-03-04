@@ -18,5 +18,6 @@ data class GetExtraContentDetailData(
     val channelCount: Long, // 개설된 채널 수
     val linkUrl: String, // 연결 링크
     val thumbnailUri: String, // 썸네일 URL
-    val interests: List<String> // 관심분야 목록
+    val interests: List<String>, // 관심분야 목록
+    val isBookMarked: Boolean,
 )

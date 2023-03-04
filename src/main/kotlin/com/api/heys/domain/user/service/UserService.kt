@@ -102,6 +102,10 @@ class UserService(
         return user != null
     }
 
+    override fun findByPhone(phone: String): Users? {
+        return userRepository.findByPhone(phone)
+    }
+
     /**
      * Require Spring Security User Service
      * */

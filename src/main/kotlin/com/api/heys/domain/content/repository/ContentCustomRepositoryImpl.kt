@@ -15,12 +15,14 @@ class ContentCustomRepositoryImpl(
     private val commonUtil: CommonUtil,
     private val jpaQueryFactory: JPAQueryFactory,
 ) : ContentCustomRepository {
+    val qUsers: QUsers = QUsers.users
     val qContents: QContents = QContents.contents
     val qExtraContentDetail: QExtraContentDetail = QExtraContentDetail.extraContentDetail
     val qContentView: QContentView = QContentView.contentView
     val qInterest: QInterest = QInterest.interest
     val qInterestRelations: QInterestRelations = QInterestRelations.interestRelations
     val qChannels: QChannels = QChannels.channels
+    val qContentBookMark: QContentBookMark = QContentBookMark.contentBookMark
 
     fun extraContentFilterQuery(queryBase: JPAQuery<Contents>, params: GetExtraContentsParam): List<Contents> {
         var query = queryBase
@@ -43,7 +45,7 @@ class ContentCustomRepositoryImpl(
         }
 
         // 관심분야 파라미터 배열 요소중 하나라도 맞는게 있으면 쿼리 대상
-        if (params.interests != null) {
+        if (!params.interests.isNullOrEmpty()) {
             query = query.where(qInterest.name.`in`(params.interests))
         }
 
@@ -65,20 +67,21 @@ class ContentCustomRepositoryImpl(
             .selectFrom(qContents)
             .join(qContents.extraDetail, qExtraContentDetail).fetchJoin()
             .leftJoin(qContents.channels, qChannels).fetchJoin()
+            .leftJoin(qContents.contentViews, qContentView).fetchJoin()
             .leftJoin(qExtraContentDetail.interestRelations, qInterestRelations).fetchJoin()
             .leftJoin(qInterestRelations.interest, qInterest).fetchJoin()
-            .join(qContents.contentView, qContentView).fetchJoin()
+            .where(qContents.removedAt.isNull)
             .where(qContents.contentType.eq(ContentType.Extra))
 
         return extraContentFilterQuery(query, params).map {
             val detail = it.extraDetail!!
-            val view = it.contentView!!
+            val view = it.contentViews
             val channels = it.channels
             ExtraContentListItemData(
                 id = it.id,
                 title = detail.title,
                 company = detail.company,
-                viewCount = view.count,
+                viewCount = view.count().toLong(),
                 channelCount = channels.count(),
                 dDay = commonUtil.diffDay(detail.endDate, LocalDateTime.now()),
                 previewImgUri = detail.previewImgUri
@@ -89,19 +92,23 @@ class ContentCustomRepositoryImpl(
     override fun getExtraContent(contentId: Long): Contents? {
         return jpaQueryFactory
             .selectFrom(qContents)
-            .join(qContents.contentView, qContentView).fetchJoin()
+            .where(qContents.removedAt.isNull)
             .join(qContents.extraDetail, qExtraContentDetail).fetchJoin()
+            .leftJoin(qContents.contentBookMarks, qContentBookMark).fetchJoin()
+            .leftJoin(qContents.contentViews, qContentView).fetchJoin()
             .leftJoin(qContents.channels, qChannels).fetchJoin()
             .leftJoin(qExtraContentDetail.interestRelations, qInterestRelations).fetchJoin()
             .fetchOne()
     }
 
-    override fun getContentView(contentId: Long): ContentView? {
-        val result = jpaQueryFactory
-            .selectFrom(qContents)
-            .join(qContents.contentView, qContentView).fetchJoin()
-            .fetchOne() ?: return null
+    override fun getContentView(contentId: Long, userId: Long): ContentView? {
+        val query = jpaQueryFactory
+            .selectFrom(qContentView)
+            .join(qContentView.content, qContents).fetchJoin()
+            .join(qContentView.users, qUsers).fetchJoin()
+            .where(qContents.id.eq(contentId))
+            .where(qUsers.id.eq(userId))
 
-        return result.contentView
+        return query.fetchOne()
     }
 }

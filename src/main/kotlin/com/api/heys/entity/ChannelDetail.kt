@@ -26,7 +26,7 @@ class ChannelDetail(
     thumbnailUri: String,
 ): Serializable {
     @Id
-    @Column(name = "channels_id")
+    @Column(name = "channel_id")
     var id: Long = 0
 
     @MapsId
@@ -77,7 +77,7 @@ class ChannelDetail(
     @Column(name = "recruit_method", nullable = false)
     var recruitMethod: RecruitMethod = recruitMethod
 
-    // 썸네일 이미지 URI (dev 에서는 개별 cloudinary 미디어 저장소 사용, prod 배포는 AWS S3 사용 예정)
+    // 썸네일 이미지 URI
     @Column(columnDefinition = "TEXT", name = "thumbnail_uri")
     var thumbnailUri: String = thumbnailUri
 }

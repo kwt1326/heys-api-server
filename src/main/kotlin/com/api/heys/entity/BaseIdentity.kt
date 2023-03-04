@@ -29,12 +29,12 @@ abstract class BaseIdentity(existId: Long? = null): Persistable<Long> {
 
     override fun hashCode(): Int = id.hashCode()
 
-    override fun equals(right: Any?): Boolean {
+    override fun equals(other: Any?): Boolean {
         return when {
-            this === right -> true
-            right == null -> false
-            right !is BaseIdentityDate -> false
-            else -> getId() == right.getId()
+            this === other -> true
+            other == null -> false
+            other !is BaseIdentityDate -> false
+            else -> getId() == other.id
         }
     }
 }

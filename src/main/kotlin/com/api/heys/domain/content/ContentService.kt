@@ -5,6 +5,7 @@ import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.ContentType
 import com.api.heys.constants.enums.Online
 import com.api.heys.domain.content.dto.*
+import com.api.heys.domain.content.repository.IContentBookMarkRepository
 import com.api.heys.domain.content.repository.IContentViewRepository
 import com.api.heys.domain.content.repository.IContentsRepository
 import com.api.heys.domain.interest.repository.InterestRepository
@@ -23,6 +24,7 @@ import java.time.LocalDateTime
 class ContentService(
     @Autowired private val contentRepository: IContentsRepository,
     @Autowired private val contentViewRepository: IContentViewRepository,
+    @Autowired private val contentBookmarkRepository: IContentBookMarkRepository,
     @Autowired private val interestRepository: InterestRepository,
     @Autowired private val userRepository: IUserRepository,
     @Autowired private val commonUtil: CommonUtil,
@@ -37,12 +39,16 @@ class ContentService(
      * Contents, ContentDetail 생성 및 Interest(관심분야 테이블) Associate Table 관계 설정 포함
      */
     @Transactional
-    override fun createExtraContent(dto: CreateExtraContentData, token: String): ResponseEntity<String> {
-        findUserByToken(token, jwtUtil, userRepository)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(MessageString.INVALID_USER)
+    override fun createExtraContent(dto: CreateExtraContentData, token: String): ResponseEntity<CreateContentResponse> {
+        val response = CreateContentResponse(contentId = null, message = MessageString.SUCCESS_EN)
+        val user = findUserByToken(token, jwtUtil, userRepository)
+
+        if (user == null) {
+            response.message = MessageString.INVALID_USER
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response)
+        }
 
         val newContents = Contents(contentType = ContentType.Extra)
-        val newContentView = ContentView(contents = newContents)
         val newExtraContentsDetail = ExtraContentDetail(
             contents = newContents,
             title = dto.title,
@@ -74,22 +80,24 @@ class ContentService(
         }
 
         newContents.extraDetail = newExtraContentsDetail
-        newContents.contentView = newContentView
-        contentRepository.save(newContents)
 
-        return ResponseEntity.ok().body("success")
+        response.contentId = contentRepository.save(newContents).id
+
+        return ResponseEntity.ok().body(response)
     }
 
     @Transactional(readOnly = true)
-    override fun getExtraContentDetail(id: Long): ResponseEntity<GetExtraContentDetailResponse> {
+    override fun getExtraContentDetail(id: Long, token: String): ResponseEntity<GetExtraContentDetailResponse> {
         val result = contentRepository.getExtraContent(id)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(GetExtraContentDetailResponse(data = null, message = "Not found extra content"))
 
+        val user = findUserByToken(token, jwtUtil, userRepository) ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(GetExtraContentDetailResponse(data = null, message = "Not found user"))
         val detail = result.extraDetail ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(GetExtraContentDetailResponse(data = null, message = "Not found extra content detail"))
-        val view = result.contentView ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(GetExtraContentDetailResponse(data = null, message = "Not found extra content view"))
+        val views = result.contentViews
+        val bookmarks = result.contentBookMarks
         val channels = result.channels
         val interests = detail.interestRelations
             .mapNotNull { it.interest }
@@ -107,13 +115,14 @@ class ContentService(
                     startDate = detail.startDate,
                     endDate = detail.endDate,
                     dDay = commonUtil.diffDay(detail.endDate, LocalDateTime.now()),
-                    viewCount = view.count,
+                    viewCount = views.count().toLong(),
                     channelCount = channels.count().toLong(),
                     linkUrl = detail.linkUrl,
                     thumbnailUri = detail.thumbnailUri,
                     interests = interests,
+                    isBookMarked = bookmarks.find { it.users.id == user.id } != null
                 ),
-                message = "success"
+                message = MessageString.SUCCESS_EN
             )
         )
     }
@@ -123,17 +132,20 @@ class ContentService(
         return ResponseEntity.status(HttpStatus.OK).body(
             GetExtraContentsResponse(
                 data = contentRepository.findExtraContents(params),
-                message = "success"
+                message = MessageString.SUCCESS_EN
             )
         )
     }
 
     @Transactional
     override fun putExtraContentDetail(id: Long, dto: PutExtraContentData): ResponseEntity<String> {
-        val content = contentRepository.getExtraContent(id)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found extra content")
+        val content = contentRepository.findById(id)
 
-        val detail = content.extraDetail
+        if (!content.isPresent)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found extra content")
+
+        val contentEntity = content.get()
+        val detail = contentEntity.extraDetail
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found extra content detail")
 
         if (dto.title != null) detail.title = dto.title
@@ -167,30 +179,65 @@ class ContentService(
             }
         }
 
-        // TIP: save 호출하지 않아도 영속성 context 에서 엔티티를 저장한다.
-        contentRepository.save(content)
+        contentRepository.save(contentEntity)
 
         return ResponseEntity.ok().body("success - modified content extra detail")
     }
 
     @Transactional
     override fun increaseContentView(id: Long, token: String): ResponseEntity<String> {
-        val contentView = contentRepository.getContentView(id)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found content")
+        val content = contentRepository.findById(id)
+        if (!content.isPresent)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found content")
 
-        val phone: String = jwtUtil.extractUsername(token)
-        val user = userRepository.findByPhone(phone)
+        val user = findUserByToken(token, jwtUtil, userRepository)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
 
-        val viewer = contentView.viewers.find { it.id == user.id }
+        val contentEntity = content.get()
 
-        if (viewer != null) {
+        val isExisted = contentRepository.getContentView(id, user.id)
+        if (isExisted != null) {
             return ResponseEntity.status(HttpStatus.OK).body("Already have seen content")
         }
 
-        contentView.count += 1
-        contentView.viewers.add(user)
-        contentViewRepository.save(contentView)
+        contentEntity.contentViews.add(ContentView(contentEntity, user))
+        contentRepository.save(contentEntity)
+
         return ResponseEntity.status(HttpStatus.OK).body("New content view")
+    }
+
+    @Transactional
+    override fun addBookmark(id: Long, token: String): ResponseEntity<String> {
+        val user = findUserByToken(token, jwtUtil, userRepository)
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
+
+        val content = contentRepository.findById(id)
+        if (!content.isPresent) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found Content")
+        }
+
+        val contentEntity = content.get()
+
+        contentEntity.contentBookMarks.add(ContentBookMark(contentEntity, user))
+        contentRepository.save(contentEntity)
+
+        return ResponseEntity.status(HttpStatus.OK).body("New content bookmarked! : ${contentEntity.id}")
+    }
+
+    @Transactional
+    override fun removeBookmark(id: Long, token: String): ResponseEntity<String> {
+        val user = findUserByToken(token, jwtUtil, userRepository)
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
+
+        val content = contentRepository.findById(id)
+        if (!content.isPresent) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found Content")
+        }
+
+        val contentEntity = content.get()
+        contentEntity.contentBookMarks.removeIf { it.users.id == user.id }
+        contentRepository.save(contentEntity)
+
+        return ResponseEntity.status(HttpStatus.OK).body("Removed content bookmark : ${contentEntity.id}")
     }
 }

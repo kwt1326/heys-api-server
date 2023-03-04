@@ -1,16 +1,10 @@
 package com.api.heys.entity
 
-import org.hibernate.annotations.DynamicUpdate
 import javax.persistence.*
 
-/**
- * 채널 조회 테이블
- */
-
 @Entity
-@DynamicUpdate
-@Table(name = "channel_view")
-class ChannelView(
+@Table(name = "channel_book_mark")
+class ChannelBookMark (
     channel: Channels,
     users: Users,
 ) : BaseIdentity() {

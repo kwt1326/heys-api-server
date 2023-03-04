@@ -10,6 +10,5 @@ import org.springframework.test.context.ActiveProfiles
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class HeysApplicationTests {
 	@Test
-	fun contextLoads() {
-	}
+	fun contextLoads() {}
 }

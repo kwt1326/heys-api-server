@@ -12,5 +12,5 @@ interface ContentCustomRepository {
 
     fun getExtraContent(contentId: Long): Contents?
 
-    fun getContentView(contentId: Long): ContentView?
+    fun getContentView(contentId: Long, userId: Long): ContentView?
 }

@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.test.context.ActiveProfiles
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 
@@ -79,13 +80,16 @@ internal class ContentsServiceTest(
 
     private var token: String = ""
 
-    /** 외부(공모전, 사이드 프로젝트 등) 컨텐츠 생성 후 필터링 테스트 */
-    @Test
-    fun extraContentCreateAndFilterTest() {
+    @BeforeEach
+    internal fun beforeEach() {
         // Create Common User
         token = userService.signUp(commonSignUpData, DefaultString.commonRole) ?: ""
         assertThat(token).isNotEqualTo("")
+    }
 
+    /** 외부(공모전, 사이드 프로젝트 등) 컨텐츠 생성 후 필터링 테스트 */
+    @Test
+    fun extraContentCreateAndFilterTest() {
         val createResponse = contentService.createExtraContent(extraContentData, token)
 
         assertThat(createResponse.statusCode).isEqualTo(HttpStatus.OK)
@@ -99,15 +103,11 @@ internal class ContentsServiceTest(
     /** 외부 컨텐츠 생성 후 상세정보 가져오기 테스트 */
     @Test
     fun extraContentCreateAndGetDetailTest() {
-        // Create Common User
-        token = userService.signUp(commonSignUpData, DefaultString.commonRole) ?: ""
-        assertThat(token).isNotEqualTo("")
-
         val createResponse = contentService.createExtraContent(extraContentData, token)
 
         assertThat(createResponse.statusCode).isEqualTo(HttpStatus.OK)
 
-        val detailResponse = contentService.getExtraContentDetail(0)
+        val detailResponse = contentService.getExtraContentDetail(0, token)
 
         assertThat(detailResponse.body).isNotNull
         assertThat(detailResponse.body!!.data).isNotNull
@@ -117,19 +117,17 @@ internal class ContentsServiceTest(
     /** 외부 컨텐츠 생성 후 상세정보 수정작업 테스트 */
     @Test
     fun putExtraContentDetailTest() {
-        // Create Common User
-        token = userService.signUp(commonSignUpData, DefaultString.commonRole) ?: ""
-        assertThat(token).isNotEqualTo("")
-
         val createResponse = contentService.createExtraContent(extraContentData, token)
 
         assertThat(createResponse.statusCode).isEqualTo(HttpStatus.OK)
 
-        val putResponse = contentService.putExtraContentDetail(0, extraContentModifyData)
+        val contentId = createResponse.body!!.contentId!!
+
+        val putResponse = contentService.putExtraContentDetail(contentId, extraContentModifyData)
 
         assertThat(putResponse.statusCode).isEqualTo(HttpStatus.OK)
 
-        val detailResponse = contentService.getExtraContentDetail(0)
+        val detailResponse = contentService.getExtraContentDetail(contentId, token)
 
         assertThat(detailResponse.body).isNotNull
         assertThat(detailResponse.body!!.data).isNotNull
@@ -144,5 +142,29 @@ internal class ContentsServiceTest(
         assertThat(data.endDate).isEqualTo(extraContentModifyData.endDate)
         assertThat(data.company).isEqualTo(extraContentModifyData.company)
         assertThat(data.thumbnailUri).isEqualTo(extraContentModifyData.thumbnailUri)
+    }
+
+    @Test
+    fun bookmarkTest() {
+        val createResponse = contentService.createExtraContent(extraContentData, token)
+        assertThat(createResponse.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(createResponse.body!!.contentId).isNotNull
+
+        val contentId = createResponse.body!!.contentId!!
+        val bookmarkAddResponse = contentService.addBookmark(contentId, token)
+        assertThat(bookmarkAddResponse.statusCode).isEqualTo(HttpStatus.OK)
+
+        var detailResponse = contentService.getExtraContentDetail(0, token)
+        assertThat(detailResponse.body).isNotNull
+        assertThat(detailResponse.body!!.data).isNotNull
+        assertThat(detailResponse.body!!.data!!.isBookMarked).isEqualTo(true)
+
+        val bookmarkRemoveResponse = contentService.removeBookmark(contentId, token)
+        assertThat(bookmarkRemoveResponse.statusCode).isEqualTo(HttpStatus.OK)
+
+        detailResponse = contentService.getExtraContentDetail(0, token)
+        assertThat(detailResponse.body).isNotNull
+        assertThat(detailResponse.body!!.data).isNotNull
+        assertThat(detailResponse.body!!.data!!.isBookMarked).isEqualTo(false)
     }
 }

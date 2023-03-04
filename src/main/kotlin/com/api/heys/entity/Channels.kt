@@ -34,12 +34,16 @@ class Channels(
     var activeNotify: Boolean = false
 
     // 채널 상세 정보 테이블
-    @OneToOne(mappedBy = "channel", cascade = [CascadeType.ALL])
+    @OneToOne(mappedBy = "channel", cascade = [CascadeType.ALL], orphanRemoval = true)
     var detail: ChannelDetail? = null
 
     // 채널 조회 테이블
-    @OneToOne(mappedBy = "channel", cascade = [CascadeType.ALL])
-    var channelView: ChannelView? = null
+    @OneToMany(mappedBy = "channel", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    var channelViews: MutableSet<ChannelView> = mutableSetOf()
+
+    // 채널 북마크 테이블
+    @OneToMany(mappedBy = "channel", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    var channelBookMarks: MutableSet<ChannelBookMark> = mutableSetOf()
 
     // 채널 합류 유저 조인 테이블
     @OneToMany(mappedBy = "channel", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
