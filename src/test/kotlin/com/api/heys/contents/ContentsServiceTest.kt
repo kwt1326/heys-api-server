@@ -5,6 +5,7 @@ import com.api.heys.domain.content.dto.CreateExtraContentData
 import java.time.LocalDateTime
 
 import com.api.heys.constants.DefaultString
+import com.api.heys.constants.enums.ContentType
 import com.api.heys.constants.enums.Gender
 import com.api.heys.domain.content.dto.GetExtraContentsParam
 import com.api.heys.domain.content.dto.PutExtraContentData
@@ -39,6 +40,7 @@ internal class ContentsServiceTest(
     )
 
     private val extraContentData = CreateExtraContentData(
+        type = ContentType.Extracurricular,
         title = "러브러브챌린지",
         company = "네이버",
         target = "아무나 지원 가능",
@@ -68,10 +70,11 @@ internal class ContentsServiceTest(
         linkUri = null,
         previewImgUri = null,
         thumbnailUri = "https://test.naver.com",
-        interests = mutableSetOf("와인")
+        interests = mutableSetOf("와인", "연애")
     )
 
     private final val extraContentsFilterParam = GetExtraContentsParam(
+        type = ContentType.Extracurricular,
         interests = listOf("연애", "챌린지2"),
         lastRecruitDate = LocalDateTime.now().plusDays(5).toStr(), // format: "2023-02-21T08:53:17"
         includeClosed = false,
@@ -107,8 +110,10 @@ internal class ContentsServiceTest(
         val createResponse = contentService.createExtraContent(extraContentData, token)
 
         assertThat(createResponse.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(createResponse.body!!.contentId).isNotNull
 
-        val detailResponse = contentService.getExtraContentDetail(0, token)
+        val contentId = createResponse.body!!.contentId!!
+        val detailResponse = contentService.getExtraContentDetail(contentId, token)
 
         assertThat(detailResponse.body).isNotNull
         assertThat(detailResponse.body!!.data).isNotNull
@@ -135,7 +140,7 @@ internal class ContentsServiceTest(
 
         val data = detailResponse.body!!.data!!
 
-        assertThat(data.interests.count()).isEqualTo(1)
+        assertThat(data.interests.count()).isEqualTo(3)
         assertThat(data.title).isEqualTo(extraContentModifyData.title)
         assertThat(data.benefit).isEqualTo(extraContentModifyData.benefit)
         assertThat(data.target).isEqualTo(extraContentModifyData.target)

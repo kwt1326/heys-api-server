@@ -1,10 +1,14 @@
 package com.api.heys.domain.content.dto
 
+import com.api.heys.constants.enums.ContentType
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "getExtraContentsParam query params")
 data class GetExtraContentsParam(
+        @field:Schema(example = "Contest", description = "컨텐츠 타입", implementation = ContentType::class)
+        val type: ContentType,
+
         @field:ArraySchema(schema = Schema(example = "연애", type = "string"))
         val interests: List<String>?,
 

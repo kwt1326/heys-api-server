@@ -58,6 +58,7 @@ class ChannelServiceTest(
     )
 
     private val extraContentData = CreateExtraContentData(
+        type = ContentType.Contest,
         title = "러브러브챌린지",
         company = "네이버",
         target = "아무나 지원 가능",

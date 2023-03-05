@@ -13,6 +13,6 @@ data class GetChannelDetailContentData(
     val previewImgUrl: String,
     @field:Schema(description = "주최/주관", example = "넥슨")
     val company: String,
-    @field:Schema(description = "컨텐츠 타입", example = "Extra")
+    @field:Schema(description = "컨텐츠 타입", example = "Contest")
     val type: ContentType,
 )

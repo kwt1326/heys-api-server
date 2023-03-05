@@ -1,5 +1,6 @@
 package com.api.heys.domain.content.dto
 
+import com.api.heys.constants.enums.ContentType
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 import javax.validation.constraints.NotBlank
@@ -7,6 +8,11 @@ import javax.validation.constraints.NotNull
 
 @Schema(description = "컨텐츠(공모전, 대외활동) 생성을 위한 데이터")
 data class CreateExtraContentData(
+        @NotNull
+        @NotBlank
+        @field:Schema(description = "Contest", implementation = ContentType::class)
+        val type: ContentType,
+
         @NotNull
         @NotBlank
         @field:Schema(description = "컨텐츠 제목", example = "환승연애학개론 스터디 채널 1")

@@ -3,10 +3,7 @@ package com.api.heys.domain.content
 import com.api.heys.constants.DefaultString
 import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.ContentType
-import com.api.heys.constants.enums.Online
 import com.api.heys.domain.content.dto.*
-import com.api.heys.domain.content.repository.IContentBookMarkRepository
-import com.api.heys.domain.content.repository.IContentViewRepository
 import com.api.heys.domain.content.repository.IContentsRepository
 import com.api.heys.domain.interest.repository.InterestRepository
 import com.api.heys.entity.*
@@ -18,22 +15,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
 
 @Service
 class ContentService(
     @Autowired private val contentRepository: IContentsRepository,
-    @Autowired private val contentViewRepository: IContentViewRepository,
-    @Autowired private val contentBookmarkRepository: IContentBookMarkRepository,
     @Autowired private val interestRepository: InterestRepository,
     @Autowired private val userRepository: IUserRepository,
     @Autowired private val commonUtil: CommonUtil,
     @Autowired private val jwtUtil: JwtUtil,
 ) : IContentService {
-    private fun isOffline(online: Online): Boolean {
-        return listOf(Online.Offline, Online.OnOffLine).contains(online)
-    }
-
     /**
      * 컨텐츠 생성
      * Contents, ContentDetail 생성 및 Interest(관심분야 테이블) Associate Table 관계 설정 포함
@@ -48,7 +38,7 @@ class ContentService(
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response)
         }
 
-        val newContents = Contents(contentType = ContentType.Extra)
+        val newContents = Contents(contentType = dto.type)
         val newExtraContentsDetail = ExtraContentDetail(
             contents = newContents,
             title = dto.title,
@@ -102,8 +92,6 @@ class ContentService(
         val interests = detail.interestRelations
             .mapNotNull { it.interest }
             .map { it.name }
-
-        println("TEST!!!${bookmarks.size}")
 
         return ResponseEntity.ok().body(
             GetExtraContentDetailResponse(
@@ -163,13 +151,16 @@ class ContentService(
         if (dto.thumbnailUri != null) detail.thumbnailUri = dto.thumbnailUri!!
 
         if (dto.interests != null) {
-            // 기존 관심분야 삭제
-            detail.interestRelations.clear()
             dto.interests.map {
                 // Create Interest Categories
                 var interest: Interest? = interestRepository.findByName(it)
                 if (interest == null) {
                     interest = Interest(name = it)
+                } else {
+                    // 이미 가지고 있다면 loop break
+                    if (detail.interestRelations.find { it2 -> it2.interest != null && it2.interest!!.name == it } != null) {
+                        return@map
+                    }
                 }
 
                 // InterestRelation Linking

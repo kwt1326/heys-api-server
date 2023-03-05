@@ -18,7 +18,7 @@ class Contents(
     var contentType: ContentType = contentType
 
     // 공모전, 대외활동 컨텐츠 상세 정보
-    // contentType == ContentType.Extra 일 경우에만 존재
+    // contentType == ContentType.Contest, ContentType.Extracurricular 일 경우에만 존재
     @OneToOne(mappedBy = "contents", cascade = [CascadeType.ALL], orphanRemoval = true)
     var extraDetail: ExtraContentDetail? = null
 

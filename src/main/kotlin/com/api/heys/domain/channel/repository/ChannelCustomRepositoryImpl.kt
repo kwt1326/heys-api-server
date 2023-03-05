@@ -206,7 +206,7 @@ class ChannelCustomRepositoryImpl(
         if (channel.type == ChannelType.Content) {
             val content = channel.contents ?: return null
 
-            if (content.contentType == ContentType.Extra) {
+            if (listOf(ContentType.Contest, ContentType.Extracurricular).contains(content.contentType)) {
                 val contentDetail = content.extraDetail ?: return null
                 contentData = GetChannelDetailContentData(
                     id = content.id,

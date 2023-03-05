@@ -71,7 +71,7 @@ class ContentCustomRepositoryImpl(
             .leftJoin(qExtraContentDetail.interestRelations, qInterestRelations).fetchJoin()
             .leftJoin(qInterestRelations.interest, qInterest).fetchJoin()
             .where(qContents.removedAt.isNull)
-            .where(qContents.contentType.eq(ContentType.Extra))
+            .where(qContents.contentType.eq(params.type))
 
         return extraContentFilterQuery(query, params).map {
             val detail = it.extraDetail!!
@@ -92,12 +92,13 @@ class ContentCustomRepositoryImpl(
     override fun getExtraContent(contentId: Long): Contents? {
         return jpaQueryFactory
             .selectFrom(qContents)
-            .where(qContents.removedAt.isNull)
             .join(qContents.extraDetail, qExtraContentDetail).fetchJoin()
             .leftJoin(qContents.contentBookMarks, qContentBookMark).fetchJoin()
             .leftJoin(qContents.contentViews, qContentView).fetchJoin()
             .leftJoin(qContents.channels, qChannels).fetchJoin()
             .leftJoin(qExtraContentDetail.interestRelations, qInterestRelations).fetchJoin()
+            .where(qContents.removedAt.isNull)
+            .where(qContents.id.eq(contentId))
             .fetchOne()
     }
 
