@@ -10,9 +10,9 @@ class ChannelBookMark (
 ) : BaseIdentity() {
     @ManyToOne
     @JoinColumn(name = "channel_id")
-    var channel: Channels = channel
+    var channel: Channels? = channel
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    var users: Users = users
+    var users: Users? = users
 }

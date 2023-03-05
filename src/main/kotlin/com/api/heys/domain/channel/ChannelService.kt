@@ -519,6 +519,11 @@ class ChannelService(
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found channel")
         }
 
+        val isExisted = IChannelsRepository.getChannelBookMark(channelId, user.id)
+        if (isExisted != null) {
+            return ResponseEntity.status(HttpStatus.OK).body("Already added channel bookmark")
+        }
+
         val channelEntity = channel.get()
 
         channelEntity.channelBookMarks.add(ChannelBookMark(channelEntity, user))
@@ -538,9 +543,10 @@ class ChannelService(
         }
 
         val channelEntity = channel.get()
-        println("bmtest1 ${channelEntity.channelBookMarks.size}")
-        channelEntity.channelBookMarks.removeIf { it.users.id == user.id }
-        println("bmtest2 ${channelEntity.channelBookMarks.size}")
+
+        val bookmark = channelEntity.channelBookMarks.find { it.users!!.id == user.id }
+        if (bookmark != null) channelEntity.channelBookMarks.removeIf { it.id == bookmark.id }
+
         IChannelsRepository.save(channelEntity)
 
         return ResponseEntity.status(HttpStatus.OK).body("Removed content bookmark : ${channelEntity.id}")

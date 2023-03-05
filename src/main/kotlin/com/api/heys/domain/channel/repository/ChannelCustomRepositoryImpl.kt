@@ -145,8 +145,8 @@ class ChannelCustomRepositoryImpl(
                     name = detail.name,
                     viewCount = view.count().toLong(),
                     joinRemainCount = detail.limitPeople.toLong().minus(it.channelUserRelations.count()),
-                    pastDay = commonUtil.calculateDday(detail.lastRecruitDate),
-                    dDay = commonUtil.diffDay(it.createdAt, LocalDateTime.now()),
+                    pastDay = commonUtil.diffDay(it.createdAt, LocalDateTime.now()),
+                    dDay = commonUtil.calculateDday(detail.lastRecruitDate),
                     thumbnailUri = detail.thumbnailUri
                 )
             }
@@ -224,7 +224,7 @@ class ChannelCustomRepositoryImpl(
         else if (waitingUserList.find { it.id == userId } != null) relationship = ChannelRelationship.Applicant
         else if (approvedUserList.find { it.id == userId } != null) relationship = ChannelRelationship.Member
 
-        val isBookMarked = channel.channelBookMarks.find { it.users.id == userId } != null
+        val isBookMarked = channel.channelBookMarks.find { it.users!!.id == userId } != null
 
         return GetChannelDetailData(
             id = channel.id,
@@ -254,6 +254,17 @@ class ChannelCustomRepositoryImpl(
             .selectFrom(qChannelView)
             .join(qChannelView.channel, qChannels).fetchJoin()
             .join(qChannelView.users, qUsers).fetchJoin()
+            .where(qChannels.id.eq(channelId))
+            .where(qUsers.id.eq(userId))
+
+        return query.fetchOne()
+    }
+
+    override fun getChannelBookMark(channelId: Long, userId: Long): ChannelBookMark? {
+        val query = jpaQueryFactory
+            .selectFrom(qChannelBookMark)
+            .join(qChannelBookMark.channel, qChannels).fetchJoin()
+            .join(qChannelBookMark.users, qUsers).fetchJoin()
             .where(qChannels.id.eq(channelId))
             .where(qUsers.id.eq(userId))
 

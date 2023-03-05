@@ -97,6 +97,25 @@ class ContentController(@Autowired private val contentService: ContentService) {
     }
 
     @Operation(
+        summary = "컨텐츠 조회 수 증가",
+        description = "컨텐츠 조회시 호출하면 해당 컨텐츠의 view count 가 1 증가합니다. 중복 적용되지 않습니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                ]
+            )
+        ]
+    )
+    @PutMapping("/view-count-up/{contentId}")
+    fun putIncreaseViewCount(
+        @PathVariable contentId: Long,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<String> {
+        return contentService.increaseContentView(contentId, bearer)
+    }
+
+    @Operation(
         summary = "컨텐츠 북마크 추가",
         description = "컨텐츠를 북마킹 합니다.",
         responses = [

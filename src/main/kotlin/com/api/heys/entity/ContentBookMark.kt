@@ -10,9 +10,9 @@ class ContentBookMark (
 ) : BaseIdentity() {
     @ManyToOne
     @JoinColumn(name = "content_id")
-    var content: Contents = contents
+    var content: Contents? = contents
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    var users: Users = users
+    var users: Users? = users
 }

@@ -83,7 +83,7 @@ class ContentCustomRepositoryImpl(
                 company = detail.company,
                 viewCount = view.count().toLong(),
                 channelCount = channels.count(),
-                dDay = commonUtil.diffDay(detail.endDate, LocalDateTime.now()),
+                dDay = commonUtil.calculateDday(detail.endDate),
                 previewImgUri = detail.previewImgUri
             )
         }
@@ -106,6 +106,17 @@ class ContentCustomRepositoryImpl(
             .selectFrom(qContentView)
             .join(qContentView.content, qContents).fetchJoin()
             .join(qContentView.users, qUsers).fetchJoin()
+            .where(qContents.id.eq(contentId))
+            .where(qUsers.id.eq(userId))
+
+        return query.fetchOne()
+    }
+
+    override fun getContentBookMark(contentId: Long, userId: Long): ContentBookMark? {
+        val query = jpaQueryFactory
+            .selectFrom(qContentBookMark)
+            .join(qContentBookMark.content, qContents).fetchJoin()
+            .join(qContentBookMark.users, qUsers).fetchJoin()
             .where(qContents.id.eq(contentId))
             .where(qUsers.id.eq(userId))
 

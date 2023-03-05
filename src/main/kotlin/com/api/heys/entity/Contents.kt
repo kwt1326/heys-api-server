@@ -23,11 +23,11 @@ class Contents(
     var extraDetail: ExtraContentDetail? = null
 
     // 컨텐츠 조회 테이블
-    @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST], orphanRemoval = true)
     var contentViews: MutableSet<ContentView> = mutableSetOf()
 
     // 컨텐츠 북마크 테이블
-    @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST], orphanRemoval = true)
     var contentBookMarks: MutableSet<ContentBookMark> = mutableSetOf()
 
     @OneToMany(mappedBy = "contents", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])

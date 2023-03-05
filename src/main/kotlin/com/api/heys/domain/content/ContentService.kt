@@ -103,6 +103,8 @@ class ContentService(
             .mapNotNull { it.interest }
             .map { it.name }
 
+        println("TEST!!!${bookmarks.size}")
+
         return ResponseEntity.ok().body(
             GetExtraContentDetailResponse(
                 data = GetExtraContentDetailData(
@@ -114,13 +116,13 @@ class ContentService(
                     contact = detail.contact,
                     startDate = detail.startDate,
                     endDate = detail.endDate,
-                    dDay = commonUtil.diffDay(detail.endDate, LocalDateTime.now()),
+                    dDay = commonUtil.calculateDday(detail.endDate),
                     viewCount = views.count().toLong(),
                     channelCount = channels.count().toLong(),
                     linkUrl = detail.linkUrl,
                     thumbnailUri = detail.thumbnailUri,
                     interests = interests,
-                    isBookMarked = bookmarks.find { it.users.id == user.id } != null
+                    isBookMarked = bookmarks.find { it.users!!.id == user.id } != null
                 ),
                 message = MessageString.SUCCESS_EN
             )
@@ -216,6 +218,11 @@ class ContentService(
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found Content")
         }
 
+        val isExisted = contentRepository.getContentBookMark(id, user.id)
+        if (isExisted != null) {
+            return ResponseEntity.status(HttpStatus.OK).body("Already added content bookmark")
+        }
+
         val contentEntity = content.get()
 
         contentEntity.contentBookMarks.add(ContentBookMark(contentEntity, user))
@@ -235,7 +242,10 @@ class ContentService(
         }
 
         val contentEntity = content.get()
-        contentEntity.contentBookMarks.removeIf { it.users.id == user.id }
+
+        val bookmark = contentEntity.contentBookMarks.find { it.users!!.id == user.id }
+        if (bookmark != null) contentEntity.contentBookMarks.removeIf { it.id == bookmark.id }
+
         contentRepository.save(contentEntity)
 
         return ResponseEntity.status(HttpStatus.OK).body("Removed content bookmark : ${contentEntity.id}")

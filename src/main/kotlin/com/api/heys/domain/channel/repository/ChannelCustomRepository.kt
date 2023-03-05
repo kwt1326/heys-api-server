@@ -6,6 +6,7 @@ import com.api.heys.domain.channel.dto.ChannelListItemData
 import com.api.heys.domain.channel.dto.ChannelUserData
 import com.api.heys.domain.channel.dto.GetChannelDetailData
 import com.api.heys.domain.channel.dto.GetChannelsParam
+import com.api.heys.entity.ChannelBookMark
 import com.api.heys.entity.ChannelView
 import com.api.heys.entity.Channels
 import com.api.heys.entity.ContentView
@@ -20,4 +21,6 @@ interface ChannelCustomRepository {
     fun getChannelDetail(channelId: Long, userId: Long): GetChannelDetailData?
 
     fun getChannelView(channelId: Long, userId: Long): ChannelView?
+
+    fun getChannelBookMark(channelId: Long, userId: Long): ChannelBookMark?
 }

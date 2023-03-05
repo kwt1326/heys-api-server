@@ -256,6 +256,25 @@ class ChannelController(
     }
 
     @Operation(
+        summary = "채널 조회 수 증가",
+        description = "채널 조회시 호출하면 해당 채널의 view count 가 1 증가합니다. 중복 적용되지 않습니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                ]
+            )
+        ]
+    )
+    @PutMapping("/view-count-up/{channelId}")
+    fun putIncreaseViewCount(
+        @PathVariable channelId: Long,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<String> {
+        return channelService.increaseChannelView(channelId, bearer)
+    }
+
+    @Operation(
         summary = "채널 북마크 추가",
         description = "채널을 북마킹 합니다.",
         responses = [

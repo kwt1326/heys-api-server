@@ -155,7 +155,7 @@ internal class ContentsServiceTest(
         val bookmarkAddResponse = contentService.addBookmark(contentId, token)
         assertThat(bookmarkAddResponse.statusCode).isEqualTo(HttpStatus.OK)
 
-        var detailResponse = contentService.getExtraContentDetail(0, token)
+        var detailResponse = contentService.getExtraContentDetail(contentId, token)
         assertThat(detailResponse.body).isNotNull
         assertThat(detailResponse.body!!.data).isNotNull
         assertThat(detailResponse.body!!.data!!.isBookMarked).isEqualTo(true)
@@ -163,7 +163,7 @@ internal class ContentsServiceTest(
         val bookmarkRemoveResponse = contentService.removeBookmark(contentId, token)
         assertThat(bookmarkRemoveResponse.statusCode).isEqualTo(HttpStatus.OK)
 
-        detailResponse = contentService.getExtraContentDetail(0, token)
+        detailResponse = contentService.getExtraContentDetail(contentId, token)
         assertThat(detailResponse.body).isNotNull
         assertThat(detailResponse.body!!.data).isNotNull
         assertThat(detailResponse.body!!.data!!.isBookMarked).isEqualTo(false)
