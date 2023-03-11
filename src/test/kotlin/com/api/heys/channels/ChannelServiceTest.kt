@@ -284,7 +284,7 @@ class ChannelServiceTest(
         assertThat(detailResponse.body!!.data).isNotNull
 
         val data = detailResponse.body!!.data!!
-        assertThat(data.interests.count()).isEqualTo(3)
+        assertThat(data.interests.count()).isEqualTo(1)
         assertThat(data.purposes.map { it.purpose }.containsAll(setOf("자기계발", "연애", "계기확립"))).isEqualTo(true)
         assertThat(data.online).isEqualTo(Online.Online)
         assertThat(data.links.count()).isEqualTo(1)

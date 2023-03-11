@@ -25,4 +25,23 @@ class InterestCustomRepositoryImpl (
     override fun deleteAllByUserDetailId(userDetailId: Long): Unit {
         jpaQueryFactory.delete(qInterestRelations).where(qInterestRelations.userDetail.id.eq(userDetailId)).execute()
     }
+
+    override fun findByChannelDetailAndInterestId(channelDetailId: Long, interestId: Long): InterestRelations? {
+        return jpaQueryFactory
+            .selectFrom(qInterestRelations)
+            .where(qInterestRelations.channelDetail.id.eq(channelDetailId))
+            .where(qInterestRelations.interest.id.eq(interestId))
+            .fetchOne()
+    }
+
+    override fun findByExtraContentDetailIdAndInterestId(
+        extraContentDetailId: Long,
+        interestId: Long
+    ): InterestRelations? {
+        return jpaQueryFactory
+            .selectFrom(qInterestRelations)
+            .where(qInterestRelations.extraDetail.id.eq(extraContentDetailId))
+            .where(qInterestRelations.interest.id.eq(interestId))
+            .fetchOne()
+    }
 }

@@ -70,7 +70,7 @@ internal class ContentsServiceTest(
         linkUri = null,
         previewImgUri = null,
         thumbnailUri = "https://test.naver.com",
-        interests = mutableSetOf("와인", "연애")
+        interests = mutableSetOf("와인")
     )
 
     private final val extraContentsFilterParam = GetExtraContentsParam(
@@ -140,7 +140,7 @@ internal class ContentsServiceTest(
 
         val data = detailResponse.body!!.data!!
 
-        assertThat(data.interests.count()).isEqualTo(3)
+        assertThat(data.interests.count()).isEqualTo(1)
         assertThat(data.title).isEqualTo(extraContentModifyData.title)
         assertThat(data.benefit).isEqualTo(extraContentModifyData.benefit)
         assertThat(data.target).isEqualTo(extraContentModifyData.target)

@@ -56,6 +56,11 @@ class ChannelCustomRepositoryImpl(
             query = query.where(qInterest.name.`in`(params.interests))
         }
 
+        // 참여 목적 쿼리
+        if (!params.purposes.isNullOrEmpty()) {
+            query = query.where(qChannelPurpose.purpose.`in`(params.purposes))
+        }
+
         if (params.online != null) {
             query = query.where(qChannelDetail.online.eq(params.online))
 
@@ -126,6 +131,7 @@ class ChannelCustomRepositoryImpl(
             .leftJoin(qChannels.channelViews, qChannelView).fetchJoin()
             .leftJoin(qChannelDetail.interestRelations, qInterestRelations).fetchJoin()
             .leftJoin(qInterestRelations.interest, qInterest).fetchJoin()
+            .leftJoin(qChannelDetail.purposes, qChannelPurpose).fetchJoin()
             .leftJoin(qChannels.channelUserRelations, qChannelUserRelations).fetchJoin()
             .where(qChannels.removedAt.isNull)
             .where(qChannelUserRelations.removedAt.isNull)

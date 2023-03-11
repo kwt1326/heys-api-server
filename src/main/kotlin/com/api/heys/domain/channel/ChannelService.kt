@@ -7,6 +7,7 @@ import com.api.heys.constants.enums.ChannelType
 import com.api.heys.domain.channel.dto.*
 import com.api.heys.domain.channel.repository.IChannelsRepository
 import com.api.heys.domain.content.repository.IContentsRepository
+import com.api.heys.domain.interest.repository.InterestRelationRepository
 import com.api.heys.domain.interest.repository.InterestRepository
 import com.api.heys.helpers.findUserByToken
 import com.api.heys.utils.JwtUtil
@@ -26,6 +27,7 @@ class ChannelService(
     @Autowired private val contentsRepository: IContentsRepository,
     @Autowired private val channelUserRelRepository: IChannelUserRelationsRepository,
     @Autowired private val interestRepository: InterestRepository,
+    @Autowired private val interestRelationRepository: InterestRelationRepository,
     @Autowired private val userRepository: IUserRepository,
     @Autowired private val jwtUtil: JwtUtil,
 ) : IChannelService {
@@ -277,7 +279,8 @@ class ChannelService(
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ChannelPutResponse("Not found channel detail"))
 
         if (dto.limitPeople != null) {
-            val joinedChannelUserCount = channelsRepository.getChannelFollowers(channelId, ChannelMemberStatus.Approved).count()
+            val joinedChannelUserCount =
+                channelsRepository.getChannelFollowers(channelId, ChannelMemberStatus.Approved).count()
             if (joinedChannelUserCount > dto.limitPeople) {
                 return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -295,20 +298,17 @@ class ChannelService(
         if (dto.lastRecruitDate != null) detail.lastRecruitDate = LocalDateTime.parse(dto.lastRecruitDate)
 
         if (dto.interests != null) {
+            detail.interestRelations.clear()
             dto.interests.map {
                 // Create Interest Categories
                 var interest: Interest? = interestRepository.findByName(it)
                 if (interest == null) {
                     interest = Interest(name = it)
-                } else {
-                    // 이미 가지고 있다면 loop break
-                    if (detail.interestRelations.find { it2 -> it2.interest != null && it2.interest!!.name == it } != null) {
-                        return@map
-                    }
                 }
 
                 // InterestRelation Linking
-                val rel = InterestRelations()
+                val rel = interestRelationRepository.findByChannelDetailAndInterestId(detail.id, interest.id)
+                    ?: InterestRelations()
                 rel.interest = interest
                 rel.channelDetail = detail
                 detail.interestRelations.add(rel)

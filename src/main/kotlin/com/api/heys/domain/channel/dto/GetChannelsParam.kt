@@ -15,7 +15,7 @@ data class GetChannelsParam(
     val lastRecruitDate: String?,
 
     @field:Schema(example = "[\"역량강화\", \"계기확립\"]", description = "참여 목적")
-    val purposes: Set<String> = setOf(),
+    val purposes: Set<String>?,
 
     @field:Schema(example = "OnOffLine", implementation = Online::class, description = "활동 형태 (OnOffLine, Online, Offline)")
     val online: Online?,

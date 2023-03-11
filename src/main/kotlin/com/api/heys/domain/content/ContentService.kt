@@ -4,6 +4,7 @@ import com.api.heys.constants.DefaultString
 import com.api.heys.constants.MessageString
 import com.api.heys.domain.content.dto.*
 import com.api.heys.domain.content.repository.IContentsRepository
+import com.api.heys.domain.interest.repository.InterestRelationRepository
 import com.api.heys.domain.interest.repository.InterestRepository
 import com.api.heys.entity.*
 import com.api.heys.helpers.findUserByToken
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service
 class ContentService(
     @Autowired private val contentRepository: IContentsRepository,
     @Autowired private val interestRepository: InterestRepository,
+    @Autowired private val interestRelationRepository: InterestRelationRepository,
     @Autowired private val userRepository: IUserRepository,
     @Autowired private val commonUtil: CommonUtil,
     @Autowired private val jwtUtil: JwtUtil,
@@ -150,20 +152,17 @@ class ContentService(
         if (dto.thumbnailUri != null) detail.thumbnailUri = dto.thumbnailUri!!
 
         if (dto.interests != null) {
+            detail.interestRelations.clear()
             dto.interests.map {
                 // Create Interest Categories
                 var interest: Interest? = interestRepository.findByName(it)
                 if (interest == null) {
                     interest = Interest(name = it)
-                } else {
-                    // 이미 가지고 있다면 loop break
-                    if (detail.interestRelations.find { it2 -> it2.interest != null && it2.interest!!.name == it } != null) {
-                        return@map
-                    }
                 }
 
                 // InterestRelation Linking
-                val rel = InterestRelations()
+                val rel = interestRelationRepository.findByExtraContentDetailIdAndInterestId(detail.id, interest.id)
+                    ?: InterestRelations()
                 rel.interest = interest
                 rel.extraDetail = detail
                 detail.interestRelations.add(rel)
