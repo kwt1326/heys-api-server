@@ -3,6 +3,8 @@ package com.api.heys.domain.channel.dto
 import com.api.heys.constants.enums.Online
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Schema
+import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
 
 @Schema(description = "채널 목록 필터 query params")
 data class GetChannelsParam(
@@ -12,8 +14,8 @@ data class GetChannelsParam(
     @field:Schema(example = "2022-12-12T00:08:28", description = "모집 마감 일자")
     val lastRecruitDate: String?,
 
-    @field:Schema(example = "역량강화", description = "활동 목적")
-    val purpose: String?,
+    @field:Schema(example = "[\"역량강화\", \"계기확립\"]", description = "참여 목적")
+    val purposes: Set<String> = setOf(),
 
     @field:Schema(example = "OnOffLine", implementation = Online::class, description = "활동 형태 (OnOffLine, Online, Offline)")
     val online: Online?,

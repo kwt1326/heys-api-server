@@ -5,7 +5,9 @@ import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.*
 import com.api.heys.domain.channel.ChannelService
 import com.api.heys.domain.channel.dto.CreateChannelData
+import com.api.heys.domain.channel.dto.GetChannelDetailLinkData
 import com.api.heys.domain.channel.dto.GetChannelsParam
+import com.api.heys.domain.channel.dto.PutChannelData
 import com.api.heys.domain.content.ContentService
 import com.api.heys.domain.content.dto.CreateExtraContentData
 import com.api.heys.domain.user.dto.CommonSignUpData
@@ -25,7 +27,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalDateTime
-import kotlin.reflect.typeOf
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -78,7 +79,7 @@ class ChannelServiceTest(
 
     private val contentChannelData = CreateChannelData(
         name = "러브러브 챌린지 참여하실 분 구해요~!",
-        purpose = "실력향상",
+        purposes = setOf("실력향상", "계기확립"),
         online = Online.Offline,
         location = "서울특별시",
         limitPeople = 5,
@@ -87,16 +88,30 @@ class ChannelServiceTest(
         contentText = "러브러브 챌린지 참여 채널입니다~! 승인제로 운영하며, 준비된 사람만 커몽~",
         recruitText = "이상한 사람만 아니면 되요~! (신천지, 홍보 목적 절대 사양)",
         thumbnailUri = testUrl,
-        linkUri = mutableSetOf(testUrl),
+        linkUri = mutableSetOf(testUrl, "http://test.test.com"),
         interests = mutableSetOf(
             "연애",
             "챌린지"
         )
     )
 
+    private val putChannelData = PutChannelData(
+        name = "러브러브 챌린지 참여하실 분 구해요~!",
+        purposes = setOf("자기계발", "연애", "계기확립"),
+        online = Online.Online,
+        location = null,
+        limitPeople = 1,
+        lastRecruitDate = LocalDateTime.now().plusDays(10).toString(),
+        recruitMethod = RecruitMethod.Immediately,
+        contentText = "컨텐츠 수정",
+        recruitText = "모집사양 수정",
+        links = setOf("http://test.company.com"),
+        interests = setOf("취업")
+    )
+
     private val studyChannelData = CreateChannelData(
         name = "환승연애학 공부하실 분 구해요~!",
-        purpose = "계기확립",
+        purposes = setOf("계기확립"),
         online = Online.Online,
         location = "진주특별시",
         limitPeople = 5,
@@ -115,7 +130,7 @@ class ChannelServiceTest(
     private val filterData = GetChannelsParam(
         interests = listOf("연애"),
         lastRecruitDate = LocalDateTime.now().plusDays(6).toStr(),
-        purpose = "실력향상",
+        purposes = setOf("실력향상", "계기확립"),
         online = Online.Offline,
         location = "서울특별시",
         includeClosed = false,
@@ -126,7 +141,7 @@ class ChannelServiceTest(
     private val studyFilterData = GetChannelsParam(
         interests = listOf("챌린지"),
         lastRecruitDate = LocalDateTime.now().plusDays(6).toStr(),
-        purpose = "계기확립",
+        purposes = setOf("계기확립"),
         online = Online.Online,
         location = "진주특별시",
         includeClosed = false,
@@ -247,8 +262,9 @@ class ChannelServiceTest(
 
         val data = detailResponse.body!!.data!!
         assertThat(data.interests.count()).isEqualTo(2)
+        assertThat(data.purposes.count()).isEqualTo(2)
         assertThat(data.WaitingUserList.count()).isEqualTo(1)
-        assertThat(data.links.count()).isEqualTo(1)
+        assertThat(data.links.count()).isEqualTo(2)
         assertThat(data.leader.username).isEqualTo("LEADER")
         assertThat(data.contentData).isNotNull
         assertThat(data.contentData!!.company).isEqualTo("네이버")
@@ -257,6 +273,28 @@ class ChannelServiceTest(
 
     @Test
     @Order(5)
+    fun putChannelDetailTest() {
+        val resultMap = createContentAndChannelByLeader()
+        val channelId = resultMap["channelId"] as Long
+
+        val modifyResponse = channelService.putChannelDetail(channelId, putChannelData, leaderToken)
+        assertThat(modifyResponse.statusCode).isEqualTo(HttpStatus.OK)
+
+        val detailResponse = channelService.getChannelDetail(channelId, leaderToken)
+        assertThat(detailResponse.body!!.data).isNotNull
+
+        val data = detailResponse.body!!.data!!
+        assertThat(data.interests.count()).isEqualTo(3)
+        assertThat(data.purposes.map { it.purpose }.containsAll(setOf("자기계발", "연애", "계기확립"))).isEqualTo(true)
+        assertThat(data.online).isEqualTo(Online.Online)
+        assertThat(data.links.count()).isEqualTo(1)
+        assertThat(data.contentText).isEqualTo("컨텐츠 수정")
+        assertThat(data.recruitText).isEqualTo("모집사양 수정")
+        assertThat(data.relationshipWithMe).isEqualTo(ChannelRelationship.Leader)
+    }
+
+    @Test
+    @Order(6)
     fun bookmarkTest() {
         val resultMap = createContentAndChannelByLeader()
 //        val createChannelResponse = channelService.createChannel(studyChannelData, leaderToken)

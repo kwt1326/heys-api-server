@@ -26,6 +26,7 @@ class ChannelCustomRepositoryImpl(
     val qChannelBookMark: QChannelBookMark = QChannelBookMark.channelBookMark
     val qChannelView: QChannelView = QChannelView.channelView
     val qChannelLink: QChannelLink = QChannelLink.channelLink
+    val qChannelPurpose: QChannelPurpose = QChannelPurpose.channelPurpose
     val qChannelDetail: QChannelDetail = QChannelDetail.channelDetail
     val qChannelUserRelations: QChannelUserRelations = QChannelUserRelations.channelUserRelations
 
@@ -161,6 +162,7 @@ class ChannelCustomRepositoryImpl(
             .leftJoin(qChannels.channelBookMarks, qChannelBookMark).fetchJoin()
             .leftJoin(qChannels.contents, qContent).fetchJoin()
             .leftJoin(qContent.extraDetail, qExtraContentDetail).fetchJoin()
+            .leftJoin(qChannelDetail.purposes, qChannelPurpose).fetchJoin()
             .leftJoin(qChannelDetail.links, qChannelLink).fetchJoin()
             .leftJoin(qChannelDetail.interestRelations, qInterestRelations).fetchJoin()
             .leftJoin(qInterestRelations.interest, qInterest).fetchJoin()
@@ -184,7 +186,8 @@ class ChannelCustomRepositoryImpl(
             /** TODO: 범수님 */
         )
 
-        val links = channelDetail.links.map { GetChannelDetailLinkData(id = it.id, link = it.linkUrl) }
+        val purposes = channelDetail.purposes.map { GetChannelDetailPurposeData(id = it.id, purpose = it.purpose) }
+        val links = channelDetail.links.map { GetChannelDetailLinkData(id = it.id, link = it.link) }
         val interests = channelDetail.interestRelations.filter { it.interest != null }.map { it.interest!!.name }
         val waitingUserList = channel.channelUserRelations.filter { it.status == ChannelMemberStatus.Waiting }.map {
             GetChannelDetailUserData(
@@ -230,7 +233,6 @@ class ChannelCustomRepositoryImpl(
             id = channel.id,
             thumbnailUri = channelDetail.thumbnailUri,
             title = channelDetail.name,
-            purpose = channelDetail.purpose,
             online = channelDetail.online,
             location = channelDetail.location,
             limitPeople = channelDetail.limitPeople,
@@ -239,6 +241,7 @@ class ChannelCustomRepositoryImpl(
             contentText = channelDetail.contentText,
             recruitText = channelDetail.recruitText,
             links = links,
+            purposes = purposes,
             interests = interests,
             WaitingUserList = waitingUserList,
             ApprovedUserList = approvedUserList,

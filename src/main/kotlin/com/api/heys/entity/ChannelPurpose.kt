@@ -2,18 +2,17 @@ package com.api.heys.entity
 
 import java.io.Serializable
 import javax.persistence.*
-import javax.persistence.FetchType.*
 
 @Entity
-@Table(name = "channel_link")
-class ChannelLink (
+@Table(name = "channel_purpose")
+class ChannelPurpose (
     detail: ChannelDetail,
-    link: String,
+    purpose: String,
 ) : BaseIdentity(), Serializable {
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_detail_id", nullable = false)
     var channelDetail: ChannelDetail = detail
 
-    @Column(columnDefinition = "TEXT", name = "link_url", nullable = false)
-    var link: String = link
+    @Column(name = "purpose", nullable = false)
+    var purpose: String = purpose
 }

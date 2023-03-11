@@ -4,6 +4,7 @@ import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.ChannelMemberStatus
 import com.api.heys.constants.enums.ChannelType
 import com.api.heys.domain.channel.dto.*
+import com.api.heys.domain.content.dto.PutExtraContentData
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
@@ -108,6 +109,29 @@ class ChannelController(
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
     ): ResponseEntity<GetChannelDetailResponse> {
         return channelService.getChannelDetail(channelId, bearer)
+    }
+
+    @Operation(
+        summary = "채널 상세정보 수정",
+        description = "채널 상세정보 수정 API 입니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(
+                        schema = Schema(implementation = ChannelPutResponse::class),
+                        mediaType = "application/json"
+                    )
+                ]
+            ),
+        ]
+    )
+    @PutMapping("{channelId}")
+    fun putChannelDetail(
+        @PathVariable channelId: Long,
+        @Valid @RequestBody body: PutChannelData,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<ChannelPutResponse> {
+        return channelService.putChannelDetail(channelId, body, bearer)
     }
 
     @Operation(

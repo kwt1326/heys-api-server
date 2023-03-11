@@ -2,7 +2,6 @@ package com.api.heys.domain.content
 
 import com.api.heys.constants.DefaultString
 import com.api.heys.constants.MessageString
-import com.api.heys.constants.enums.ContentType
 import com.api.heys.domain.content.dto.*
 import com.api.heys.domain.content.repository.IContentsRepository
 import com.api.heys.domain.interest.repository.InterestRepository

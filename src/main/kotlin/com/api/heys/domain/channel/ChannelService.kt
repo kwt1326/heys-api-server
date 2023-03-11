@@ -5,8 +5,6 @@ import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.ChannelMemberStatus
 import com.api.heys.constants.enums.ChannelType
 import com.api.heys.domain.channel.dto.*
-import com.api.heys.domain.channel.repository.IChannelBookMarkRepository
-import com.api.heys.domain.channel.repository.IChannelViewRepository
 import com.api.heys.domain.channel.repository.IChannelsRepository
 import com.api.heys.domain.content.repository.IContentsRepository
 import com.api.heys.domain.interest.repository.InterestRepository
@@ -24,11 +22,9 @@ import java.util.*
 
 @Service
 class ChannelService(
-    @Autowired private val IChannelsRepository: IChannelsRepository,
-    @Autowired private val IContentsRepository: IContentsRepository,
-    @Autowired private val IChannelViewRepository: IChannelViewRepository,
-    @Autowired private val IChannelBookMarkRepository: IChannelBookMarkRepository,
-    @Autowired private val IChannelUserRelationRepository: IChannelUserRelationsRepository,
+    @Autowired private val channelsRepository: IChannelsRepository,
+    @Autowired private val contentsRepository: IContentsRepository,
+    @Autowired private val channelUserRelRepository: IChannelUserRelationsRepository,
     @Autowired private val interestRepository: InterestRepository,
     @Autowired private val userRepository: IUserRepository,
     @Autowired private val jwtUtil: JwtUtil,
@@ -53,7 +49,7 @@ class ChannelService(
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result)
         }
 
-        val content: Optional<Contents> = IContentsRepository.findById(contentId)
+        val content: Optional<Contents> = contentsRepository.findById(contentId)
 
         if (!content.isPresent) {
             result.message = MessageString.NOT_FOUND_CONTENT
@@ -66,7 +62,6 @@ class ChannelService(
         val newChannelDetail = ChannelDetail(
             channel = newChannel,
             name = dto.name,
-            purpose = dto.purpose,
             location = dto.location ?: "",
             contentText = dto.contentText,
             recruitText = dto.recruitText,
@@ -76,6 +71,10 @@ class ChannelService(
             recruitMethod = dto.recruitMethod,
             thumbnailUri = dto.thumbnailUri ?: DefaultString.defaultThumbnailUri
         )
+
+        dto.purposes.map {
+            newChannelDetail.purposes.add(ChannelPurpose(newChannelDetail, it))
+        }
 
         dto.linkUri.map {
             newChannelDetail.links.add(ChannelLink(newChannelDetail, it))
@@ -103,7 +102,7 @@ class ChannelService(
         newChannel.contents = contentEntity
         contentEntity.channels.add(newChannel)
 
-        val entity = IContentsRepository.save(contentEntity)
+        val entity = contentsRepository.save(contentEntity)
         val channel = entity.channels.find { it.leader.id == user.id }
 
         if (channel == null) {
@@ -137,7 +136,6 @@ class ChannelService(
         val newChannelDetail = ChannelDetail(
             channel = newChannel,
             name = dto.name,
-            purpose = dto.purpose,
             location = dto.location ?: "",
             contentText = dto.contentText,
             recruitText = dto.recruitText,
@@ -147,6 +145,10 @@ class ChannelService(
             recruitMethod = dto.recruitMethod,
             thumbnailUri = dto.thumbnailUri ?: DefaultString.defaultThumbnailUri
         )
+
+        dto.purposes.map {
+            newChannelDetail.purposes.add(ChannelPurpose(newChannelDetail, it))
+        }
 
         dto.linkUri.map {
             newChannelDetail.links.add(ChannelLink(newChannelDetail, it))
@@ -169,7 +171,7 @@ class ChannelService(
 
         newChannel.detail = newChannelDetail
 
-        val entity = IChannelsRepository.save(newChannel)
+        val entity = channelsRepository.save(newChannel)
 
         result.channelId = entity.id
         return ResponseEntity.ok(result)
@@ -183,7 +185,7 @@ class ChannelService(
     ): ResponseEntity<GetChannelsResponse> {
         return ResponseEntity.ok(
             GetChannelsResponse(
-                data = IChannelsRepository.getChannels(type, params, contentId),
+                data = channelsRepository.getChannels(type, params, contentId),
                 message = "채널 리스트 가져오기 성공"
             )
         )
@@ -193,7 +195,7 @@ class ChannelService(
     override fun joinChannel(channelId: Long, token: String): ResponseEntity<JoinChannelResponse> {
         val response = JoinChannelResponse()
 
-        val channel: Optional<Channels> = IChannelsRepository.findById(channelId)
+        val channel: Optional<Channels> = channelsRepository.findById(channelId)
         val user: Users? = findUserByToken(token, jwtUtil, userRepository)
 
         if (user == null) {
@@ -224,7 +226,7 @@ class ChannelService(
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response)
         }
 
-        val existEntity = IChannelUserRelationRepository.getChannelUserRelByChannelUserId(user.id)
+        val existEntity = channelUserRelRepository.getChannelUserRelByChannelUserId(user.id)
 
         if (existEntity != null) {
             if (existEntity.status == ChannelMemberStatus.Waiting) {
@@ -244,9 +246,89 @@ class ChannelService(
         channelUserRelations.channel = channelEntity
         channelEntity.channelUserRelations.add(channelUserRelations)
 
-        IChannelsRepository.save(channelEntity)
+        channelsRepository.save(channelEntity)
 
         return ResponseEntity.ok(response)
+    }
+
+    @Transactional
+    override fun putChannelDetail(
+        channelId: Long,
+        dto: PutChannelData,
+        token: String
+    ): ResponseEntity<ChannelPutResponse> {
+        val user = findUserByToken(token, jwtUtil, userRepository)
+            ?: return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ChannelPutResponse(MessageString.NOT_FOUND_USER))
+
+        val channel = channelsRepository.findById(channelId)
+        if (!channel.isPresent)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ChannelPutResponse("Not found channel"))
+
+        val channelEntity = channel.get()
+        if (user.id != channelEntity.leader.id) {
+            return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ChannelPutResponse("No Permission - Only editable leader user"))
+        }
+
+        val detail = channelEntity.detail
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ChannelPutResponse("Not found channel detail"))
+
+        if (dto.limitPeople != null) {
+            val joinedChannelUserCount = channelsRepository.getChannelFollowers(channelId, ChannelMemberStatus.Approved).count()
+            if (joinedChannelUserCount > dto.limitPeople) {
+                return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(ChannelPutResponse("Already joined users more then new limitPeople value"))
+            }
+            detail.limitPeople = dto.limitPeople
+        }
+
+        if (dto.name != null) detail.name = dto.name
+        if (dto.online != null) detail.online = dto.online
+        if (dto.location != null) detail.location = dto.location
+        if (dto.contentText != null) detail.contentText = dto.contentText
+        if (dto.recruitText != null) detail.recruitText = dto.recruitText
+        if (dto.recruitMethod != null) detail.recruitMethod = dto.recruitMethod
+        if (dto.lastRecruitDate != null) detail.lastRecruitDate = LocalDateTime.parse(dto.lastRecruitDate)
+
+        if (dto.interests != null) {
+            dto.interests.map {
+                // Create Interest Categories
+                var interest: Interest? = interestRepository.findByName(it)
+                if (interest == null) {
+                    interest = Interest(name = it)
+                } else {
+                    // 이미 가지고 있다면 loop break
+                    if (detail.interestRelations.find { it2 -> it2.interest != null && it2.interest!!.name == it } != null) {
+                        return@map
+                    }
+                }
+
+                // InterestRelation Linking
+                val rel = InterestRelations()
+                rel.interest = interest
+                rel.channelDetail = detail
+                detail.interestRelations.add(rel)
+                interest.interestRelations.add(rel)
+            }
+        }
+
+        if (dto.links != null) {
+            detail.links.clear()
+            dto.links.map { detail.links.add(ChannelLink(detail, it)) }
+        }
+
+        if (dto.purposes != null) {
+            detail.purposes.clear()
+            dto.purposes.map { detail.purposes.add(ChannelPurpose(detail, it)) }
+        }
+
+        channelsRepository.save(channelEntity)
+
+        return ResponseEntity.ok(ChannelPutResponse(MessageString.SUCCESS_EN))
     }
 
     @Transactional(readOnly = true)
@@ -256,7 +338,7 @@ class ChannelService(
                 .status(HttpStatus.NOT_FOUND)
                 .body(GetChannelDetailResponse(message = MessageString.NOT_FOUND_USER))
 
-        val data = IChannelsRepository.getChannelDetail(channelId, user.id)
+        val data = channelsRepository.getChannelDetail(channelId, user.id)
             ?: return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(GetChannelDetailResponse(message = "failed found"))
@@ -272,7 +354,7 @@ class ChannelService(
     override fun getJoinAndWaitingChannelCounts(token: String): HashMap<String, Long> {
         val user: Users =
             findUserByToken(token, jwtUtil, userRepository) ?: return hashMapOf()
-        return IChannelsRepository.getJoinAndWaitingChannelCounts(user.id) ?: return hashMapOf()
+        return channelsRepository.getJoinAndWaitingChannelCounts(user.id) ?: return hashMapOf()
     }
 
     @Transactional(readOnly = true)
@@ -282,7 +364,7 @@ class ChannelService(
     ): ResponseEntity<GetChannelFollowersResponse> {
         return ResponseEntity.ok(
             GetChannelFollowersResponse(
-                data = IChannelsRepository.getChannelFollowers(channelId, status),
+                data = channelsRepository.getChannelFollowers(channelId, status),
                 message = MessageString.SUCCESS_EN
             )
         )
@@ -293,7 +375,7 @@ class ChannelService(
         val response = ChannelPutResponse(message = MessageString.SUCCESS_EN)
 
         /* only leader user usage */
-        val channel: Optional<Channels> = IChannelsRepository.findById(channelId)
+        val channel: Optional<Channels> = channelsRepository.findById(channelId)
         val user: Users? = findUserByToken(token, jwtUtil, userRepository)
 
         if (user == null) {
@@ -316,7 +398,7 @@ class ChannelService(
 
         channelEntity.activeNotify = !channelEntity.activeNotify
 
-        IChannelsRepository.save(channelEntity)
+        channelsRepository.save(channelEntity)
 
         return ResponseEntity.ok(response)
     }
@@ -332,7 +414,7 @@ class ChannelService(
         val response = ChannelPutResponse(message = MessageString.SUCCESS_EN)
 
         /* only leader user usage */
-        val channel: Optional<Channels> = IChannelsRepository.findById(channelId)
+        val channel: Optional<Channels> = channelsRepository.findById(channelId)
         val leaderUser: Users? = findUserByToken(leaderToken, jwtUtil, userRepository)
 
         if (leaderUser == null) {
@@ -378,7 +460,7 @@ class ChannelService(
             channelUserRelation.removedAt = LocalDateTime.now()
         }
 
-        IChannelsRepository.save(channelEntity)
+        channelsRepository.save(channelEntity)
 
         return ResponseEntity.ok(response)
     }
@@ -390,7 +472,7 @@ class ChannelService(
         token: String
     ): ResponseEntity<ChannelPutResponse> {
         val response = ChannelPutResponse(message = MessageString.SUCCESS_EN)
-        val channel: Optional<Channels> = IChannelsRepository.findById(channelId)
+        val channel: Optional<Channels> = channelsRepository.findById(channelId)
         val user: Users? = findUserByToken(token, jwtUtil, userRepository)
 
         if (user == null) {
@@ -429,7 +511,7 @@ class ChannelService(
         channelUserRelation.status = ChannelMemberStatus.Canceled
         channelUserRelation.removedAt = LocalDateTime.now()
 
-        IChannelsRepository.save(channelEntity)
+        channelsRepository.save(channelEntity)
 
         return ResponseEntity.ok(response)
     }
@@ -441,7 +523,7 @@ class ChannelService(
         token: String
     ): ResponseEntity<ChannelPutResponse> {
         val response = ChannelPutResponse(message = MessageString.SUCCESS_EN)
-        val channel: Optional<Channels> = IChannelsRepository.findById(channelId)
+        val channel: Optional<Channels> = channelsRepository.findById(channelId)
         val user: Users? = findUserByToken(token, jwtUtil, userRepository)
 
         if (user == null) {
@@ -481,14 +563,14 @@ class ChannelService(
         channelUserRelation.status = ChannelMemberStatus.Exited
         channelUserRelation.removedAt = LocalDateTime.now()
 
-        IChannelsRepository.save(channelEntity)
+        channelsRepository.save(channelEntity)
 
         return ResponseEntity.ok(response)
     }
 
     @Transactional
     override fun increaseChannelView(channelId: Long, token: String): ResponseEntity<String> {
-        val channel = IChannelsRepository.findById(channelId)
+        val channel = channelsRepository.findById(channelId)
         if (!channel.isPresent)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found content")
 
@@ -497,14 +579,14 @@ class ChannelService(
 
         val channelEntity = channel.get()
 
-        val isExisted = IChannelsRepository.getChannelView(channelId, user.id)
+        val isExisted = channelsRepository.getChannelView(channelId, user.id)
 
         if (isExisted != null) {
             return ResponseEntity.status(HttpStatus.OK).body("Already have seen channel")
         }
 
         channelEntity.channelViews.add(ChannelView(channelEntity, user))
-        IChannelsRepository.save(channelEntity)
+        channelsRepository.save(channelEntity)
 
         return ResponseEntity.status(HttpStatus.OK).body("New channel view")
     }
@@ -514,12 +596,12 @@ class ChannelService(
         val user = findUserByToken(token, jwtUtil, userRepository)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
 
-        val channel = IChannelsRepository.findById(channelId)
+        val channel = channelsRepository.findById(channelId)
         if (!channel.isPresent) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found channel")
         }
 
-        val isExisted = IChannelsRepository.getChannelBookMark(channelId, user.id)
+        val isExisted = channelsRepository.getChannelBookMark(channelId, user.id)
         if (isExisted != null) {
             return ResponseEntity.status(HttpStatus.OK).body("Already added channel bookmark")
         }
@@ -527,7 +609,7 @@ class ChannelService(
         val channelEntity = channel.get()
 
         channelEntity.channelBookMarks.add(ChannelBookMark(channelEntity, user))
-        IChannelsRepository.save(channelEntity)
+        channelsRepository.save(channelEntity)
 
         return ResponseEntity.status(HttpStatus.OK).body("New channel bookmarked! : ${channelEntity.id}")
     }
@@ -537,7 +619,7 @@ class ChannelService(
         val user = findUserByToken(token, jwtUtil, userRepository)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
 
-        val channel = IChannelsRepository.findById(channelId)
+        val channel = channelsRepository.findById(channelId)
         if (!channel.isPresent) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found channel")
         }
@@ -547,7 +629,7 @@ class ChannelService(
         val bookmark = channelEntity.channelBookMarks.find { it.users!!.id == user.id }
         if (bookmark != null) channelEntity.channelBookMarks.removeIf { it.id == bookmark.id }
 
-        IChannelsRepository.save(channelEntity)
+        channelsRepository.save(channelEntity)
 
         return ResponseEntity.status(HttpStatus.OK).body("Removed content bookmark : ${channelEntity.id}")
     }

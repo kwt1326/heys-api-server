@@ -14,10 +14,8 @@ data class CreateChannelData(
     @field:Schema(description = "채널명", example = "환승연애학개론 스터디 채널 1")
     val name: String,
 
-    @NotNull
-    @NotBlank
-    @field:Schema(description = "참여 목적", example = "실력향상")
-    val purpose: String,
+    @field:Schema(description = "참여 목적", example = "[\"역량강화\", \"계기확립\"]")
+    val purposes: Set<String> = setOf(),
 
     @NotNull
     @field:Schema(description = "참여 형태", example = "Offline", implementation = Online::class)

@@ -12,6 +12,8 @@ interface IChannelService {
 
     fun joinChannel(channelId: Long, token: String): ResponseEntity<JoinChannelResponse>
 
+    fun putChannelDetail(channelId: Long, dto: PutChannelData, token: String): ResponseEntity<ChannelPutResponse>
+
     fun getChannelDetail(channelId: Long, token: String): ResponseEntity<GetChannelDetailResponse>
 
     fun getChannels(type: ChannelType, params: GetChannelsParam, contentId: Long?): ResponseEntity<GetChannelsResponse>

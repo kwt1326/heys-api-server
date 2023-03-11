@@ -15,7 +15,6 @@ import javax.persistence.*
 class ChannelDetail(
     channel: Channels,
     name: String,
-    purpose: String,
     location: String,
     contentText: String,
     recruitText: String,
@@ -37,16 +36,17 @@ class ChannelDetail(
     @OneToMany(mappedBy = "channelDetail", fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
     var interestRelations: MutableSet<InterestRelations> = mutableSetOf()
 
-    @OneToMany(mappedBy = "channelDetail", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    // 가입 링크
+    @OneToMany(mappedBy = "channelDetail", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     var links: MutableSet<ChannelLink> = mutableSetOf()
+
+    // 활동 목적
+    @OneToMany(mappedBy = "channelDetail", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    var purposes: MutableSet<ChannelPurpose> = mutableSetOf()
 
     // 채널 이름
     @Column(name = "name", nullable = false)
     var name: String = name
-
-    // 활동 목적
-    @Column(name = "purpose", nullable = false)
-    var purpose: String = purpose
 
     // 소개글
     @Column(columnDefinition = "TEXT", name = "content_text", nullable = false)

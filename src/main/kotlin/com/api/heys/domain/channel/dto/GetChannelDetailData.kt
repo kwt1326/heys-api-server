@@ -18,8 +18,6 @@ data class GetChannelDetailData(
     val thumbnailUri: String?,
     @field:Schema(description = "채널명", example = "환승연애학개론 스터디 채널 1")
     val title: String,
-    @field:Schema(description = "참여 목적 (2개 이상일 경우 - ',' 로 join 시켜 하나의 string 으로 만들고 넣습니다)", example = "역량강화, 실력향상")
-    val purpose: String,
     @field:Schema(description = "참여 형태", example = "Offline", implementation = Online::class)
     val online: Online,
     @field:Schema(description = "참여 지역 (online == '온라인' 일 경우 필요하지 않음)", example = "서울시")
@@ -36,10 +34,12 @@ data class GetChannelDetailData(
     val contentText: String,
     @field:Schema(description = "이런분을 찾아요! 글", example = "이런분만 왔으면 좋겠어요 ㅎㅎ")
     val recruitText: String,
-    @field:Schema(description = "연결 링크 URI 리스트", example = "[\"https://www.naver.com\", \"https://www.google.co.kr\"]")
-    val links: List<GetChannelDetailLinkData> = listOf(),
     @field:Schema(description = "리더 정보", implementation = GetChannelDetailLeaderData::class)
     val leader: GetChannelDetailLeaderData,
+    @field:ArraySchema(schema = Schema(implementation = GetChannelDetailPurposeData::class, description = "참여 목적 리스트"))
+    val purposes: List<GetChannelDetailPurposeData> = listOf(),
+    @field:ArraySchema(schema = Schema(implementation = GetChannelDetailLinkData::class, description = "연결 링크 리스트"))
+    val links: List<GetChannelDetailLinkData> = listOf(),
     @field:ArraySchema(schema = Schema(implementation = GetChannelDetailUserData::class, description = "승인된 유저 리스트"))
     val ApprovedUserList: List<GetChannelDetailUserData>,
     @field:ArraySchema(schema = Schema(implementation = GetChannelDetailUserData::class, description = "대기 유저 리스트"))
