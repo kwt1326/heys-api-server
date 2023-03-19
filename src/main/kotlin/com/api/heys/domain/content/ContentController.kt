@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import javax.validation.Valid
 
 @RestController
@@ -151,5 +152,24 @@ class ContentController(@Autowired private val contentService: ContentService) {
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
     ): ResponseEntity<String> {
         return contentService.removeBookmark(contentId, bearer)
+    }
+
+    @Operation(
+        summary = "컨텐츠 엑셀 업로드",
+        description = "정해진 포맷(중요!)의 엑셀 파일을 업로드 하여 DB 에 컨텐츠를 추가합니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                ]
+            )
+        ]
+    )
+    @PostMapping("upload/excel", consumes = ["multipart/form-data"])
+    fun postContentExcelUpload(
+        @RequestPart("file") excelFile: MultipartFile,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<String> {
+        return contentService.createExtraContentFromExcel(excelFile, bearer)
     }
 }

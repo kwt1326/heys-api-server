@@ -79,6 +79,10 @@ dependencies {
 
 	// Template Engine
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+
+	// Excel Parser
+	implementation("org.apache.poi:poi:5.2.2")
+	implementation("org.apache.poi:poi-ooxml:5.2.2")
 }
 
 tasks.withType<KotlinCompile> {

@@ -7,6 +7,7 @@ import com.api.heys.domain.content.repository.IContentsRepository
 import com.api.heys.domain.interest.repository.InterestRelationRepository
 import com.api.heys.domain.interest.repository.InterestRepository
 import com.api.heys.entity.*
+import com.api.heys.helpers.SpreadSheetManager
 import com.api.heys.helpers.findUserByToken
 import com.api.heys.utils.CommonUtil
 import com.api.heys.utils.JwtUtil
@@ -14,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 class ContentService(
@@ -25,20 +28,8 @@ class ContentService(
     @Autowired private val commonUtil: CommonUtil,
     @Autowired private val jwtUtil: JwtUtil,
 ) : IContentService {
-    /**
-     * 컨텐츠 생성
-     * Contents, ContentDetail 생성 및 Interest(관심분야 테이블) Associate Table 관계 설정 포함
-     */
     @Transactional
-    override fun createExtraContent(dto: CreateExtraContentData, token: String): ResponseEntity<CreateContentResponse> {
-        val response = CreateContentResponse(contentId = null, message = MessageString.SUCCESS_EN)
-        val user = findUserByToken(token, jwtUtil, userRepository)
-
-        if (user == null) {
-            response.message = MessageString.INVALID_USER
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response)
-        }
-
+    private fun pureCreateExtraContent(dto: CreateExtraContentData): Contents {
         val newContents = Contents(contentType = dto.type)
         val newExtraContentsDetail = ExtraContentDetail(
             contents = newContents,
@@ -72,9 +63,39 @@ class ContentService(
 
         newContents.extraDetail = newExtraContentsDetail
 
-        response.contentId = contentRepository.save(newContents).id
+        return contentRepository.save(newContents)
+    }
+
+    /**
+     * 컨텐츠 생성
+     * Contents, ContentDetail 생성 및 Interest(관심분야 테이블) Associate Table 관계 설정 포함
+     */
+    @Transactional
+    override fun createExtraContent(dto: CreateExtraContentData, token: String): ResponseEntity<CreateContentResponse> {
+        val response = CreateContentResponse(contentId = null, message = MessageString.SUCCESS_EN)
+        val user = findUserByToken(token, jwtUtil, userRepository)
+
+        if (user == null) {
+            response.message = MessageString.INVALID_USER
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response)
+        }
+
+        response.contentId = pureCreateExtraContent(dto).id
 
         return ResponseEntity.ok().body(response)
+    }
+
+    @Transactional
+    override fun createExtraContentFromExcel(file: MultipartFile, token: String): ResponseEntity<String> {
+        val user = findUserByToken(token, jwtUtil, userRepository)
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user")
+
+        if (user.authentications.find { it.role == DefaultString.adminRole } == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Only Using Admin User")
+        }
+
+        SpreadSheetManager(file).excelDataConvertToExtraContentDTOs().forEach { pureCreateExtraContent(it) }
+        return ResponseEntity.ok("success")
     }
 
     @Transactional(readOnly = true)
