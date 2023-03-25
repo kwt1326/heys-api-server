@@ -198,15 +198,15 @@ class ChannelCustomRepositoryImpl(
         val waitingUserList = channel.channelUserRelations.filter { it.status == ChannelMemberStatus.Waiting }.map {
             GetChannelDetailUserData(
                 id = it.user.id,
-                percentage = 0
-                /** TODO: 범수님 */
+                percentage = 0, /** TODO: 범수님 */
+                gender = if (it.user.detail != null) it.user.detail!!.gender else Gender.NonBinary,
             )
         }
         val approvedUserList = channel.channelUserRelations.filter { it.status == ChannelMemberStatus.Approved }.map {
             GetChannelDetailUserData(
                 id = it.user.id,
-                percentage = 0
-                /** TODO: 범수님 */
+                percentage = 0, /** TODO: 범수님 */
+                gender = if (it.user.detail != null) it.user.detail!!.gender else Gender.NonBinary,
             )
         }
 
