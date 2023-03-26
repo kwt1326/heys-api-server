@@ -13,4 +13,9 @@ open class CommonUtil {
         if (diff == null) return Long.MIN_VALUE
         return this.diffDay(LocalDateTime.now(), diff)
     }
+
+    open fun calcTotalPage(count: Long, limit: Long): Long {
+        val plusOne = count % limit > 0
+        return count / limit + (if (plusOne) 1 else 0)
+    }
 }

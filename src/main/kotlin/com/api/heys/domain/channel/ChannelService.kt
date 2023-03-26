@@ -187,10 +187,7 @@ class ChannelService(
         contentId: Long?
     ): ResponseEntity<GetChannelsResponse> {
         return ResponseEntity.ok(
-            GetChannelsResponse(
-                data = channelsRepository.getChannels(type, params, contentId),
-                message = "채널 리스트 가져오기 성공"
-            )
+            channelsRepository.getChannels(type, params, contentId)
         )
     }
 

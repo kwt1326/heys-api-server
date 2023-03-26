@@ -102,6 +102,7 @@ internal class ContentsServiceTest(
 
         assertThat(listResponse.body).isNotNull
         assertThat(listResponse.body!!.data.count()).isEqualTo(1)
+        assertThat(listResponse.body!!.totalPage).isEqualTo(1)
     }
 
     /** 외부 컨텐츠 생성 후 상세정보 가져오기 테스트 */

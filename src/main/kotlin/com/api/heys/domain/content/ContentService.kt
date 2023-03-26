@@ -141,12 +141,7 @@ class ContentService(
 
     @Transactional(readOnly = true)
     override fun getExtraContents(params: GetExtraContentsParam): ResponseEntity<GetExtraContentsResponse> {
-        return ResponseEntity.status(HttpStatus.OK).body(
-            GetExtraContentsResponse(
-                data = contentRepository.findExtraContents(params),
-                message = MessageString.SUCCESS_EN
-            )
-        )
+        return ResponseEntity.ok(contentRepository.findExtraContents(params))
     }
 
     @Transactional

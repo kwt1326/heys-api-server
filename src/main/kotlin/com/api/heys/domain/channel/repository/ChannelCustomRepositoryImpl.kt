@@ -1,6 +1,7 @@
 package com.api.heys.domain.channel.repository
 
 import com.api.heys.constants.DefaultString
+import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.*
 import com.api.heys.domain.channel.dto.*
 import com.api.heys.entity.*
@@ -30,8 +31,28 @@ class ChannelCustomRepositoryImpl(
     val qChannelDetail: QChannelDetail = QChannelDetail.channelDetail
     val qChannelUserRelations: QChannelUserRelations = QChannelUserRelations.channelUserRelations
 
-    fun channelFilterQuery(queryBase: JPAQuery<Channels>, params: GetChannelsParam, type: ChannelType): List<Channels> {
-        var query = queryBase.where(qChannels.type.eq(type))
+    fun channelFilterQuery(
+        queryBase: JPAQuery<Channels>,
+        params: GetChannelsParam,
+        type: ChannelType,
+        contentId: Long?
+    ): List<Channels> {
+        var query = queryBase
+            .join(qChannels.detail, qChannelDetail).fetchJoin()
+            .leftJoin(qChannels.channelViews, qChannelView).fetchJoin()
+            .leftJoin(qChannelDetail.interestRelations, qInterestRelations).fetchJoin()
+            .leftJoin(qInterestRelations.interest, qInterest).fetchJoin()
+            .leftJoin(qChannelDetail.purposes, qChannelPurpose).fetchJoin()
+            .leftJoin(qChannels.channelUserRelations, qChannelUserRelations).fetchJoin()
+            .where(qChannels.removedAt.isNull)
+            .where(qChannelUserRelations.removedAt.isNull)
+            .where(qChannels.type.eq(type))
+
+        if (contentId != null) {
+            query = query
+                .join(qChannels.contents, qContent).fetchJoin()
+                .where(qContent.id.eq(contentId))
+        }
 
         // includeClosed filter (마감된 채널 포함 여부 - 조건 : DDay 남은것, 정원 안찬것)
         // includeClosed == true 이면 '마감 일자' 및 '제한 인원' 쿼리 무시
@@ -75,6 +96,69 @@ class ChannelCustomRepositoryImpl(
             .offset((params.page - 1) * params.limit)
             .distinct()
             .fetch() ?: listOf()
+    }
+
+    fun channelFilterCountQuery(
+        queryBase: JPAQuery<Long>,
+        params: GetChannelsParam,
+        type: ChannelType,
+        contentId: Long?
+    ): Long {
+        var query = queryBase
+            .join(qChannels.detail, qChannelDetail)
+            .leftJoin(qChannels.channelViews, qChannelView)
+            .leftJoin(qChannelDetail.interestRelations, qInterestRelations)
+            .leftJoin(qInterestRelations.interest, qInterest)
+            .leftJoin(qChannelDetail.purposes, qChannelPurpose)
+            .leftJoin(qChannels.channelUserRelations, qChannelUserRelations)
+            .where(qChannels.removedAt.isNull)
+            .where(qChannelUserRelations.removedAt.isNull)
+            .where(qChannels.type.eq(type))
+
+        if (contentId != null) {
+            query = query
+                .join(qChannels.contents, qContent)
+                .where(qContent.id.eq(contentId))
+        }
+
+        // includeClosed filter (마감된 채널 포함 여부 - 조건 : DDay 남은것, 정원 안찬것)
+        // includeClosed == true 이면 '마감 일자' 및 '제한 인원' 쿼리 무시
+        // includeClosed == false 이거나 null 이면
+        // '오늘 이후에 마감일자' 혹은 '오늘 이후 & 모집 기간 이내 마감일자' 및 '제한 인원수 보다 작은 것'만 쿼리
+        if (params.includeClosed == null || params.includeClosed == false) {
+            query = query.where(
+                qChannelDetail.lastRecruitDate.after(LocalDateTime.now()),
+                qChannelDetail.limitPeople.gt(qChannels.channelUserRelations.size())
+            )
+
+            // 마감 일자 값이 존재할 경우 해당 값 이전 요소만 쿼리
+            if (params.lastRecruitDate != null) {
+                query = query.where(
+                    qChannelDetail.lastRecruitDate.before(LocalDateTime.parse(params.lastRecruitDate))
+                )
+            }
+        }
+
+        // 관심분야 파라미터 배열 요소중 하나라도 맞는게 있으면 쿼리 대상
+        if (!params.interests.isNullOrEmpty()) {
+            query = query.where(qInterest.name.`in`(params.interests))
+        }
+
+        // 참여 목적 쿼리
+        if (!params.purposes.isNullOrEmpty()) {
+            query = query.where(qChannelPurpose.purpose.`in`(params.purposes))
+        }
+
+        if (params.online != null) {
+            query = query.where(qChannelDetail.online.eq(params.online))
+
+            // 활동 형태가 온*오프라인 혹은 오프라인 일 경우 위치 쿼리
+            if (params.location != null && (params.online == Online.Offline || params.online == Online.OnOffLine)) {
+                query = query.where(qChannelDetail.location.eq(params.location))
+            }
+        }
+
+        return query.fetchOne() ?: 0
     }
 
     override fun getJoinAndWaitingChannelCounts(userId: Long): HashMap<String, Long> {
@@ -124,25 +208,11 @@ class ChannelCustomRepositoryImpl(
         }
     }
 
-    override fun getChannels(type: ChannelType, params: GetChannelsParam, contentId: Long?): List<ChannelListItemData> {
-        var query = jpaQueryFactory
-            .selectFrom(qChannels)
-            .join(qChannels.detail, qChannelDetail).fetchJoin()
-            .leftJoin(qChannels.channelViews, qChannelView).fetchJoin()
-            .leftJoin(qChannelDetail.interestRelations, qInterestRelations).fetchJoin()
-            .leftJoin(qInterestRelations.interest, qInterest).fetchJoin()
-            .leftJoin(qChannelDetail.purposes, qChannelPurpose).fetchJoin()
-            .leftJoin(qChannels.channelUserRelations, qChannelUserRelations).fetchJoin()
-            .where(qChannels.removedAt.isNull)
-            .where(qChannelUserRelations.removedAt.isNull)
+    override fun getChannels(type: ChannelType, params: GetChannelsParam, contentId: Long?): GetChannelsResponse {
+        val query = jpaQueryFactory.selectFrom(qChannels)
+        val totalCountQuery = jpaQueryFactory.select(qChannels.count()).from(qChannels)
 
-        if (contentId != null) {
-            query = query
-                .join(qChannels.contents, qContent).fetchJoin()
-                .where(qContent.id.eq(contentId))
-        }
-
-        return channelFilterQuery(query, params, type)
+        val data = channelFilterQuery(query, params, type, contentId)
             .filter { it.detail != null }
             .map {
                 val detail: ChannelDetail = it.detail!!
@@ -157,6 +227,11 @@ class ChannelCustomRepositoryImpl(
                     thumbnailUri = detail.thumbnailUri
                 )
             }
+
+        val totalPage =
+            commonUtil.calcTotalPage(channelFilterCountQuery(totalCountQuery, params, type, contentId), params.limit)
+
+        return GetChannelsResponse(data, totalPage, MessageString.SUCCESS_EN)
     }
 
     override fun getChannelDetail(channelId: Long, userId: Long): GetChannelDetailData? {
@@ -196,14 +271,16 @@ class ChannelCustomRepositoryImpl(
         val waitingUserList = channel.channelUserRelations.filter { it.status == ChannelMemberStatus.Waiting }.map {
             GetChannelDetailUserData(
                 id = it.user.id,
-                percentage = 0, /** TODO: 범수님 */
+                percentage = 0,
+                /** TODO: 범수님 */
                 gender = if (it.user.detail != null) it.user.detail!!.gender else Gender.NonBinary,
             )
         }
         val approvedUserList = channel.channelUserRelations.filter { it.status == ChannelMemberStatus.Approved }.map {
             GetChannelDetailUserData(
                 id = it.user.id,
-                percentage = 0, /** TODO: 범수님 */
+                percentage = 0,
+                /** TODO: 범수님 */
                 gender = if (it.user.detail != null) it.user.detail!!.gender else Gender.NonBinary,
             )
         }

@@ -192,6 +192,7 @@ class ChannelServiceTest(
         assertThat(getChannelResponse.statusCode).isEqualTo(HttpStatus.OK)
         assertThat(getChannelResponse.body!!.data.count()).isEqualTo(1)
         assertThat(getChannelResponse.body!!.data.first().viewCount).isEqualTo(1)
+        assertThat(getChannelResponse.body!!.totalPage).isEqualTo(1)
     }
 
     /** 스터디 채널 생성 및 필터 테스트 */
