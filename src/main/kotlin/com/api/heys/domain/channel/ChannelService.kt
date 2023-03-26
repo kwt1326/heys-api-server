@@ -9,6 +9,7 @@ import com.api.heys.domain.channel.repository.IChannelsRepository
 import com.api.heys.domain.content.repository.IContentsRepository
 import com.api.heys.domain.interest.repository.InterestRelationRepository
 import com.api.heys.domain.interest.repository.InterestRepository
+import com.api.heys.domain.user.repository.UserRepository
 import com.api.heys.helpers.findUserByToken
 import com.api.heys.utils.JwtUtil
 import com.api.heys.entity.*
@@ -28,7 +29,7 @@ class ChannelService(
     @Autowired private val channelUserRelRepository: IChannelUserRelationsRepository,
     @Autowired private val interestRepository: InterestRepository,
     @Autowired private val interestRelationRepository: InterestRelationRepository,
-    @Autowired private val userRepository: IUserRepository,
+    @Autowired private val userRepository: UserRepository,
     @Autowired private val jwtUtil: JwtUtil,
 ) : IChannelService {
     /**

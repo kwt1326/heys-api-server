@@ -6,6 +6,7 @@ import com.api.heys.domain.content.dto.*
 import com.api.heys.domain.content.repository.IContentsRepository
 import com.api.heys.domain.interest.repository.InterestRelationRepository
 import com.api.heys.domain.interest.repository.InterestRepository
+import com.api.heys.domain.user.repository.UserRepository
 import com.api.heys.entity.*
 import com.api.heys.helpers.SpreadSheetManager
 import com.api.heys.helpers.findUserByToken
@@ -15,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
@@ -24,7 +24,7 @@ class ContentService(
     @Autowired private val contentRepository: IContentsRepository,
     @Autowired private val interestRepository: InterestRepository,
     @Autowired private val interestRelationRepository: InterestRelationRepository,
-    @Autowired private val userRepository: IUserRepository,
+    @Autowired private val userRepository: UserRepository,
     @Autowired private val commonUtil: CommonUtil,
     @Autowired private val jwtUtil: JwtUtil,
 ) : IContentService {

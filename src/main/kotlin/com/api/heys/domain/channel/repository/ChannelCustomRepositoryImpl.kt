@@ -163,7 +163,6 @@ class ChannelCustomRepositoryImpl(
         val query = jpaQueryFactory
             .selectFrom(qChannels)
             .join(qChannels.leader, qUsers).fetchJoin()
-            .join(qUsers.detail, qUserDetail).fetchJoin()
             .join(qChannels.detail, qChannelDetail).fetchJoin()
             .leftJoin(qChannels.channelBookMarks, qChannelBookMark).fetchJoin()
             .leftJoin(qChannels.contents, qContent).fetchJoin()
@@ -173,7 +172,6 @@ class ChannelCustomRepositoryImpl(
             .leftJoin(qChannelDetail.interestRelations, qInterestRelations).fetchJoin()
             .leftJoin(qInterestRelations.interest, qInterest).fetchJoin()
             .leftJoin(qChannels.channelUserRelations, qChannelUserRelations).fetchJoin()
-            .leftJoin(qChannelUserRelations.user).fetchJoin()
             .where(qChannels.removedAt.isNull)
             .where(qChannelUserRelations.removedAt.isNull)
             .where(qChannels.id.eq(channelId))

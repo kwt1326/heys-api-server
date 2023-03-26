@@ -5,6 +5,7 @@ import com.api.heys.domain.interest.repository.InterestRepository
 import com.api.heys.domain.user.dto.CheckMemberData
 import com.api.heys.domain.user.dto.CommonSignUpData
 import com.api.heys.domain.user.dto.SignUpData
+import com.api.heys.domain.user.repository.UserRepository
 import com.api.heys.entity.*
 import com.api.heys.security.domain.CustomUser
 import com.api.heys.utils.JwtUtil
@@ -20,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional(readOnly = true)
 class UserService(
-    @Autowired private val userRepository: IUserRepository,
+    @Autowired private val userRepository: UserRepository,
     @Autowired private val interestRepository: InterestRepository,
     @Autowired private val passwordEncoder: PasswordEncoder,
     @Autowired private val jwtUtil: JwtUtil,
@@ -35,7 +36,7 @@ class UserService(
      * */
     @Transactional
     override fun <T: SignUpData> signUp(dto: T, role: String): String? {
-        var user: Users? = userRepository.findByPhone(dto.phone)
+        var user: Users? = userRepository.findUserByPhone(dto.phone)
         var detail: UserDetail? = null
 
         // 유저 생성
@@ -97,12 +98,12 @@ class UserService(
     }
 
     override fun checkMember(dto: CheckMemberData): Boolean {
-        val user: Users? = userRepository.findByPhone(dto.phone)
+        val user: Users? = userRepository.findUserByPhone(dto.phone)
         return user != null
     }
 
     override fun findByPhone(phone: String): Users? {
-        return userRepository.findByPhone(phone)
+        return userRepository.findUserByPhone(phone)
     }
 
     /**
@@ -113,7 +114,7 @@ class UserService(
         val phone: String? = username // username 을 phone 으로 체크합니다.
 
         if (phone != null) {
-            val usersEntity: Users? = userRepository.findByPhone(phone)
+            val usersEntity: Users? = userRepository.findUserByPhone(phone)
             if (usersEntity != null) {
                 return CustomUser(
                     usersEntity.phone,

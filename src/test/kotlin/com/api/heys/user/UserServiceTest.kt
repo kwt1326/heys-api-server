@@ -5,7 +5,7 @@ import com.api.heys.constants.enums.Gender
 import com.api.heys.domain.user.dto.AdminSignUpData
 import com.api.heys.domain.user.dto.CommonSignUpData
 import com.api.heys.domain.user.service.UserService
-import com.api.heys.entity.IUserRepository
+import com.api.heys.domain.user.repository.UserRepository
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -20,7 +20,7 @@ import java.time.LocalDate
 @Transactional
 internal class UserServiceTest(
     @Autowired private val userService: UserService,
-    @Autowired private val userRepository: IUserRepository
+    @Autowired private val userRepository: UserRepository
 ) {
     private val commonSignUpData = CommonSignUpData(
         phone = "01012341234",

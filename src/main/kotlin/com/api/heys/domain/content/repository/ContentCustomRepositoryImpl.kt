@@ -1,6 +1,5 @@
 package com.api.heys.domain.content.repository
 
-import com.api.heys.constants.enums.ContentType
 import com.api.heys.domain.content.dto.ExtraContentListItemData
 import com.api.heys.domain.content.dto.GetExtraContentsParam
 import com.api.heys.entity.*
