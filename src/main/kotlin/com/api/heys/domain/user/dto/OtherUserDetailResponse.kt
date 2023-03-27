@@ -30,6 +30,6 @@ data class OtherUserDetailResponse (
     @field:Schema(example = "[\"https://www.github.com\", \"https://www.instagram.com/\"]", type = "array<string>")
     var profileLinks: Set<String> = setOf(),
 
-    ){
-
-}
+    @field:Schema(example = "0", type = "int")
+    val percentage: Int = 0,
+    )
