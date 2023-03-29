@@ -13,17 +13,16 @@ class UserDetailPercentUtils {
                 throw IllegalArgumentException("#### 유저의 정보가 없습니다.")
             }
 
-            var percentage = Percentage.HUNDRED;
             if (StringUtils.hasNotText(userDetail.introduceText)) {
-                percentage = Percentage.ZERO;
+                return Percentage.ZERO.getValue()
             }
 
             if (CollectionUtils.isEmpty(userDetail.profileLink) ||
                 StringUtils.hasNotText(userDetail.job) ||
                 StringUtils.hasNotText(userDetail.capability)) {
-                percentage = Percentage.FIFTY
+                return Percentage.FIFTY.getValue()
             }
-            return percentage.getValue();
+            return Percentage.HUNDRED.getValue()
         }
     }
 }
