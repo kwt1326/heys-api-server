@@ -36,10 +36,12 @@ data class UserDetailResponse(
     @field:Schema(example = "[\"https://www.github.com\", \"https://www.instagram.com/\"]", type = "array<string>")
     var profileLinks: Set<String> = setOf(),
 
+    @field:Schema(example = "0", type = "int")
+    val percentage: Int = 0,
+
     @field:Schema(example = "2", type = "int")
     val joinChannelCount: Long? = 0,
 
     @field:Schema(example = "1", type = "int")
     val waitingChannelCount: Long? = 0,
-
     )

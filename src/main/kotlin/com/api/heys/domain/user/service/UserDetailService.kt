@@ -1,6 +1,7 @@
 package com.api.heys.domain.user.service
 
 import com.api.heys.constants.DefaultString
+import com.api.heys.constants.enums.Percentage
 import com.api.heys.domain.channel.ChannelService
 import com.api.heys.domain.interest.service.InterestService
 import com.api.heys.domain.profilelink.service.UserProfileLinkService
@@ -12,6 +13,7 @@ import com.api.heys.domain.user.repository.UserDetailRepository
 import com.api.heys.entity.InterestRelations
 import com.api.heys.entity.UserDetail
 import com.api.heys.utils.JwtUtil
+import com.api.heys.utils.UserDetailPercentUtils
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -42,6 +44,8 @@ class UserDetailService(
             .map{ it.linkUrl }
             .toSet()
 
+        val percentage = UserDetailPercentUtils.calculateUserDetailPercentage(findUserDetail)
+
         val channels: HashMap<String, Long> = channelService.getJoinAndWaitingChannelCounts(token)
         val joinChannelCount: Long? = if(channels?.get(DefaultString.joinChannelKey) == null) 0 else channels[DefaultString.joinChannelKey]
         val waitingChannelCount: Long? = if(channels?.get(DefaultString.waitChannelKey) == null) 0 else channels[DefaultString.waitChannelKey];
@@ -57,8 +61,9 @@ class UserDetailService(
             userPersonality = findUserDetail.userPersonality,
             interests = interests,
             profileLinks = profileLinks,
+            percentage = percentage,
             joinChannelCount = joinChannelCount,
-            waitingChannelCount = waitingChannelCount
+            waitingChannelCount = waitingChannelCount,
         )
     }
 
@@ -92,6 +97,8 @@ class UserDetailService(
 
         val userProfileLinks = userProfileLinkService.findUserProfileLink(userDetailId = findUserDetail.id)
 
+        val percentage = UserDetailPercentUtils.calculateUserDetailPercentage(findUserDetail)
+
         val profileLinks: Set<String> = userProfileLinks
             .map{ it.linkUrl }
             .toSet()
@@ -105,6 +112,7 @@ class UserDetailService(
             userPersonality = findUserDetail.userPersonality,
             interests = interests,
             profileLinks = profileLinks,
+            percentage = percentage
         )
     }
 

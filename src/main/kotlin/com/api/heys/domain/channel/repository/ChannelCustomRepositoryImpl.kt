@@ -6,6 +6,7 @@ import com.api.heys.constants.enums.*
 import com.api.heys.domain.channel.dto.*
 import com.api.heys.entity.*
 import com.api.heys.utils.CommonUtil
+import com.api.heys.utils.UserDetailPercentUtils
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.stereotype.Repository
@@ -261,8 +262,7 @@ class ChannelCustomRepositoryImpl(
             id = channelLeader.id,
             username = channelLeaderDetail.username,
             introduceText = channelLeaderDetail.introduceText,
-            percentage = 0,
-            /** TODO: 범수님 */
+            percentage = UserDetailPercentUtils.calculateUserDetailPercentage(channelLeaderDetail),
         )
 
         val purposes = channelDetail.purposes.map { GetChannelDetailPurposeData(id = it.id, purpose = it.purpose) }
@@ -271,17 +271,13 @@ class ChannelCustomRepositoryImpl(
         val waitingUserList = channel.channelUserRelations.filter { it.status == ChannelMemberStatus.Waiting }.map {
             GetChannelDetailUserData(
                 id = it.user.id,
-                percentage = 0,
-                /** TODO: 범수님 */
-                gender = if (it.user.detail != null) it.user.detail!!.gender else Gender.NonBinary,
+                percentage = UserDetailPercentUtils.calculateUserDetailPercentage(it.user.detail)
             )
         }
         val approvedUserList = channel.channelUserRelations.filter { it.status == ChannelMemberStatus.Approved }.map {
             GetChannelDetailUserData(
                 id = it.user.id,
-                percentage = 0,
-                /** TODO: 범수님 */
-                gender = if (it.user.detail != null) it.user.detail!!.gender else Gender.NonBinary,
+                percentage = UserDetailPercentUtils.calculateUserDetailPercentage(it.user.detail)
             )
         }
 
