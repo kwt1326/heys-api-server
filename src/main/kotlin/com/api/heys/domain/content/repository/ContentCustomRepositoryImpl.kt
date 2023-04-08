@@ -125,7 +125,6 @@ class ContentCustomRepositoryImpl(
         }
 
         val totalCount = extraContentFilterCountQuery(totalCountQuery, params)
-        println("totalCount : $totalCount")
         val totalPage = commonUtil.calcTotalPage(totalCount, params.limit)
 
         return GetExtraContentsResponse(data, totalPage, MessageString.SUCCESS_EN)

@@ -230,7 +230,6 @@ class ChannelCustomRepositoryImpl(
             }
 
         val totalCount = channelFilterCountQuery(totalCountQuery, params, type, contentId)
-        println("totalCount : $totalCount")
         val totalPage =
             commonUtil.calcTotalPage(totalCount, params.limit)
 
