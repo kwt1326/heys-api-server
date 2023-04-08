@@ -66,7 +66,7 @@ class ChannelCustomRepositoryImpl(
             )
 
             // 마감 일자 값이 존재할 경우 해당 값 이전 요소만 쿼리
-            if (params.lastRecruitDate != null) {
+            if (!params.lastRecruitDate.isNullOrBlank()) {
                 query = query.where(
                     qChannelDetail.lastRecruitDate.before(LocalDateTime.parse(params.lastRecruitDate))
                 )
@@ -87,7 +87,7 @@ class ChannelCustomRepositoryImpl(
             query = query.where(qChannelDetail.online.eq(params.online))
 
             // 활동 형태가 온*오프라인 혹은 오프라인 일 경우 위치 쿼리
-            if (params.location != null && (params.online == Online.Offline || params.online == Online.OnOffLine)) {
+            if (!params.location.isNullOrBlank() && (params.online == Online.Offline || params.online == Online.OnOffLine)) {
                 query = query.where(qChannelDetail.location.eq(params.location))
             }
         }
@@ -133,7 +133,7 @@ class ChannelCustomRepositoryImpl(
             )
 
             // 마감 일자 값이 존재할 경우 해당 값 이전 요소만 쿼리
-            if (params.lastRecruitDate != null) {
+            if (!params.lastRecruitDate.isNullOrBlank()) {
                 query = query.where(
                     qChannelDetail.lastRecruitDate.before(LocalDateTime.parse(params.lastRecruitDate))
                 )
@@ -154,7 +154,7 @@ class ChannelCustomRepositoryImpl(
             query = query.where(qChannelDetail.online.eq(params.online))
 
             // 활동 형태가 온*오프라인 혹은 오프라인 일 경우 위치 쿼리
-            if (params.location != null && (params.online == Online.Offline || params.online == Online.OnOffLine)) {
+            if (!params.location.isNullOrBlank() && (params.online == Online.Offline || params.online == Online.OnOffLine)) {
                 query = query.where(qChannelDetail.location.eq(params.location))
             }
         }
@@ -211,7 +211,7 @@ class ChannelCustomRepositoryImpl(
 
     override fun getChannels(type: ChannelType, params: GetChannelsParam, contentId: Long?): GetChannelsResponse {
         val query = jpaQueryFactory.selectFrom(qChannels)
-        val totalCountQuery = jpaQueryFactory.select(qChannels.count()).from(qChannels)
+        val totalCountQuery = jpaQueryFactory.select(qChannels.countDistinct()).from(qChannels)
 
         val data = channelFilterQuery(query, params, type, contentId)
             .filter { it.detail != null }
@@ -229,8 +229,10 @@ class ChannelCustomRepositoryImpl(
                 )
             }
 
+        val totalCount = channelFilterCountQuery(totalCountQuery, params, type, contentId)
+        println("totalCount : $totalCount")
         val totalPage =
-            commonUtil.calcTotalPage(channelFilterCountQuery(totalCountQuery, params, type, contentId), params.limit)
+            commonUtil.calcTotalPage(totalCount, params.limit)
 
         return GetChannelsResponse(data, totalPage, MessageString.SUCCESS_EN)
     }

@@ -45,7 +45,7 @@ class ContentCustomRepositoryImpl(
             )
 
             // 마감 일자 값이 존재할 경우 해당 값 이전 요소만 쿼리
-            if (params.lastRecruitDate != null) {
+            if (!params.lastRecruitDate.isNullOrBlank()) {
                 query = query.where(
                     qExtraContentDetail.endDate.before(LocalDateTime.parse(params.lastRecruitDate))
                 )
@@ -84,7 +84,7 @@ class ContentCustomRepositoryImpl(
             )
 
             // 마감 일자 값이 존재할 경우 해당 값 이전 요소만 쿼리
-            if (params.lastRecruitDate != null) {
+            if (!params.lastRecruitDate.isNullOrBlank()) {
                 query = query.where(
                     qExtraContentDetail.endDate.before(LocalDateTime.parse(params.lastRecruitDate))
                 )
@@ -107,7 +107,7 @@ class ContentCustomRepositoryImpl(
      * */
     override fun findExtraContents(params: GetExtraContentsParam): GetExtraContentsResponse {
         val query = jpaQueryFactory.selectFrom(qContents)
-        val totalCountQuery = jpaQueryFactory.select(qContents.count()).from(qContents)
+        val totalCountQuery = jpaQueryFactory.select(qContents.countDistinct()).from(qContents)
 
         val data = extraContentFilterQuery(query, params).map {
             val detail = it.extraDetail!!
@@ -124,7 +124,9 @@ class ContentCustomRepositoryImpl(
             )
         }
 
-        val totalPage = commonUtil.calcTotalPage(extraContentFilterCountQuery(totalCountQuery, params), params.limit)
+        val totalCount = extraContentFilterCountQuery(totalCountQuery, params)
+        println("totalCount : $totalCount")
+        val totalPage = commonUtil.calcTotalPage(totalCount, params.limit)
 
         return GetExtraContentsResponse(data, totalPage, MessageString.SUCCESS_EN)
     }
