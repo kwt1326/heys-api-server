@@ -1,5 +1,6 @@
-package com.api.heys.entity
+package com.api.heys.domain.channel.repository
 
+import com.api.heys.entity.ChannelUserRelations
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.querydsl.QuerydslPredicateExecutor
 import org.springframework.data.repository.CrudRepository

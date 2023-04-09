@@ -272,13 +272,17 @@ class ChannelCustomRepositoryImpl(
         val waitingUserList = channel.channelUserRelations.filter { it.status == ChannelMemberStatus.Waiting }.map {
             GetChannelDetailUserData(
                 id = it.user.id,
-                percentage = UserDetailPercentUtils.calculateUserDetailPercentage(it.user.detail)
+                percentage = UserDetailPercentUtils.calculateUserDetailPercentage(it.user.detail),
+                gender = if (it.user.detail != null) it.user.detail!!.gender else Gender.NonBinary,
+                date = it.createdAt
             )
         }
         val approvedUserList = channel.channelUserRelations.filter { it.status == ChannelMemberStatus.Approved }.map {
             GetChannelDetailUserData(
                 id = it.user.id,
-                percentage = UserDetailPercentUtils.calculateUserDetailPercentage(it.user.detail)
+                percentage = UserDetailPercentUtils.calculateUserDetailPercentage(it.user.detail),
+                gender = if (it.user.detail != null) it.user.detail!!.gender else Gender.NonBinary,
+                date = it.approveRequestAt
             )
         }
 
