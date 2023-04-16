@@ -1,11 +1,14 @@
 package com.api.heys.domain.channel.dto
 
+import com.api.heys.constants.enums.ChannelType
 import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "채널 리스트 요소 데이터")
 data class ChannelListItemData(
         @field:Schema(example = "1", type = "long")
         var id: Long,
+        @field:Schema(example = "Study", type = "string")
+        var type: ChannelType,
         @field:Schema(example = "게임 프로그래머 경진대회", type = "string")
         var name: String,
         @field:Schema(example = "123", type = "long")

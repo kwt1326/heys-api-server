@@ -5,7 +5,6 @@ import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.*
 import com.api.heys.domain.channel.ChannelService
 import com.api.heys.domain.channel.dto.CreateChannelData
-import com.api.heys.domain.channel.dto.GetChannelDetailLinkData
 import com.api.heys.domain.channel.dto.GetChannelsParam
 import com.api.heys.domain.channel.dto.PutChannelData
 import com.api.heys.domain.content.ContentService
@@ -221,6 +220,13 @@ class ChannelServiceTest(
         assertThat(resultMap2[DefaultString.joinChannelKey]).isEqualTo(0)
         assertThat(resultMap2[DefaultString.waitChannelKey]).isEqualTo(1)
 
+        val resultLeaderChannels = channelService.getMyChannels(null, leaderToken)
+        assertThat(resultLeaderChannels.body!!.data.count()).isEqualTo(1)
+        println(resultLeaderChannels.body!!.data)
+
+        val resultUserChannels1 = channelService.getMyChannels(ChannelMemberStatus.Waiting, token)
+        assertThat(resultUserChannels1.body!!.data.count()).isEqualTo(1)
+
         val user = userService.findByPhone(jwtUtil.extractUsername(token))
         assertThat(user).isNotNull
 
@@ -241,6 +247,9 @@ class ChannelServiceTest(
 
         assertThat(followersResponse.body!!.data.count()).isEqualTo(1)
         assertThat(followersResponse.body!!.data.first().username).isEqualTo("TESTER")
+
+        val resultUserChannels2 = channelService.getMyChannels(ChannelMemberStatus.Approved, token)
+        assertThat(resultUserChannels2.body!!.data.count()).isEqualTo(1)
 
         val exitResponse = channelService.memberExitChannel("탈퇴합니다~!", resultMap["channelId"] as Long, token)
 
@@ -298,8 +307,6 @@ class ChannelServiceTest(
     @Order(6)
     fun bookmarkTest() {
         val resultMap = createContentAndChannelByLeader()
-//        val createChannelResponse = channelService.createChannel(studyChannelData, leaderToken)
-//        val channelId = createChannelResponse.body!!.channelId!!
 
         val channelId = resultMap["channelId"] as Long
         val bookmarkAddResponse = channelService.addBookmark(channelId, token)

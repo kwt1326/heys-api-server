@@ -20,6 +20,8 @@ interface IChannelService {
 
     fun getJoinAndWaitingChannelCounts(token: String): HashMap<String, Long>
 
+    fun getMyChannels(status: ChannelMemberStatus?, token: String): ResponseEntity<GetMyChannelsResponse>
+
     fun getChannelFollowers(channelId: Long, status: ChannelMemberStatus): ResponseEntity<GetChannelFollowersResponse>
 
     fun toggleActiveNotify(channelId: Long, token: String): ResponseEntity<ChannelPutResponse>

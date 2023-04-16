@@ -148,6 +148,45 @@ class ChannelController(
     }
 
     @Operation(
+        summary = "내 채널",
+        description = "나의 합류/대기/생성 채널 리스트 API 입니다.",
+        responses = [ApiResponse(
+            responseCode = "200", description = "successful operation", content = [
+                Content(
+                    schema = Schema(implementation = GetMyChannelsResponse::class),
+                    mediaType = "application/json"
+                )
+            ]
+        )]
+    )
+    @GetMapping("my")
+    fun getMyChannels(
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<GetMyChannelsResponse> {
+        return channelService.getMyChannels(null, bearer)
+    }
+
+    @Operation(
+        summary = "나의 합류/대기 채널",
+        description = "나의 합류/대기 채널 리스트 API 입니다.",
+        responses = [ApiResponse(
+            responseCode = "200", description = "successful operation", content = [
+                Content(
+                    schema = Schema(implementation = GetMyChannelsResponse::class),
+                    mediaType = "application/json"
+                )
+            ]
+        )]
+    )
+    @GetMapping("my/{status}")
+    fun getMyChannelsByStatus(
+        @PathVariable status: ChannelMemberStatus,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<GetMyChannelsResponse> {
+        return channelService.getMyChannels(status, bearer)
+    }
+
+    @Operation(
         summary = "나의 합류/대기 채널 수",
         description = "나의 합류/대기 채널 수를 카운팅 해주는 API 입니다. (추후 마이페이지 관리 페이지 API 로 병합 할 수 있음)",
     )

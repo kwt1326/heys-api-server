@@ -209,17 +209,20 @@ class ChannelCustomRepositoryImpl(
         }
     }
 
-    override fun getChannels(type: ChannelType, params: GetChannelsParam, contentId: Long?): GetChannelsResponse {
-        val query = jpaQueryFactory.selectFrom(qChannels)
-        val totalCountQuery = jpaQueryFactory.select(qChannels.countDistinct()).from(qChannels)
-
-        val data = channelFilterQuery(query, params, type, contentId)
+    override fun getChannels(type: ChannelType, params: GetChannelsParam, contentId: Long?): List<ChannelListItemData> {
+        return channelFilterQuery(
+            queryBase = jpaQueryFactory.selectFrom(qChannels),
+            params,
+            type,
+            contentId
+        )
             .filter { it.detail != null }
             .map {
                 val detail: ChannelDetail = it.detail!!
                 val view = it.channelViews
                 ChannelListItemData(
                     id = it.id,
+                    type = type,
                     name = detail.name,
                     viewCount = view.count().toLong(),
                     joinRemainCount = detail.limitPeople.toLong().minus(it.channelUserRelations.count()),
@@ -228,12 +231,50 @@ class ChannelCustomRepositoryImpl(
                     thumbnailUri = detail.thumbnailUri
                 )
             }
+    }
 
-        val totalCount = channelFilterCountQuery(totalCountQuery, params, type, contentId)
-        val totalPage =
-            commonUtil.calcTotalPage(totalCount, params.limit)
+    override fun getChannelCount(type: ChannelType, params: GetChannelsParam, contentId: Long?): Long {
+        return commonUtil.calcTotalPage(
+            channelFilterCountQuery(
+                queryBase = jpaQueryFactory.select(qChannels.countDistinct()).from(qChannels),
+                params,
+                type,
+                contentId
+            ),
+            params.limit
+        )
+    }
 
-        return GetChannelsResponse(data, totalPage, MessageString.SUCCESS_EN)
+    override fun getMyChannels(status: ChannelMemberStatus?, userId: Long): List<MyChannelListItemData> {
+        var query = jpaQueryFactory
+            .selectFrom(qChannels)
+            .join(qChannels.detail)
+            .leftJoin(qChannels.channelUserRelations, qChannelUserRelations)
+            .where(qChannelUserRelations.removedAt.isNull)
+            .where(qChannels.removedAt.isNull)
+
+        query = if (status != null) {
+            // status is exist 일 경우 '나의 승인대기/참여' 채널 쿼리
+            query.where(qChannelUserRelations.user.id.eq(userId).and(qChannelUserRelations.status.eq(status)))
+        } else {
+            // status == null 일 경우 '내 채널' 페이지에 해당하는 모든 채널 쿼리 (내가 생성한 채널, 참여 승인된 채널)
+            query.where(qChannels.leader.id.eq(userId).or(qChannelUserRelations.status.eq(ChannelMemberStatus.Approved)))
+        }
+
+        return query.distinct().fetch()
+            .filter { it.detail != null }
+            .map {
+                val detail: ChannelDetail = it.detail!!
+                val dDay: Long = commonUtil.calculateDday(detail.lastRecruitDate)
+                MyChannelListItemData(
+                    id = it.id,
+                    type = it.type,
+                    name = detail.name,
+                    dDay = dDay,
+                    isLeader = it.leader.id == userId,
+                    isClosed = detail.limitPeople.toLong().minus(it.channelUserRelations.count()) <= 0 || dDay < 0
+                )
+            }
     }
 
     override fun getChannelDetail(channelId: Long, userId: Long): GetChannelDetailData? {

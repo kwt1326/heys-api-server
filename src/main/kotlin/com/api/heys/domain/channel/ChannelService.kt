@@ -187,9 +187,11 @@ class ChannelService(
         params: GetChannelsParam,
         contentId: Long?
     ): ResponseEntity<GetChannelsResponse> {
-        return ResponseEntity.ok(
-            channelsRepository.getChannels(type, params, contentId)
-        )
+        return ResponseEntity.ok(GetChannelsResponse(
+            data = channelsRepository.getChannels(type, params, contentId),
+            totalPage = channelsRepository.getChannelCount(type, params, contentId),
+            MessageString.SUCCESS_EN
+        ))
     }
 
     @Transactional
@@ -354,6 +356,24 @@ class ChannelService(
         val user: Users =
             findUserByToken(token, jwtUtil, userRepository) ?: return hashMapOf()
         return channelsRepository.getJoinAndWaitingChannelCounts(user.id) ?: return hashMapOf()
+    }
+
+    @Transactional(readOnly = true)
+    override fun getMyChannels(status: ChannelMemberStatus?, token: String): ResponseEntity<GetMyChannelsResponse> {
+        val response = GetMyChannelsResponse()
+        val user: Users? = findUserByToken(token, jwtUtil, userRepository)
+
+        if (user == null) {
+            response.message = MessageString.INVALID_USER
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response)
+        }
+
+        return ResponseEntity.ok(
+            GetMyChannelsResponse(
+                data = channelsRepository.getMyChannels(status, user.id),
+                message = MessageString.SUCCESS_EN
+            )
+        )
     }
 
     @Transactional(readOnly = true)
