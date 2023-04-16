@@ -1,6 +1,5 @@
 package com.api.heys.helpers
 
-import com.api.heys.constants.DefaultString
 import com.api.heys.constants.enums.ContentType
 import com.api.heys.domain.content.dto.CreateExtraContentData
 import org.apache.poi.ss.usermodel.Cell
@@ -10,7 +9,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 class SpreadSheetManager<FILETYPE>(
     private val file: FILETYPE,

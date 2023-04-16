@@ -10,7 +10,7 @@ class WebConfig: WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
             .allowedOrigins(
-                "http://localhost:3000",
+                "http://127.0.0.1:3001",
                 "https://admin-dev.teamheys.com",
                 "https://admin.teamheys.com"
             ).exposedHeaders(SecurityString.HEADER_AUTHORIZATION)

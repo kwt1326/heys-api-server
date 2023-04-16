@@ -261,6 +261,7 @@ class ChannelCustomRepositoryImpl(
 
         val leaderData = GetChannelDetailLeaderData(
             id = channelLeader.id,
+            phone = channelLeader.phone,
             username = channelLeaderDetail.username,
             introduceText = channelLeaderDetail.introduceText,
             percentage = UserDetailPercentUtils.calculateUserDetailPercentage(channelLeaderDetail),
