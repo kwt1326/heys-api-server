@@ -1,6 +1,8 @@
 package com.api.heys.utils
 
+import com.api.heys.domain.user.repository.UserRepository
 import com.api.heys.domain.user.service.UserService
+import com.api.heys.entity.Users
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 
@@ -13,6 +15,11 @@ open class UserUtil {
             else authentication.principal.toString()
         )
         return users != null
+    }
+
+    fun findUserByToken(token: String, jwtUtil: JwtUtil, userRepository: UserRepository): Users? {
+        val phone: String = jwtUtil.extractUsername(token)
+        return userRepository.findUserByPhone(phone)
     }
 
     fun logout(): Boolean {

@@ -357,8 +357,8 @@ class ChannelController(
     }
 
     @Operation(
-        summary = "컨텐츠 북마크 제거",
-        description = "컨텐츠 북마크를 취소합니다.",
+        summary = "채널 북마크 제거",
+        description = "채널 북마크를 취소합니다.",
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
@@ -373,5 +373,24 @@ class ChannelController(
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
     ): ResponseEntity<String> {
         return channelService.removeBookmark(channelId, bearer)
+    }
+
+    @Operation(
+        summary = "여러 개의 채널 북마크 동시 취소",
+        description = "여러 개의 채널 북마크들을 동시 취소합니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                ]
+            )
+        ]
+    )
+    @PutMapping("/remove-bookmarks")
+    fun putRemoveBookmarks(
+        @Valid @RequestBody dto: PutChannelRemoveRemarksData,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<String> {
+        return channelService.removeBookmarks(dto, bearer)
     }
 }

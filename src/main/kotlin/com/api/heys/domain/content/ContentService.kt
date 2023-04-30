@@ -8,10 +8,10 @@ import com.api.heys.domain.interest.repository.InterestRelationRepository
 import com.api.heys.domain.interest.repository.InterestRepository
 import com.api.heys.domain.user.repository.UserRepository
 import com.api.heys.entity.*
+import com.api.heys.helpers.DateHelpers
 import com.api.heys.helpers.SpreadSheetManager
-import com.api.heys.helpers.findUserByToken
-import com.api.heys.utils.CommonUtil
 import com.api.heys.utils.JwtUtil
+import com.api.heys.utils.UserUtil
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -25,7 +25,7 @@ class ContentService(
     @Autowired private val interestRepository: InterestRepository,
     @Autowired private val interestRelationRepository: InterestRelationRepository,
     @Autowired private val userRepository: UserRepository,
-    @Autowired private val commonUtil: CommonUtil,
+    @Autowired private val userUtil: UserUtil,
     @Autowired private val jwtUtil: JwtUtil,
 ) : IContentService {
     @Transactional
@@ -73,7 +73,7 @@ class ContentService(
     @Transactional
     override fun createExtraContent(dto: CreateExtraContentData, token: String): ResponseEntity<CreateContentResponse> {
         val response = CreateContentResponse(contentId = null, message = MessageString.SUCCESS_EN)
-        val user = findUserByToken(token, jwtUtil, userRepository)
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
 
         if (user == null) {
             response.message = MessageString.INVALID_USER
@@ -87,7 +87,7 @@ class ContentService(
 
     @Transactional
     override fun createExtraContentFromExcel(file: MultipartFile, token: String): ResponseEntity<String> {
-        val user = findUserByToken(token, jwtUtil, userRepository)
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found user")
 
         if (user.authentications.find { it.role == DefaultString.adminRole } == null) {
@@ -104,7 +104,7 @@ class ContentService(
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(GetExtraContentDetailResponse(data = null, message = "Not found extra content"))
 
-        val user = findUserByToken(token, jwtUtil, userRepository) ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository) ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(GetExtraContentDetailResponse(data = null, message = "Not found user"))
         val detail = result.extraDetail ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(GetExtraContentDetailResponse(data = null, message = "Not found extra content detail"))
@@ -126,7 +126,7 @@ class ContentService(
                     contact = detail.contact,
                     startDate = detail.startDate,
                     endDate = detail.endDate,
-                    dDay = commonUtil.calculateDday(detail.endDate),
+                    dDay = DateHelpers.calculateDday(detail.endDate),
                     viewCount = views.count().toLong(),
                     channelCount = channels.count().toLong(),
                     linkUrl = detail.linkUrl,
@@ -197,7 +197,7 @@ class ContentService(
         if (!content.isPresent)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found content")
 
-        val user = findUserByToken(token, jwtUtil, userRepository)
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
 
         val contentEntity = content.get()
@@ -215,7 +215,7 @@ class ContentService(
 
     @Transactional
     override fun addBookmark(id: Long, token: String): ResponseEntity<String> {
-        val user = findUserByToken(token, jwtUtil, userRepository)
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
 
         val content = contentRepository.findById(id)
@@ -238,7 +238,7 @@ class ContentService(
 
     @Transactional
     override fun removeBookmark(id: Long, token: String): ResponseEntity<String> {
-        val user = findUserByToken(token, jwtUtil, userRepository)
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
 
         val content = contentRepository.findById(id)
@@ -254,5 +254,21 @@ class ContentService(
         contentRepository.save(contentEntity)
 
         return ResponseEntity.status(HttpStatus.OK).body("Removed content bookmark : ${contentEntity.id}")
+    }
+
+    @Transactional
+    override fun removeBookmarks(params: PutContentRemoveRemarksData, token: String): ResponseEntity<String> {
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
+
+        val contents = contentRepository.findAllById(params.contentIds)
+        contents.forEach {
+            val bookmark = it.contentBookMarks.find { it2 -> it2.users!!.id == user.id }
+            if (bookmark != null) it.contentBookMarks.removeIf { it2 -> it2.id == bookmark.id }
+        }
+
+        contentRepository.saveAll(contents)
+
+        return ResponseEntity.status(HttpStatus.OK).body("Removed content bookmarks num : ${contents.count()}")
     }
 }

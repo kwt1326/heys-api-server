@@ -1,6 +1,5 @@
 package com.api.heys.config
 
-import com.api.heys.utils.CommonUtil
 import com.api.heys.utils.JwtUtil
 import com.api.heys.utils.UserUtil
 import org.springframework.context.annotation.Bean
@@ -15,9 +14,6 @@ class CommonConfig {
 
     @Bean
     fun userUtil(): UserUtil { return UserUtil() }
-
-    @Bean
-    fun commonUtil(): CommonUtil { return CommonUtil() }
 
     @Bean
     fun passwordEncoder(): PasswordEncoder? {

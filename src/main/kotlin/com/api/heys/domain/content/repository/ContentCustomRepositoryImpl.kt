@@ -5,7 +5,7 @@ import com.api.heys.domain.content.dto.ExtraContentListItemData
 import com.api.heys.domain.content.dto.GetExtraContentsParam
 import com.api.heys.domain.content.dto.GetExtraContentsResponse
 import com.api.heys.entity.*
-import com.api.heys.utils.CommonUtil
+import com.api.heys.helpers.DateHelpers
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.stereotype.Repository
@@ -13,7 +13,6 @@ import java.time.LocalDateTime
 
 @Repository
 class ContentCustomRepositoryImpl(
-    private val commonUtil: CommonUtil,
     private val jpaQueryFactory: JPAQueryFactory,
 ) : ContentCustomRepository {
     val qUsers: QUsers = QUsers.users
@@ -119,13 +118,13 @@ class ContentCustomRepositoryImpl(
                 company = detail.company,
                 viewCount = view.count().toLong(),
                 channelCount = channels.count(),
-                dDay = commonUtil.calculateDday(detail.endDate),
+                dDay = DateHelpers.calculateDday(detail.endDate),
                 previewImgUri = detail.previewImgUri
             )
         }
 
         val totalCount = extraContentFilterCountQuery(totalCountQuery, params)
-        val totalPage = commonUtil.calcTotalPage(totalCount, params.limit)
+        val totalPage = DateHelpers.calcTotalPage(totalCount, params.limit)
 
         return GetExtraContentsResponse(data, totalPage, MessageString.SUCCESS_EN)
     }

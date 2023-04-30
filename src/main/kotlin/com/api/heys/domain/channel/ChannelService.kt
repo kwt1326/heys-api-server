@@ -11,9 +11,9 @@ import com.api.heys.domain.content.repository.IContentsRepository
 import com.api.heys.domain.interest.repository.InterestRelationRepository
 import com.api.heys.domain.interest.repository.InterestRepository
 import com.api.heys.domain.user.repository.UserRepository
-import com.api.heys.helpers.findUserByToken
 import com.api.heys.utils.JwtUtil
 import com.api.heys.entity.*
+import com.api.heys.utils.UserUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -31,6 +31,7 @@ class ChannelService(
     @Autowired private val interestRepository: InterestRepository,
     @Autowired private val interestRelationRepository: InterestRelationRepository,
     @Autowired private val userRepository: UserRepository,
+    @Autowired private val userUtil: UserUtil,
     @Autowired private val jwtUtil: JwtUtil,
 ) : IChannelService {
     /**
@@ -44,7 +45,7 @@ class ChannelService(
         contentId: Long
     ): ResponseEntity<CreateChannelResponse> {
         val result = CreateChannelResponse(message = MessageString.SUCCESS_EN)
-        val user: Users? = findUserByToken(token, jwtUtil, userRepository)
+        val user: Users? = userUtil.findUserByToken(token, jwtUtil, userRepository)
 
         if (user == null) {
             result.message = MessageString.INVALID_USER
@@ -127,7 +128,7 @@ class ChannelService(
     @Transactional
     override fun createChannel(dto: CreateChannelData, token: String): ResponseEntity<CreateChannelResponse> {
         val result = CreateChannelResponse(message = MessageString.SUCCESS_EN)
-        val user: Users? = findUserByToken(token, jwtUtil, userRepository)
+        val user: Users? = userUtil.findUserByToken(token, jwtUtil, userRepository)
 
         if (user == null) {
             result.message = MessageString.INVALID_USER
@@ -199,7 +200,7 @@ class ChannelService(
         val response = JoinChannelResponse()
 
         val channel: Optional<Channels> = channelsRepository.findById(channelId)
-        val user: Users? = findUserByToken(token, jwtUtil, userRepository)
+        val user: Users? = userUtil.findUserByToken(token, jwtUtil, userRepository)
 
         if (user == null) {
             response.message = MessageString.INVALID_USER
@@ -260,7 +261,7 @@ class ChannelService(
         dto: PutChannelData,
         token: String
     ): ResponseEntity<ChannelPutResponse> {
-        val user = findUserByToken(token, jwtUtil, userRepository)
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
             ?: return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ChannelPutResponse(MessageString.NOT_FOUND_USER))
@@ -334,7 +335,7 @@ class ChannelService(
 
     @Transactional(readOnly = true)
     override fun getChannelDetail(channelId: Long, token: String): ResponseEntity<GetChannelDetailResponse> {
-        val user = findUserByToken(token, jwtUtil, userRepository)
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
             ?: return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(GetChannelDetailResponse(message = MessageString.NOT_FOUND_USER))
@@ -354,14 +355,14 @@ class ChannelService(
     @Transactional(readOnly = true)
     override fun getJoinAndWaitingChannelCounts(token: String): HashMap<String, Long> {
         val user: Users =
-            findUserByToken(token, jwtUtil, userRepository) ?: return hashMapOf()
+            userUtil.findUserByToken(token, jwtUtil, userRepository) ?: return hashMapOf()
         return channelsRepository.getJoinAndWaitingChannelCounts(user.id) ?: return hashMapOf()
     }
 
     @Transactional(readOnly = true)
     override fun getMyChannels(status: ChannelMemberStatus?, token: String): ResponseEntity<GetMyChannelsResponse> {
         val response = GetMyChannelsResponse()
-        val user: Users? = findUserByToken(token, jwtUtil, userRepository)
+        val user: Users? = userUtil.findUserByToken(token, jwtUtil, userRepository)
 
         if (user == null) {
             response.message = MessageString.INVALID_USER
@@ -395,7 +396,7 @@ class ChannelService(
 
         /* only leader user usage */
         val channel: Optional<Channels> = channelsRepository.findById(channelId)
-        val user: Users? = findUserByToken(token, jwtUtil, userRepository)
+        val user: Users? = userUtil.findUserByToken(token, jwtUtil, userRepository)
 
         if (user == null) {
             response.message = MessageString.INVALID_USER
@@ -434,7 +435,7 @@ class ChannelService(
 
         /* only leader user usage */
         val channel: Optional<Channels> = channelsRepository.findById(channelId)
-        val leaderUser: Users? = findUserByToken(leaderToken, jwtUtil, userRepository)
+        val leaderUser: Users? = userUtil.findUserByToken(leaderToken, jwtUtil, userRepository)
 
         if (leaderUser == null) {
             response.message = MessageString.INVALID_USER
@@ -492,7 +493,7 @@ class ChannelService(
     ): ResponseEntity<ChannelPutResponse> {
         val response = ChannelPutResponse(message = MessageString.SUCCESS_EN)
         val channel: Optional<Channels> = channelsRepository.findById(channelId)
-        val user: Users? = findUserByToken(token, jwtUtil, userRepository)
+        val user: Users? = userUtil.findUserByToken(token, jwtUtil, userRepository)
 
         if (user == null) {
             response.message = MessageString.INVALID_USER
@@ -543,7 +544,7 @@ class ChannelService(
     ): ResponseEntity<ChannelPutResponse> {
         val response = ChannelPutResponse(message = MessageString.SUCCESS_EN)
         val channel: Optional<Channels> = channelsRepository.findById(channelId)
-        val user: Users? = findUserByToken(token, jwtUtil, userRepository)
+        val user: Users? = userUtil.findUserByToken(token, jwtUtil, userRepository)
 
         if (user == null) {
             response.message = MessageString.INVALID_USER
@@ -593,7 +594,7 @@ class ChannelService(
         if (!channel.isPresent)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found content")
 
-        val user = findUserByToken(token, jwtUtil, userRepository)
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
 
         val channelEntity = channel.get()
@@ -612,7 +613,7 @@ class ChannelService(
 
     @Transactional
     override fun addBookmark(channelId: Long, token: String): ResponseEntity<String> {
-        val user = findUserByToken(token, jwtUtil, userRepository)
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
 
         val channel = channelsRepository.findById(channelId)
@@ -635,7 +636,7 @@ class ChannelService(
 
     @Transactional
     override fun removeBookmark(channelId: Long, token: String): ResponseEntity<String> {
-        val user = findUserByToken(token, jwtUtil, userRepository)
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
 
         val channel = channelsRepository.findById(channelId)
@@ -653,11 +654,12 @@ class ChannelService(
         return ResponseEntity.status(HttpStatus.OK).body("Removed content bookmark : ${channelEntity.id}")
     }
 
-    override fun removeBookmarks(channelIds: List<Long>, token: String): ResponseEntity<String> {
-        val user = findUserByToken(token, jwtUtil, userRepository)
+    @Transactional
+    override fun removeBookmarks(params: PutChannelRemoveRemarksData, token: String): ResponseEntity<String> {
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
 
-        val channels = channelsRepository.findAllById(channelIds)
+        val channels = channelsRepository.findAllById(params.channelIds)
         channels.forEach {
             val bookmark = it.channelBookMarks.find { it2 -> it2.users!!.id == user.id }
             if (bookmark != null) it.channelBookMarks.removeIf { it2 -> it2.id == bookmark.id }
@@ -665,6 +667,6 @@ class ChannelService(
 
         channelsRepository.saveAll(channels)
 
-        return ResponseEntity.status(HttpStatus.OK).body("Removed content bookmarks num : ${channels.count()}")
+        return ResponseEntity.status(HttpStatus.OK).body("Removed channel bookmarks num : ${channels.count()}")
     }
 }

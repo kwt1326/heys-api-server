@@ -8,6 +8,7 @@ import com.api.heys.constants.DefaultString
 import com.api.heys.constants.enums.ContentType
 import com.api.heys.constants.enums.Gender
 import com.api.heys.domain.content.dto.GetExtraContentsParam
+import com.api.heys.domain.content.dto.PutContentRemoveRemarksData
 import com.api.heys.domain.content.dto.PutExtraContentData
 import com.api.heys.domain.user.dto.CommonSignUpData
 import com.api.heys.domain.user.service.UserService
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.test.context.ActiveProfiles
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import java.time.LocalDate
@@ -58,6 +60,8 @@ internal class ContentsServiceTest(
         )
     )
 
+    private val extraContentData2 = extraContentData.copy(title = "러브러브챌린지2")
+
     private val extraContentModifyData = PutExtraContentData(
         title = "러브러브챌린지2",
         company = "네이버2",
@@ -93,6 +97,7 @@ internal class ContentsServiceTest(
 
     /** 외부(공모전, 사이드 프로젝트 등) 컨텐츠 생성 후 필터링 테스트 */
     @Test
+    @Order(1)
     fun extraContentCreateAndFilterTest() {
         val createResponse = contentService.createExtraContent(extraContentData, token)
 
@@ -107,6 +112,7 @@ internal class ContentsServiceTest(
 
     /** 외부 컨텐츠 생성 후 상세정보 가져오기 테스트 */
     @Test
+    @Order(2)
     fun extraContentCreateAndGetDetailTest() {
         val createResponse = contentService.createExtraContent(extraContentData, token)
 
@@ -123,6 +129,7 @@ internal class ContentsServiceTest(
 
     /** 외부 컨텐츠 생성 후 상세정보 수정작업 테스트 */
     @Test
+    @Order(3)
     fun putExtraContentDetailTest() {
         val createResponse = contentService.createExtraContent(extraContentData, token)
 
@@ -152,6 +159,7 @@ internal class ContentsServiceTest(
     }
 
     @Test
+    @Order(4)
     fun bookmarkTest() {
         val createResponse = contentService.createExtraContent(extraContentData, token)
         assertThat(createResponse.statusCode).isEqualTo(HttpStatus.OK)
@@ -170,6 +178,38 @@ internal class ContentsServiceTest(
         assertThat(bookmarkRemoveResponse.statusCode).isEqualTo(HttpStatus.OK)
 
         detailResponse = contentService.getExtraContentDetail(contentId, token)
+        assertThat(detailResponse.body).isNotNull
+        assertThat(detailResponse.body!!.data).isNotNull
+        assertThat(detailResponse.body!!.data!!.isBookMarked).isEqualTo(false)
+    }
+
+    @Test
+    @Order(5)
+    fun removeAllBookmarksTest() {
+        val createResponse = contentService.createExtraContent(extraContentData, token)
+        val createResponse2 = contentService.createExtraContent(extraContentData2, token)
+        assertThat(createResponse.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(createResponse.body!!.contentId).isNotNull
+        assertThat(createResponse2.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(createResponse2.body!!.contentId).isNotNull
+
+        val contentId = createResponse.body!!.contentId!!
+        val contentId2 = createResponse2.body!!.contentId!!
+
+        contentService.addBookmark(contentId, token)
+        contentService.addBookmark(contentId2, token)
+        val removeAllResponse =
+            contentService.removeBookmarks(PutContentRemoveRemarksData(setOf(contentId, contentId2)), token)
+
+        assertThat(removeAllResponse.body!!).isEqualTo("Removed content bookmarks num : 2")
+
+        // 하나라도 북마크 되어 있으면 실패
+        var detailResponse = contentService.getExtraContentDetail(contentId, token)
+        assertThat(detailResponse.body).isNotNull
+        assertThat(detailResponse.body!!.data).isNotNull
+        assertThat(detailResponse.body!!.data!!.isBookMarked).isEqualTo(false)
+
+        detailResponse = contentService.getExtraContentDetail(contentId2, token)
         assertThat(detailResponse.body).isNotNull
         assertThat(detailResponse.body!!.data).isNotNull
         assertThat(detailResponse.body!!.data!!.isBookMarked).isEqualTo(false)

@@ -2,7 +2,6 @@ package com.api.heys.entity
 
 import com.api.heys.constants.enums.Gender
 import com.api.heys.constants.enums.UserPersonality
-import net.minidev.json.annotate.JsonIgnore
 import java.io.Serializable
 import java.time.LocalDate
 import javax.persistence.*

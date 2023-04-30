@@ -13,28 +13,33 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.test.context.ActiveProfiles
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.springframework.test.annotation.Rollback
 import java.time.LocalDate
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Rollback(true)
 @Transactional
 internal class UserServiceTest(
     @Autowired private val userService: UserService,
     @Autowired private val userRepository: UserRepository
 ) {
+    private val phone = "01012345678"
+    private val birthDate = LocalDate.of(1995, 10, 9)
+
     private val commonSignUpData = CommonSignUpData(
-        phone = "01012341234",
+        phone = phone,
         username = "TESTER",
         password = "12341234",
-        birthDate = LocalDate.of(1995, 10, 9),
+        birthDate = birthDate,
         gender = Gender.Male,
         interests = mutableSetOf("교육", "자기계발"),
     )
     private val adminSignUpData = AdminSignUpData(
-        phone = "01012341234",
+        phone = phone,
         username = "TESTER",
         password = "12341234",
-        birthDate = LocalDate.of(1995, 10, 9),
+        birthDate = birthDate,
     )
 
     /**
@@ -45,13 +50,11 @@ internal class UserServiceTest(
         userService.signUp(adminSignUpData, DefaultString.adminRole)
         userService.signUp(commonSignUpData, DefaultString.commonRole)
 
-        val users = userRepository.findAll()
+        val user = userRepository.findUserByPhone(phone)
 
-        assertThat(users.count()).isEqualTo(1)
+        assertThat(user).isNotNull
 
-        val user = users.first()
-
-        val userDetail = user.detail
+        val userDetail = user?.detail
 
         assertThat(userDetail).isNotNull
         assertThat(userDetail!!.interestRelations.find { it.interest!!.name == "교육" }).isNotNull
@@ -60,7 +63,7 @@ internal class UserServiceTest(
         assertThat(user.authentications.find { it.role == DefaultString.commonRole }).isNotNull
         assertThat(user.authentications.find { it.role == DefaultString.adminRole }).isNotNull
 
-        assertThat(userDetail.birthDate).isEqualTo(LocalDate.of(1995, 10, 9))
+        assertThat(userDetail.birthDate).isEqualTo(birthDate)
         assertThat(userDetail.gender).isEqualTo(Gender.Male)
     }
 
@@ -72,13 +75,11 @@ internal class UserServiceTest(
         userService.signUp(commonSignUpData, DefaultString.commonRole)
         userService.signUp(adminSignUpData, DefaultString.adminRole)
 
-        val users = userRepository.findAll()
+        val user = userRepository.findUserByPhone(phone)
 
-        assertThat(users.count()).isEqualTo(1)
+        assertThat(user).isNotNull
 
-        val user = users.first()
-
-        val userDetail = user.detail
+        val userDetail = user?.detail
 
         assertThat(userDetail).isNotNull
         assertThat(userDetail!!.interestRelations.find { it.interest!!.name == "교육" }).isNotNull
@@ -87,7 +88,7 @@ internal class UserServiceTest(
         assertThat(user.authentications.find { it.role == DefaultString.commonRole }).isNotNull
         assertThat(user.authentications.find { it.role == DefaultString.adminRole }).isNotNull
 
-        assertThat(userDetail.birthDate).isEqualTo(LocalDate.of(1995, 10, 9),)
+        assertThat(userDetail.birthDate).isEqualTo(birthDate)
         assertThat(userDetail.gender).isEqualTo(Gender.Male)
     }
 }

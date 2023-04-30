@@ -1,11 +1,10 @@
 package com.api.heys.domain.channel.repository
 
 import com.api.heys.constants.DefaultString
-import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.*
 import com.api.heys.domain.channel.dto.*
 import com.api.heys.entity.*
-import com.api.heys.utils.CommonUtil
+import com.api.heys.helpers.DateHelpers
 import com.api.heys.utils.UserDetailPercentUtils
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -15,7 +14,7 @@ import java.time.LocalDateTime
 
 @Repository
 class ChannelCustomRepositoryImpl(
-    private val commonUtil: CommonUtil,
+    private val dateHelpers: DateHelpers,
     private val jpaQueryFactory: JPAQueryFactory,
 ) : ChannelCustomRepository {
     val qUsers: QUsers = QUsers.users
@@ -226,15 +225,15 @@ class ChannelCustomRepositoryImpl(
                     name = detail.name,
                     viewCount = view.count().toLong(),
                     joinRemainCount = detail.limitPeople.toLong().minus(it.channelUserRelations.count()),
-                    pastDay = commonUtil.diffDay(it.createdAt, LocalDateTime.now()),
-                    dDay = commonUtil.calculateDday(detail.lastRecruitDate),
+                    pastDay = DateHelpers.diffDay(it.createdAt, LocalDateTime.now()),
+                    dDay = DateHelpers.calculateDday(detail.lastRecruitDate),
                     thumbnailUri = detail.thumbnailUri
                 )
             }
     }
 
     override fun getChannelCount(type: ChannelType, params: GetChannelsParam, contentId: Long?): Long {
-        return commonUtil.calcTotalPage(
+        return DateHelpers.calcTotalPage(
             channelFilterCountQuery(
                 queryBase = jpaQueryFactory.select(qChannels.countDistinct()).from(qChannels),
                 params,
@@ -265,7 +264,7 @@ class ChannelCustomRepositoryImpl(
             .filter { it.detail != null }
             .map {
                 val detail: ChannelDetail = it.detail!!
-                val dDay: Long = commonUtil.calculateDday(detail.lastRecruitDate)
+                val dDay: Long = DateHelpers.calculateDday(detail.lastRecruitDate)
                 MyChannelListItemData(
                     id = it.id,
                     type = it.type,

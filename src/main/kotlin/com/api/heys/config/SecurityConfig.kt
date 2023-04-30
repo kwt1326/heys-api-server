@@ -19,7 +19,7 @@ import org.springframework.security.web.SecurityFilterChain
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfiguration(
+class SecurityConfig(
         @Autowired private val jwtUtil: JwtUtil
 ) {
     @Bean

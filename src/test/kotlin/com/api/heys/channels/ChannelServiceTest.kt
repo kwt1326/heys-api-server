@@ -7,6 +7,7 @@ import com.api.heys.domain.channel.ChannelService
 import com.api.heys.domain.channel.dto.CreateChannelData
 import com.api.heys.domain.channel.dto.GetChannelsParam
 import com.api.heys.domain.channel.dto.PutChannelData
+import com.api.heys.domain.channel.dto.PutChannelRemoveRemarksData
 import com.api.heys.domain.content.ContentService
 import com.api.heys.domain.content.dto.CreateExtraContentData
 import com.api.heys.domain.user.dto.CommonSignUpData
@@ -252,7 +253,8 @@ class ChannelServiceTest(
         assertThat(resultMap3[DefaultString.waitChannelKey]).isEqualTo(0)
 
         val followersResponse = channelService.getChannelFollowers(
-            resultMap["channelId"] as Long, ChannelMemberStatus.Approved)
+            resultMap["channelId"] as Long, ChannelMemberStatus.Approved
+        )
 
         assertThat(followersResponse.body!!.data.count()).isEqualTo(1)
         assertThat(followersResponse.body!!.data.first().username).isEqualTo("TESTER")
@@ -346,8 +348,9 @@ class ChannelServiceTest(
 
         channelService.addBookmark(channelId, token)
         channelService.addBookmark(studyChannelId, token)
-        val removeAllResponse = channelService.removeBookmarks(listOf(channelId, studyChannelId), token)
-        assertThat(removeAllResponse.body!!).isEqualTo("Removed content bookmarks num : 2")
+        val removeAllResponse =
+            channelService.removeBookmarks(PutChannelRemoveRemarksData(setOf(channelId, studyChannelId)), token)
+        assertThat(removeAllResponse.body!!).isEqualTo("Removed channel bookmarks num : 2")
 
         // 하나라도 북마크 되어 있으면 실패
         val detailResponse = channelService.getChannelDetail(channelId, token)

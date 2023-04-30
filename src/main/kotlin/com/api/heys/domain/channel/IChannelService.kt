@@ -38,5 +38,5 @@ interface IChannelService {
 
     fun removeBookmark(channelId: Long, token: String): ResponseEntity<String>
 
-    fun removeBookmarks(channelIds: List<Long>, token: String): ResponseEntity<String>
+    fun removeBookmarks(params: PutChannelRemoveRemarksData, token: String): ResponseEntity<String>
 }

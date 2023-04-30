@@ -1,6 +1,7 @@
 package com.api.heys.domain.content
 
 import com.api.heys.constants.MessageString
+import com.api.heys.domain.channel.dto.PutChannelRemoveRemarksData
 import com.api.heys.domain.content.dto.*
 
 import io.swagger.v3.oas.annotations.Operation
@@ -152,6 +153,25 @@ class ContentController(@Autowired private val contentService: ContentService) {
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
     ): ResponseEntity<String> {
         return contentService.removeBookmark(contentId, bearer)
+    }
+
+    @Operation(
+        summary = "여러 개의 컨텐츠 북마크 동시 취소",
+        description = "여러 개의 컨텐츠 북마크들을 동시 취소합니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                ]
+            )
+        ]
+    )
+    @PutMapping("/remove-bookmarks")
+    fun putRemoveBookmarks(
+        @Valid @RequestBody dto: PutContentRemoveRemarksData,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
+    ): ResponseEntity<String> {
+        return contentService.removeBookmarks(dto, bearer)
     }
 
     @Operation(
