@@ -37,4 +37,6 @@ interface IChannelService {
     fun addBookmark(channelId: Long, token: String): ResponseEntity<String>
 
     fun removeBookmark(channelId: Long, token: String): ResponseEntity<String>
+
+    fun removeBookmarks(channelIds: List<Long>, token: String): ResponseEntity<String>
 }

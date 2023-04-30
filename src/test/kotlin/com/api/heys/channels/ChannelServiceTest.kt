@@ -170,6 +170,15 @@ class ChannelServiceTest(
         return map
     }
 
+    @Transactional
+    private fun createStydyChannelByLeader(): Long {
+        val createChannelResponse = channelService.createChannel(studyChannelData, leaderToken)
+        assertThat(createChannelResponse.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(createChannelResponse.body!!.channelId).isNotNull
+
+        return createChannelResponse.body!!.channelId!!
+    }
+
     @BeforeEach
     internal fun beforeEach() {
         // Create Common User
@@ -323,6 +332,25 @@ class ChannelServiceTest(
         assertThat(bookmarkRemoveResponse.statusCode).isEqualTo(HttpStatus.OK)
 
         detailResponse = channelService.getChannelDetail(channelId, token)
+        assertThat(detailResponse.body).isNotNull
+        assertThat(detailResponse.body!!.data).isNotNull
+        assertThat(detailResponse.body!!.data!!.isBookMarked).isEqualTo(false)
+    }
+
+    @Test
+    @Order(7)
+    fun removeAllBookmarksTest() {
+        val resultMap = createContentAndChannelByLeader()
+        val studyChannelId = createStydyChannelByLeader()
+        val channelId = resultMap["channelId"] as Long
+
+        channelService.addBookmark(channelId, token)
+        channelService.addBookmark(studyChannelId, token)
+        val removeAllResponse = channelService.removeBookmarks(listOf(channelId, studyChannelId), token)
+        assertThat(removeAllResponse.body!!).isEqualTo("Removed content bookmarks num : 2")
+
+        // 하나라도 북마크 되어 있으면 실패
+        val detailResponse = channelService.getChannelDetail(channelId, token)
         assertThat(detailResponse.body).isNotNull
         assertThat(detailResponse.body!!.data).isNotNull
         assertThat(detailResponse.body!!.data!!.isBookMarked).isEqualTo(false)

@@ -652,4 +652,19 @@ class ChannelService(
 
         return ResponseEntity.status(HttpStatus.OK).body("Removed content bookmark : ${channelEntity.id}")
     }
+
+    override fun removeBookmarks(channelIds: List<Long>, token: String): ResponseEntity<String> {
+        val user = findUserByToken(token, jwtUtil, userRepository)
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
+
+        val channels = channelsRepository.findAllById(channelIds)
+        channels.forEach {
+            val bookmark = it.channelBookMarks.find { it2 -> it2.users!!.id == user.id }
+            if (bookmark != null) it.channelBookMarks.removeIf { it2 -> it2.id == bookmark.id }
+        }
+
+        channelsRepository.saveAll(channels)
+
+        return ResponseEntity.status(HttpStatus.OK).body("Removed content bookmarks num : ${channels.count()}")
+    }
 }

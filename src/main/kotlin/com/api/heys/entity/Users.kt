@@ -27,7 +27,7 @@ class Users(
         @Column(name = "password")
         var password: String = password
 
-        @OneToOne(mappedBy = "users", fetch = LAZY, cascade = [CascadeType.ALL])
+        @OneToOne(mappedBy = "users", cascade = [CascadeType.ALL], orphanRemoval = true)
         var detail: UserDetail? = null
 
         @OneToMany(mappedBy = "users", fetch = EAGER, cascade = [CascadeType.ALL])
