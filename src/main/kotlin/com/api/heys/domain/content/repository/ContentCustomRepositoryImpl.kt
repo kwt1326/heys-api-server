@@ -57,6 +57,7 @@ class ContentCustomRepositoryImpl(
         }
 
         return query
+            .orderBy(qContents.id.desc())
             .limit(params.limit)
             .offset((params.page - 1) * params.limit)
             .distinct()

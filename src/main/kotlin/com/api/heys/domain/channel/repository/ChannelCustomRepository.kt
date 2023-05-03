@@ -13,9 +13,9 @@ interface ChannelCustomRepository {
 
     fun getChannelFollowers(channelId: Long, status: ChannelMemberStatus): List<ChannelUserData>
 
-    fun getChannels(type: ChannelType, params: GetChannelsParam, contentId: Long?): List<ChannelListItemData>
+    fun getChannels(params: GetChannelsParam, contentId: Long?, type: ChannelType?): List<ChannelListItemData>
 
-    fun getChannelCount(type: ChannelType, params: GetChannelsParam, contentId: Long?): Long
+    fun getChannelCount(params: GetChannelsParam, contentId: Long?, type: ChannelType?): Long
 
     fun getMyChannels(status: ChannelMemberStatus?, userId: Long): List<MyChannelListItemData>
 

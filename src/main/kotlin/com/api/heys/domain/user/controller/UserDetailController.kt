@@ -7,11 +7,13 @@ import com.api.heys.domain.user.dto.UserDetailResponse
 import com.api.heys.domain.user.service.UserDetailService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.tags.Tag
 import lombok.RequiredArgsConstructor
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
+@Tag(name = "user-detail")
 @RestController
 @RequestMapping("/app")
 @RequiredArgsConstructor

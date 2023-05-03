@@ -18,6 +18,8 @@ interface IChannelService {
 
     fun getChannels(type: ChannelType, params: GetChannelsParam, contentId: Long?): ResponseEntity<GetChannelsResponse>
 
+    fun getChannelsAllType(params: GetChannelsParam): ResponseEntity<GetChannelsResponse>
+
     fun getJoinAndWaitingChannelCounts(token: String): HashMap<String, Long>
 
     fun getMyChannels(status: ChannelMemberStatus?, token: String): ResponseEntity<GetMyChannelsResponse>

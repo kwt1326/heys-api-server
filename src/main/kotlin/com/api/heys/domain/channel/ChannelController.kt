@@ -4,18 +4,19 @@ import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.ChannelMemberStatus
 import com.api.heys.constants.enums.ChannelType
 import com.api.heys.domain.channel.dto.*
-import com.api.heys.domain.content.dto.PutExtraContentData
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
+@Tag(name = "channel")
 @RestController
 @RequestMapping("channel")
 class ChannelController(
@@ -87,6 +88,25 @@ class ChannelController(
     @GetMapping("study")
     fun getStudyChannels(params: GetChannelsParam): ResponseEntity<GetChannelsResponse> {
         return channelService.getChannels(ChannelType.Study, params, null)
+    }
+
+    @Operation(
+        summary = "모든 채널 리스트",
+        description = "채널 타입 구분 없는 채널 리스트 입니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(
+                        schema = Schema(implementation = GetChannelsResponse::class),
+                        mediaType = "application/json"
+                    )
+                ]
+            ),
+        ]
+    )
+    @GetMapping
+    fun getChannelsAllType(params: GetChannelsParam): ResponseEntity<GetChannelsResponse> {
+        return channelService.getChannelsAllType(params)
     }
 
     @Operation(

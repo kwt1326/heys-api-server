@@ -34,7 +34,7 @@ class ChannelCustomRepositoryImpl(
     fun channelFilterQuery(
         queryBase: JPAQuery<Channels>,
         params: GetChannelsParam,
-        type: ChannelType,
+        type: ChannelType?,
         contentId: Long?
     ): List<Channels> {
         var query = queryBase
@@ -46,7 +46,10 @@ class ChannelCustomRepositoryImpl(
             .leftJoin(qChannels.channelUserRelations, qChannelUserRelations).fetchJoin()
             .where(qChannels.removedAt.isNull)
             .where(qChannelUserRelations.removedAt.isNull)
-            .where(qChannels.type.eq(type))
+
+        if (type != null) {
+            query = query.where(qChannels.type.eq(type))
+        }
 
         if (contentId != null) {
             query = query
@@ -92,6 +95,7 @@ class ChannelCustomRepositoryImpl(
         }
 
         return query
+            .orderBy(qChannels.id.desc())
             .limit(params.limit)
             .offset((params.page - 1) * params.limit)
             .distinct()
@@ -101,7 +105,7 @@ class ChannelCustomRepositoryImpl(
     fun channelFilterCountQuery(
         queryBase: JPAQuery<Long>,
         params: GetChannelsParam,
-        type: ChannelType,
+        type: ChannelType?,
         contentId: Long?
     ): Long {
         var query = queryBase
@@ -113,7 +117,10 @@ class ChannelCustomRepositoryImpl(
             .leftJoin(qChannels.channelUserRelations, qChannelUserRelations)
             .where(qChannels.removedAt.isNull)
             .where(qChannelUserRelations.removedAt.isNull)
-            .where(qChannels.type.eq(type))
+
+        if (type != null) {
+            query = query.where(qChannels.type.eq(type))
+        }
 
         if (contentId != null) {
             query = query
@@ -191,6 +198,7 @@ class ChannelCustomRepositoryImpl(
             .where(qChannelUserRelations.status.eq(status))
             .where(qChannels.removedAt.isNull)
             .where(qChannels.id.eq(channelId))
+            .orderBy(qChannelUserRelations.id.desc())
             .distinct()
             .fetch()
 
@@ -208,7 +216,7 @@ class ChannelCustomRepositoryImpl(
         }
     }
 
-    override fun getChannels(type: ChannelType, params: GetChannelsParam, contentId: Long?): List<ChannelListItemData> {
+    override fun getChannels(params: GetChannelsParam, contentId: Long?, type: ChannelType?): List<ChannelListItemData> {
         return channelFilterQuery(
             queryBase = jpaQueryFactory.selectFrom(qChannels),
             params,
@@ -221,7 +229,7 @@ class ChannelCustomRepositoryImpl(
                 val view = it.channelViews
                 ChannelListItemData(
                     id = it.id,
-                    type = type,
+                    type = it.type,
                     name = detail.name,
                     viewCount = view.count().toLong(),
                     joinRemainCount = detail.limitPeople.toLong().minus(it.channelUserRelations.count()),
@@ -232,7 +240,7 @@ class ChannelCustomRepositoryImpl(
             }
     }
 
-    override fun getChannelCount(type: ChannelType, params: GetChannelsParam, contentId: Long?): Long {
+    override fun getChannelCount(params: GetChannelsParam, contentId: Long?, type: ChannelType?): Long {
         return DateHelpers.calcTotalPage(
             channelFilterCountQuery(
                 queryBase = jpaQueryFactory.select(qChannels.countDistinct()).from(qChannels),
@@ -260,7 +268,10 @@ class ChannelCustomRepositoryImpl(
             query.where(qChannels.leader.id.eq(userId).or(qChannelUserRelations.status.eq(ChannelMemberStatus.Approved)))
         }
 
-        return query.distinct().fetch()
+        return query
+            .orderBy(qChannels.id.desc())
+            .distinct()
+            .fetch()
             .filter { it.detail != null }
             .map {
                 val detail: ChannelDetail = it.detail!!

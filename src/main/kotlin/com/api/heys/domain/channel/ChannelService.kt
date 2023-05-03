@@ -189,8 +189,17 @@ class ChannelService(
         contentId: Long?
     ): ResponseEntity<GetChannelsResponse> {
         return ResponseEntity.ok(GetChannelsResponse(
-            data = channelsRepository.getChannels(type, params, contentId),
-            totalPage = channelsRepository.getChannelCount(type, params, contentId),
+            data = channelsRepository.getChannels(params, contentId, type),
+            totalPage = channelsRepository.getChannelCount(params, contentId, type),
+            MessageString.SUCCESS_EN
+        ))
+    }
+
+    @Transactional(readOnly = true)
+    override fun getChannelsAllType(params: GetChannelsParam): ResponseEntity<GetChannelsResponse> {
+        return ResponseEntity.ok(GetChannelsResponse(
+            data = channelsRepository.getChannels(params, null, null),
+            totalPage = channelsRepository.getChannelCount(params, null, null),
             MessageString.SUCCESS_EN
         ))
     }
