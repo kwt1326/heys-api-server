@@ -350,7 +350,7 @@ class ChannelServiceTest(
         channelService.addBookmark(studyChannelId, token)
         val removeAllResponse =
             channelService.removeBookmarks(PutChannelRemoveRemarksData(setOf(channelId, studyChannelId)), token)
-        assertThat(removeAllResponse.body!!).isEqualTo("Removed channel bookmarks num : 2")
+        assertThat(removeAllResponse.body!!.message).isEqualTo("Removed channel bookmarks num : 2")
 
         // 하나라도 북마크 되어 있으면 실패
         val detailResponse = channelService.getChannelDetail(channelId, token)

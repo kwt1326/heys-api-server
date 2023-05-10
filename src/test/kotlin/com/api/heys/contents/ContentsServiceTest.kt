@@ -201,7 +201,7 @@ internal class ContentsServiceTest(
         val removeAllResponse =
             contentService.removeBookmarks(PutContentRemoveRemarksData(setOf(contentId, contentId2)), token)
 
-        assertThat(removeAllResponse.body!!).isEqualTo("Removed content bookmarks num : 2")
+        assertThat(removeAllResponse.body!!.message).isEqualTo("Removed content bookmarks num : 2")
 
         // 하나라도 북마크 되어 있으면 실패
         var detailResponse = contentService.getExtraContentDetail(contentId, token)

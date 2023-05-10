@@ -34,11 +34,11 @@ interface IChannelService {
 
     fun memberAbortRequest(msg: String, channelId: Long, token: String): ResponseEntity<ChannelPutResponse>
 
-    fun increaseChannelView(channelId: Long, token: String): ResponseEntity<String>
+    fun increaseChannelView(channelId: Long, token: String): ResponseEntity<ChannelPutResponse>
 
-    fun addBookmark(channelId: Long, token: String): ResponseEntity<String>
+    fun addBookmark(channelId: Long, token: String): ResponseEntity<ChannelPutResponse>
 
-    fun removeBookmark(channelId: Long, token: String): ResponseEntity<String>
+    fun removeBookmark(channelId: Long, token: String): ResponseEntity<ChannelPutResponse>
 
-    fun removeBookmarks(params: PutChannelRemoveRemarksData, token: String): ResponseEntity<String>
+    fun removeBookmarks(params: PutChannelRemoveRemarksData, token: String): ResponseEntity<ChannelPutResponse>
 }

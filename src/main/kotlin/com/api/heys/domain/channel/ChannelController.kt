@@ -4,6 +4,7 @@ import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.ChannelMemberStatus
 import com.api.heys.constants.enums.ChannelType
 import com.api.heys.domain.channel.dto.*
+import com.api.heys.domain.content.dto.ContentPutResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
@@ -243,7 +244,10 @@ class ChannelController(
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(schema = Schema(implementation = ChannelPutResponse::class), mediaType = "application/json")
+                    Content(
+                        schema = Schema(implementation = ChannelPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             ),
         ]
@@ -264,7 +268,10 @@ class ChannelController(
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(schema = Schema(implementation = ChannelPutResponse::class), mediaType = "application/json")
+                    Content(
+                        schema = Schema(implementation = ChannelPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             ),
         ]
@@ -285,7 +292,10 @@ class ChannelController(
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(schema = Schema(implementation = ChannelPutResponse::class), mediaType = "application/json")
+                    Content(
+                        schema = Schema(implementation = ChannelPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             ),
         ]
@@ -304,7 +314,10 @@ class ChannelController(
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(schema = Schema(implementation = ChannelPutResponse::class), mediaType = "application/json")
+                    Content(
+                        schema = Schema(implementation = ChannelPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             ),
         ]
@@ -324,7 +337,10 @@ class ChannelController(
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(schema = Schema(implementation = ChannelPutResponse::class), mediaType = "application/json")
+                    Content(
+                        schema = Schema(implementation = ChannelPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             ),
         ]
@@ -344,7 +360,10 @@ class ChannelController(
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                    Content(
+                        schema = Schema(implementation = ChannelPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             )
         ]
@@ -353,7 +372,7 @@ class ChannelController(
     fun putIncreaseViewCount(
         @PathVariable channelId: Long,
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
-    ): ResponseEntity<String> {
+    ): ResponseEntity<ChannelPutResponse> {
         return channelService.increaseChannelView(channelId, bearer)
     }
 
@@ -363,7 +382,10 @@ class ChannelController(
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                    Content(
+                        schema = Schema(implementation = ChannelPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             )
         ]
@@ -372,7 +394,7 @@ class ChannelController(
     fun putAddBookmark(
         @PathVariable channelId: Long,
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
-    ): ResponseEntity<String> {
+    ): ResponseEntity<ChannelPutResponse> {
         return channelService.addBookmark(channelId, bearer)
     }
 
@@ -382,7 +404,10 @@ class ChannelController(
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                    Content(
+                        schema = Schema(implementation = ChannelPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             )
         ]
@@ -391,7 +416,7 @@ class ChannelController(
     fun putRemoveBookmark(
         @PathVariable channelId: Long,
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
-    ): ResponseEntity<String> {
+    ): ResponseEntity<ChannelPutResponse> {
         return channelService.removeBookmark(channelId, bearer)
     }
 
@@ -401,7 +426,10 @@ class ChannelController(
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                    Content(
+                        schema = Schema(implementation = ChannelPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             )
         ]
@@ -410,7 +438,7 @@ class ChannelController(
     fun putRemoveBookmarks(
         @Valid @RequestBody dto: PutChannelRemoveRemarksData,
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
-    ): ResponseEntity<String> {
+    ): ResponseEntity<ChannelPutResponse> {
         return channelService.removeBookmarks(dto, bearer)
     }
 }

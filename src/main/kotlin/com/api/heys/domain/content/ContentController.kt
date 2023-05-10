@@ -1,12 +1,9 @@
 package com.api.heys.domain.content
 
-import com.api.heys.constants.MessageString
-import com.api.heys.domain.channel.dto.PutChannelRemoveRemarksData
 import com.api.heys.domain.content.dto.*
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -90,13 +87,19 @@ class ContentController(@Autowired private val contentService: ContentService) {
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                    Content(
+                        schema = Schema(implementation = ContentPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             ),
         ]
     )
     @PutMapping("extra/{id}")
-    fun putExtraContent(@PathVariable id: Long, @Valid @RequestBody body: PutExtraContentData): ResponseEntity<String> {
+    fun putExtraContent(
+        @PathVariable id: Long,
+        @Valid @RequestBody body: PutExtraContentData
+    ): ResponseEntity<ContentPutResponse> {
         return contentService.putExtraContentDetail(id, body)
     }
 
@@ -106,7 +109,10 @@ class ContentController(@Autowired private val contentService: ContentService) {
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                    Content(
+                        schema = Schema(implementation = ContentPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             )
         ]
@@ -115,7 +121,7 @@ class ContentController(@Autowired private val contentService: ContentService) {
     fun putIncreaseViewCount(
         @PathVariable contentId: Long,
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
-    ): ResponseEntity<String> {
+    ): ResponseEntity<ContentPutResponse> {
         return contentService.increaseContentView(contentId, bearer)
     }
 
@@ -125,7 +131,10 @@ class ContentController(@Autowired private val contentService: ContentService) {
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                    Content(
+                        schema = Schema(implementation = ContentPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             )
         ]
@@ -134,7 +143,7 @@ class ContentController(@Autowired private val contentService: ContentService) {
     fun putAddBookmark(
         @PathVariable contentId: Long,
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
-    ): ResponseEntity<String> {
+    ): ResponseEntity<ContentPutResponse> {
         return contentService.addBookmark(contentId, bearer)
     }
 
@@ -144,7 +153,10 @@ class ContentController(@Autowired private val contentService: ContentService) {
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                    Content(
+                        schema = Schema(implementation = ContentPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             )
         ]
@@ -153,7 +165,7 @@ class ContentController(@Autowired private val contentService: ContentService) {
     fun putRemoveBookmark(
         @PathVariable contentId: Long,
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
-    ): ResponseEntity<String> {
+    ): ResponseEntity<ContentPutResponse> {
         return contentService.removeBookmark(contentId, bearer)
     }
 
@@ -163,7 +175,10 @@ class ContentController(@Autowired private val contentService: ContentService) {
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                    Content(
+                        schema = Schema(implementation = ContentPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             )
         ]
@@ -172,7 +187,7 @@ class ContentController(@Autowired private val contentService: ContentService) {
     fun putRemoveBookmarks(
         @Valid @RequestBody dto: PutContentRemoveRemarksData,
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
-    ): ResponseEntity<String> {
+    ): ResponseEntity<ContentPutResponse> {
         return contentService.removeBookmarks(dto, bearer)
     }
 
@@ -182,7 +197,10 @@ class ContentController(@Autowired private val contentService: ContentService) {
         responses = [
             ApiResponse(
                 responseCode = "200", description = "successful operation", content = [
-                    Content(examples = [ExampleObject(value = MessageString.SUCCESS_EN)])
+                    Content(
+                        schema = Schema(implementation = ContentPutResponse::class),
+                        mediaType = "application/json"
+                    )
                 ]
             )
         ]
@@ -191,7 +209,7 @@ class ContentController(@Autowired private val contentService: ContentService) {
     fun postContentExcelUpload(
         @RequestPart("file") excelFile: MultipartFile,
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
-    ): ResponseEntity<String> {
+    ): ResponseEntity<ContentPutResponse> {
         return contentService.createExtraContentFromExcel(excelFile, bearer)
     }
 }

@@ -598,41 +598,41 @@ class ChannelService(
     }
 
     @Transactional
-    override fun increaseChannelView(channelId: Long, token: String): ResponseEntity<String> {
+    override fun increaseChannelView(channelId: Long, token: String): ResponseEntity<ChannelPutResponse> {
         val channel = channelsRepository.findById(channelId)
         if (!channel.isPresent)
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found content")
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ChannelPutResponse("Not found content"))
 
         val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ChannelPutResponse("Not found User"))
 
         val channelEntity = channel.get()
 
         val isExisted = channelsRepository.getChannelView(channelId, user.id)
 
         if (isExisted != null) {
-            return ResponseEntity.status(HttpStatus.OK).body("Already have seen channel")
+            return ResponseEntity.status(HttpStatus.OK).body(ChannelPutResponse("Already have seen channel"))
         }
 
         channelEntity.channelViews.add(ChannelView(channelEntity, user))
         channelsRepository.save(channelEntity)
 
-        return ResponseEntity.status(HttpStatus.OK).body("New channel view")
+        return ResponseEntity.status(HttpStatus.OK).body(ChannelPutResponse("New channel view"))
     }
 
     @Transactional
-    override fun addBookmark(channelId: Long, token: String): ResponseEntity<String> {
+    override fun addBookmark(channelId: Long, token: String): ResponseEntity<ChannelPutResponse> {
         val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ChannelPutResponse("Not found User"))
 
         val channel = channelsRepository.findById(channelId)
         if (!channel.isPresent) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found channel")
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ChannelPutResponse("Not found channel"))
         }
 
         val isExisted = channelsRepository.getChannelBookMark(channelId, user.id)
         if (isExisted != null) {
-            return ResponseEntity.status(HttpStatus.OK).body("Already added channel bookmark")
+            return ResponseEntity.status(HttpStatus.OK).body(ChannelPutResponse("Already added channel bookmark"))
         }
 
         val channelEntity = channel.get()
@@ -640,17 +640,17 @@ class ChannelService(
         channelEntity.channelBookMarks.add(ChannelBookMark(channelEntity, user))
         channelsRepository.save(channelEntity)
 
-        return ResponseEntity.status(HttpStatus.OK).body("New channel bookmarked! : ${channelEntity.id}")
+        return ResponseEntity.status(HttpStatus.OK).body(ChannelPutResponse("New channel bookmarked! : ${channelEntity.id}"))
     }
 
     @Transactional
-    override fun removeBookmark(channelId: Long, token: String): ResponseEntity<String> {
+    override fun removeBookmark(channelId: Long, token: String): ResponseEntity<ChannelPutResponse> {
         val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ChannelPutResponse("Not found User"))
 
         val channel = channelsRepository.findById(channelId)
         if (!channel.isPresent) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found channel")
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ChannelPutResponse("Not found channel"))
         }
 
         val channelEntity = channel.get()
@@ -660,13 +660,13 @@ class ChannelService(
 
         channelsRepository.save(channelEntity)
 
-        return ResponseEntity.status(HttpStatus.OK).body("Removed content bookmark : ${channelEntity.id}")
+        return ResponseEntity.status(HttpStatus.OK).body(ChannelPutResponse("Removed content bookmark : ${channelEntity.id}"))
     }
 
     @Transactional
-    override fun removeBookmarks(params: PutChannelRemoveRemarksData, token: String): ResponseEntity<String> {
+    override fun removeBookmarks(params: PutChannelRemoveRemarksData, token: String): ResponseEntity<ChannelPutResponse> {
         val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found User")
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ChannelPutResponse("Not found User"))
 
         val channels = channelsRepository.findAllById(params.channelIds)
         channels.forEach {
@@ -676,6 +676,6 @@ class ChannelService(
 
         channelsRepository.saveAll(channels)
 
-        return ResponseEntity.status(HttpStatus.OK).body("Removed channel bookmarks num : ${channels.count()}")
+        return ResponseEntity.status(HttpStatus.OK).body(ChannelPutResponse("Removed channel bookmarks num : ${channels.count()}"))
     }
 }
