@@ -35,4 +35,7 @@ class Users(
 
         @OneToMany(mappedBy = "writer", fetch = LAZY, cascade = [CascadeType.ALL])
         var notifications: MutableSet<Notification> = mutableSetOf()
+
+        @OneToMany(mappedBy = "user", fetch = LAZY)
+        var deviceTokens : MutableSet<DeviceToken> = mutableSetOf()
 }
