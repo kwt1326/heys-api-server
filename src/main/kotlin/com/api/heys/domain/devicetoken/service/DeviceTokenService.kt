@@ -1,7 +1,7 @@
 package com.api.heys.domain.devicetoken.service
 
 import com.api.heys.constants.enums.AwsArn
-import com.api.heys.domain.aws.service.AwsSnsService
+import com.api.heys.domain.aws.service.AwsSnsEndPointService
 import com.api.heys.domain.devicetoken.repository.DeviceTokenRepository
 import com.api.heys.domain.user.service.UserService
 import com.api.heys.entity.DeviceToken
@@ -16,7 +16,7 @@ import java.lang.NullPointerException
 class DeviceTokenService (
     private val jwtUtil: JwtUtil,
     private val userService: UserService,
-    private val awsSnsService: AwsSnsService,
+    private val awsSnsEndPointService: AwsSnsEndPointService,
     private val deviceTokenRepository: DeviceTokenRepository,
 ){
 
@@ -27,7 +27,7 @@ class DeviceTokenService (
         val user = userService.findByPhone(phone) ?: throw NullPointerException()
 
         runBlocking {
-            val endpointArn = awsSnsService.registerEndpoint(AwsArn.AWS_SNS_PUSH, token)
+            val endpointArn = awsSnsEndPointService.registerEndpoint(AwsArn.AWS_SNS_PUSH, token)
                 ?: throw NullPointerException()
 
             val deviceToken = DeviceToken(user = user, token = token, arn = endpointArn)
@@ -45,7 +45,7 @@ class DeviceTokenService (
         }
 
         runBlocking {
-            awsSnsService.deleteEndpoint(deviceToken.get().arn)
+            awsSnsEndPointService.deleteEndpoint(deviceToken.get().arn)
 
             deviceTokenRepository.deleteById(deviceToken.get().id)
         }

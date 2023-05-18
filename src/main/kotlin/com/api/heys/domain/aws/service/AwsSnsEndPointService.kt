@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
-class AwsSnsService {
+class AwsSnsEndPointService {
 
     @Value("\${aws.region}")
     lateinit var awsPushRegion : String
