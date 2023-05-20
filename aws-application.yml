@@ -33,4 +33,11 @@ logging:
 aws:
   accessKeyId: ${AWS_ACCESS_KEY}
   secretAccessKey: ${AWS_SECRET_ACCESS_KEY}
-  region: ${AWS_REGION}
+  push:
+    region: ${AWS_PUSH_REGION}
+  sms:
+    region: ${AWS_SMS_REGION}
+
+slack:
+  channelId: ${SLACK_MESSAGE_CHANNEL}
+  token: ${SLACK_TOKEN}

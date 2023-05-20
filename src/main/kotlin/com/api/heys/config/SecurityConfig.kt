@@ -42,6 +42,7 @@ class SecurityConfig(
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/common/**").permitAll()
                 .antMatchers("/user/**").permitAll()
+                .antMatchers("/app/code").permitAll()
                 .antMatchers("/admin/**").permitAll()
                 .antMatchers(
                         "/css/**", "/js/**", "/assets/**", "/favicon.ico",
