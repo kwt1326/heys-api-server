@@ -1,17 +1,24 @@
 package com.api.heys.helpers
 
 import com.api.heys.constants.enums.ContentType
+import com.api.heys.domain.channel.dto.GetChannelUserRelItemData
 import com.api.heys.domain.content.dto.CreateExtraContentData
 import org.apache.poi.ss.usermodel.Cell
+import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.DateUtil
+import org.apache.poi.ss.usermodel.Row
+import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.web.multipart.MultipartFile
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.*
 
 class SpreadSheetManager<FILETYPE>(
-    private val file: FILETYPE,
+    private val file: FILETYPE?,
 ) {
     private fun getCellValue(cell: Cell): String {
         return when (cell.cellType) {
@@ -146,5 +153,73 @@ class SpreadSheetManager<FILETYPE>(
         }
 
         return result
+    }
+
+    private fun settingHeaderForChannelJoinRefuseReasons(workbook: XSSFWorkbook, sheet: Sheet) {
+        // sheet header row
+        val headerRow = sheet.createRow(0)
+        val font = workbook.createFont()
+        font.bold = true
+        font.fontName = "Arial"
+
+        val cellStyle: CellStyle = workbook.createCellStyle()
+        cellStyle.setFont(font)
+
+        val headerString: List<String> = listOf("채널명", "휴대폰", "유저이름", "거절사유")
+        var columnNum = 0
+
+        headerString.forEach { it2 ->
+            val cell: Cell = headerRow.createCell(columnNum++)
+            cell.setCellValue(it2)
+            cell.cellStyle = cellStyle
+        }
+    }
+
+    private fun populateCellForChannelJoinRefuseReasons(
+        columnNum: Int, sheet: Sheet, row: Row, value: String, cellStyle: CellStyle
+    ) {
+        val cell: Cell = row.createCell(columnNum);
+        cell.cellStyle = cellStyle
+        cell.setCellValue(value)
+        sheet.autoSizeColumn(columnNum)
+    }
+
+    private fun populateDataForChannelJoinRefuseReasons(workbook: XSSFWorkbook, sheet: Sheet, data: List<GetChannelUserRelItemData>) {
+        var rowNum = 1
+        val font = workbook.createFont()
+        font.fontName = "Arial"
+
+        val cellStyle: CellStyle = workbook.createCellStyle()
+        cellStyle.setFont(font)
+
+        data.forEach {
+            var columnNum = 0
+            val row: Row = sheet.createRow(rowNum)
+            populateCellForChannelJoinRefuseReasons(columnNum++, sheet, row, it.channelName, cellStyle)
+            populateCellForChannelJoinRefuseReasons(columnNum++, sheet, row, it.username, cellStyle)
+            populateCellForChannelJoinRefuseReasons(columnNum++, sheet, row, it.phone ?: "", cellStyle)
+            populateCellForChannelJoinRefuseReasons(columnNum, sheet, row, it.refuseReason ?: "", cellStyle)
+            rowNum++
+        }
+    }
+
+    fun exportChannelJoinRefuseReasons(data: List<GetChannelUserRelItemData>): ByteArrayInputStream {
+        XSSFWorkbook().use {
+            val sheet: Sheet = it.createSheet("거절사유")
+
+            settingHeaderForChannelJoinRefuseReasons(workbook = it, sheet)
+            populateDataForChannelJoinRefuseReasons(workbook = it, sheet, data)
+
+            try {
+                val byteArrayOutputStream = ByteArrayOutputStream()
+                it.write(byteArrayOutputStream)
+                it.close()
+
+                return ByteArrayInputStream(byteArrayOutputStream.toByteArray())
+            } catch (e: Exception) {
+                e.printStackTrace()
+                throw RuntimeException(e.message)
+            }
+        }
     }
 }
