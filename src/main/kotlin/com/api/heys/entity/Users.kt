@@ -33,7 +33,7 @@ class Users(
         @OneToMany(mappedBy = "users", fetch = EAGER, cascade = [CascadeType.ALL])
         var authentications: MutableSet<Authentication> = mutableSetOf()
 
-        @OneToMany(mappedBy = "writer", fetch = LAZY, cascade = [CascadeType.ALL])
+        @OneToMany(mappedBy = "receiver", fetch = LAZY)
         var notifications: MutableSet<Notification> = mutableSetOf()
 
         @OneToMany(mappedBy = "user", fetch = LAZY)

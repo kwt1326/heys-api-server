@@ -33,9 +33,8 @@ logging:
     root: error
 
 aws:
-  accessKeyId: ${AWS_ACCESS_KEY}
-  secretAccessKey: ${AWS_SECRET_ACCESS_KEY}
   push:
+    arn : ${AWS_PUSH_ARN}
     region: ${AWS_PUSH_REGION}
   sms:
     region: ${AWS_SMS_REGION}

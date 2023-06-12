@@ -1,10 +1,9 @@
 package com.api.heys.domain.aws.sms.service.impl
 
-import com.api.heys.constants.enums.Slack
 import com.api.heys.constants.enums.Slack.MESSAGE
-import com.api.heys.domain.aws.sms.service.MessageService
-import com.api.heys.domain.aws.sms.vo.SlackMessageReqVo
-import com.api.heys.domain.aws.sms.vo.MessageRequestVo
+import com.api.heys.domain.aws.sms.service.SmsMessageService
+import com.api.heys.domain.aws.sms.vo.SlackSmsMessageRequestVo
+import com.api.heys.domain.aws.sms.vo.SmsMessageRequestVo
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
 import org.springframework.http.HttpMethod.*
@@ -14,9 +13,9 @@ import org.springframework.web.client.RestTemplate
 import java.lang.RuntimeException
 
 @Service
-class SlackMessageService (
+class SlackSmsMessageService (
     private val restTemplate: RestTemplate
-): MessageService {
+): SmsMessageService {
 
     @Value("\${slack.channel}")
     lateinit var channelId : String
@@ -32,9 +31,9 @@ class SlackMessageService (
     }
 
 
-    override suspend fun sendMessage(messageRequestVo: MessageRequestVo) {
+    override suspend fun sendMessage(smsMessageRequestVo: SmsMessageRequestVo) {
         val headers = getHeaders()
-        val requestBody = SlackMessageReqVo(channel = channelId, text = messageRequestVo.message)
+        val requestBody = SlackSmsMessageRequestVo(channel = channelId, text = smsMessageRequestVo.message)
         val httpEntity = HttpEntity(requestBody, headers)
 
         val response = restTemplate.exchange(MESSAGE.getUrl(), POST, httpEntity, Any::class.java)
