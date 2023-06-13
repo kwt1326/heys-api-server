@@ -1,6 +1,8 @@
 # DEV, PROD value on AWS
 server:
   port: 8090
+  profiles:
+    active: ${PROFILE_ACTIVE}
 custom:
   secret: ${CUSTOM_SECRET}
 springdoc:
