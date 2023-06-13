@@ -1,7 +1,7 @@
 package com.api.heys.domain.devicetoken.service
 
 import com.api.heys.constants.enums.AwsArn
-import com.api.heys.domain.aws.service.AwsSnsEndPointService
+import com.api.heys.domain.aws.endpoint.service.AwsSnsEndPointService
 import com.api.heys.domain.devicetoken.repository.DeviceTokenRepository
 import com.api.heys.domain.user.service.UserService
 import com.api.heys.entity.DeviceToken

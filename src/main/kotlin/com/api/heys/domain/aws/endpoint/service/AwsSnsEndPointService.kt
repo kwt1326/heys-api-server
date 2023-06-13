@@ -1,4 +1,4 @@
-package com.api.heys.domain.aws.service
+package com.api.heys.domain.aws.endpoint.service
 
 import aws.sdk.kotlin.services.sns.SnsClient
 import aws.sdk.kotlin.services.sns.model.CreatePlatformEndpointRequest
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 @Service
 class AwsSnsEndPointService {
 
-    @Value("\${aws.region}")
+    @Value("\${aws.push.region}")
     lateinit var awsPushRegion : String
 
     fun getClient() : SnsClient {

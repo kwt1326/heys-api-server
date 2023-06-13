@@ -10,5 +10,4 @@ data class ApiResponse<T>(
     var data: T? = null
 ) {
 
-
 }
