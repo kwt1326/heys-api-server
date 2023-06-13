@@ -5,6 +5,7 @@ import com.api.heys.domain.aws.sms.service.SmsMessageService
 import com.api.heys.domain.aws.sms.vo.SlackSmsMessageRequestVo
 import com.api.heys.domain.aws.sms.vo.SmsMessageRequestVo
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Primary
 import org.springframework.http.*
 import org.springframework.http.HttpMethod.*
 import org.springframework.http.HttpStatus.*
@@ -13,6 +14,7 @@ import org.springframework.web.client.RestTemplate
 import java.lang.RuntimeException
 
 @Service
+@Primary
 class SlackSmsMessageService (
     private val restTemplate: RestTemplate
 ): SmsMessageService {
