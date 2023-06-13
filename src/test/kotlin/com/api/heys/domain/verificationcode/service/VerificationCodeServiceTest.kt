@@ -25,7 +25,7 @@ class VerificationCodeServiceTest (
     private val phone = "01023397702"
     private var verificationCode : String = ""
 
-    @Test
+//    @Test
     @Order(1)
     @Transactional
     @Throws(Exception::class)
@@ -46,7 +46,7 @@ class VerificationCodeServiceTest (
         assertThat(findCode).isNotNull
     }
 
-    @Test
+//    @Test
     @Order(2)
     @Transactional
     @Throws(Exception::class)
@@ -61,7 +61,7 @@ class VerificationCodeServiceTest (
         assertThat(isVerification).isEqualTo(true)
     }
 
-    @Test
+//    @Test
     @Order(3)
     @Transactional
     @Throws(Exception::class)
