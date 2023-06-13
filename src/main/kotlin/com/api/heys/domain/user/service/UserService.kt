@@ -126,4 +126,8 @@ class UserService(
         }
         return null
     }
+
+    fun findAllUserByUserIds(userIds : List<Long>) : List<Users> {
+        return userRepository.findAllById(userIds)
+    }
 }

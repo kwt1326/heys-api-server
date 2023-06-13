@@ -3,6 +3,7 @@ package com.api.heys.helpers
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Component
 object DateHelpers {
@@ -20,5 +21,15 @@ object DateHelpers {
     fun calcTotalPage(count: Long, limit: Long): Long {
         val plusOne = count % limit > 0
         return count / limit + (if (plusOne) 1 else 0)
+    }
+
+    fun formatDate(date : LocalDateTime?) : String? {
+
+        if (date == null) {
+            return null
+        }
+
+        val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+        return date.format(formatter)
     }
 }

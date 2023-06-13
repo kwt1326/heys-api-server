@@ -10,6 +10,7 @@ import com.api.heys.domain.channel.dto.PutChannelData
 import com.api.heys.domain.channel.dto.PutChannelRemoveRemarksData
 import com.api.heys.domain.content.ContentService
 import com.api.heys.domain.content.dto.CreateExtraContentData
+import com.api.heys.domain.devicetoken.service.DeviceTokenService
 import com.api.heys.domain.user.dto.CommonSignUpData
 import com.api.heys.domain.user.service.UserService
 import com.api.heys.utils.JwtUtil
@@ -36,9 +37,11 @@ class ChannelServiceTest(
     @Autowired private val userService: UserService,
     @Autowired private val contentService: ContentService,
     @Autowired private val channelService: ChannelService,
+    @Autowired private val deviceTokenService: DeviceTokenService,
     @Autowired private val jwtUtil: JwtUtil,
 ) {
     private val testUrl = "https://res.cloudinary.com/dyfuiigbw/image/upload/v1670047057/heys-dev/test1_jnkego.jpg"
+    private val deviceToken = "d3BAg4eMTgKXuz9CgGkJtJ:APA91bHid3RecFta3xMA5-L3BAE9CRpn2KVaBqHMscPo0eKzV_aabVO4vNy1TkXeZ1xj8cC7dAe4c7wSL7M5Y0Na7kUuAwuyzLM4Hskh4NB9sDMR4ggt45ILK_It9s0cMKH7tBDn0xNP"
 
     private val commonSignUpData = CommonSignUpData(
         phone = "01012341234",
@@ -187,6 +190,7 @@ class ChannelServiceTest(
         assertThat(token).isNotEqualTo("")
 
         leaderToken = userService.signUp(commonLeaderSignUpData, DefaultString.commonRole) ?: ""
+        deviceTokenService.saveDeviceToken(leaderToken, deviceToken)
         assertThat(leaderToken).isNotEqualTo("")
     }
 
