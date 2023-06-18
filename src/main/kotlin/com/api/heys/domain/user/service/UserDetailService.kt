@@ -10,10 +10,12 @@ import com.api.heys.domain.user.dto.UserDetailRequest
 import com.api.heys.domain.user.dto.UserDetailResponse
 import com.api.heys.domain.user.dto.UserDetailSearchDto
 import com.api.heys.domain.user.repository.UserDetailRepository
+import com.api.heys.domain.user.repository.UserRepository
 import com.api.heys.entity.InterestRelations
 import com.api.heys.entity.UserDetail
 import com.api.heys.utils.JwtUtil
 import com.api.heys.utils.UserDetailPercentUtils
+import com.api.heys.utils.UserUtil
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -24,7 +26,9 @@ class UserDetailService(
     private val userDetailRepository: UserDetailRepository,
     private val channelService: ChannelService,
     private val interestService: InterestService,
-    private val userProfileLinkService: UserProfileLinkService
+    private val userProfileLinkService: UserProfileLinkService,
+    private val userUtil: UserUtil,
+    private val userRepository: UserRepository
 ) {
 
     fun getMyInfo(token: String) : UserDetailResponse? {
@@ -82,6 +86,12 @@ class UserDetailService(
 
         interestService.modifyInterests(userWithUserDetail, body.interests)
         userProfileLinkService.modifyUserProfileLink(userWithUserDetail, body.profileLinks)
+    }
+
+    @Transactional
+    fun modifyMyPhone(token: String, phone: String) {
+        val users = userUtil.findUserByToken(token, jwtUtil, userRepository)
+        users?.phone = phone;
     }
 
     fun findOtherUserDetail(userId : Long) : OtherUserDetailResponse? {
