@@ -78,7 +78,6 @@ class ChannelService(
             limitPeople = dto.limitPeople,
             lastRecruitDate = dto.lastRecruitDate,
             recruitMethod = dto.recruitMethod,
-            thumbnailUri = dto.thumbnailUri ?: DefaultString.defaultThumbnailUri
         )
 
         dto.purposes.map {
@@ -152,7 +151,6 @@ class ChannelService(
             limitPeople = dto.limitPeople,
             lastRecruitDate = dto.lastRecruitDate,
             recruitMethod = dto.recruitMethod,
-            thumbnailUri = dto.thumbnailUri ?: DefaultString.defaultThumbnailUri
         )
 
         dto.purposes.map {

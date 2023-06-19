@@ -75,7 +75,6 @@ class NotificationServiceTest(
         recruitMethod = RecruitMethod.Approval,
         contentText = "환승연애학 공부 채널입니다~! 승인제로 운영하며, 준비된 사람만 커몽~",
         recruitText = "공부 목적인 사람만 오시면 되요",
-        thumbnailUri = testUrl,
         linkUri = mutableSetOf(testUrl),
         interests = mutableSetOf(
             "연애",

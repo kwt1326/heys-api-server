@@ -90,7 +90,6 @@ class ChannelServiceTest(
         recruitMethod = RecruitMethod.Approval,
         contentText = "러브러브 챌린지 참여 채널입니다~! 승인제로 운영하며, 준비된 사람만 커몽~",
         recruitText = "이상한 사람만 아니면 되요~! (신천지, 홍보 목적 절대 사양)",
-        thumbnailUri = testUrl,
         linkUri = mutableSetOf(testUrl, "http://test.test.com"),
         interests = mutableSetOf(
             "연애",
@@ -122,7 +121,6 @@ class ChannelServiceTest(
         recruitMethod = RecruitMethod.Approval,
         contentText = "환승연애학 공부 채널입니다~! 승인제로 운영하며, 준비된 사람만 커몽~",
         recruitText = "공부 목적인 사람만 오시면 되요",
-        thumbnailUri = testUrl,
         linkUri = mutableSetOf(testUrl),
         interests = mutableSetOf(
             "연애",

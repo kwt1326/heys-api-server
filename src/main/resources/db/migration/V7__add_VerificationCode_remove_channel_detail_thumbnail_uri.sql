@@ -7,3 +7,5 @@ create table verification_code (
     phone varchar(50) not null,
     primary key (id)
 );
+
+alter table channel_detail drop column if exists thumbnail_uri;

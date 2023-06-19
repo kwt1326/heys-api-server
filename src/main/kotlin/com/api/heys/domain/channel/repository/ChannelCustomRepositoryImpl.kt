@@ -235,7 +235,7 @@ class ChannelCustomRepositoryImpl(
                     joinRemainCount = detail.limitPeople.toLong().minus(it.channelUserRelations.count()),
                     pastDay = DateHelpers.diffDay(it.createdAt, LocalDateTime.now()),
                     dDay = DateHelpers.calculateDday(detail.lastRecruitDate),
-                    thumbnailUri = detail.thumbnailUri
+                    thumbnailUri = "" // TODO: thumbnail mapper
                 )
             }
     }
@@ -365,7 +365,7 @@ class ChannelCustomRepositoryImpl(
 
         return GetChannelDetailData(
             id = channel.id,
-            thumbnailUri = channelDetail.thumbnailUri,
+            thumbnailUri = "", // TODO: thumbnail mapper
             title = channelDetail.name,
             online = channelDetail.online,
             location = channelDetail.location,

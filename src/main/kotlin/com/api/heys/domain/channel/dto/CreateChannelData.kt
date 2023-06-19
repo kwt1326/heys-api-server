@@ -45,12 +45,6 @@ data class CreateChannelData(
     @field:Schema(description = "이런분을 찾아요! 글", example = "이런분만 왔으면 좋겠어요 ㅎㅎ")
     var recruitText: String,
 
-    @field:Schema(
-        description = "썸네일 이미지 URI",
-        example = "https://res.cloudinary.com/dyfuiigbw/image/upload/v1670047057/heys-dev/test1_jnkego.jpg"
-    )
-    var thumbnailUri: String?,
-
     @field:Schema(description = "연결 링크 URI 배열", example = "[\"https://www.naver.com\", \"https://www.google.co.kr\"]")
     var linkUri: MutableSet<String> = mutableSetOf(),
 
