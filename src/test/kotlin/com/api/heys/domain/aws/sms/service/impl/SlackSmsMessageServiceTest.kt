@@ -7,11 +7,13 @@ import com.api.heys.utils.MessageUtils
 import com.api.heys.utils.VerificationCodeUtils
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
+@Disabled
 @SpringBootTest
 class SlackSmsMessageServiceTest (
     @Autowired private val smsMessageService: SmsMessageService

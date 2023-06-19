@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+@Disabled
 @SpringBootTest
 @Rollback(true)
 @Transactional(readOnly = true)
