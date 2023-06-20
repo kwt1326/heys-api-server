@@ -4,6 +4,8 @@ import com.api.heys.constants.enums.ChannelMemberStatus
 import com.api.heys.constants.enums.ChannelType
 import com.api.heys.domain.channel.dto.*
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -11,7 +13,10 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
+import org.springframework.util.FileCopyUtils
 import org.springframework.web.bind.annotation.*
+import java.io.ByteArrayInputStream
+import javax.servlet.http.HttpServletResponse
 import javax.validation.Valid
 
 @Tag(name = "channel")
@@ -437,5 +442,30 @@ class ChannelController(
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
     ): ResponseEntity<ChannelPutResponse> {
         return channelService.removeBookmarks(dto, bearer)
+    }
+
+    @Operation(
+        summary = "채널 가입 거절 사유 excel download",
+        description = "채널 가입 거절 사유 excel download",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(
+                        mediaType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+                ]
+            )
+        ]
+    )
+    @GetMapping("/refuse-reasons/download")
+    fun getExportChannelJoinRefuseReasons(
+        params: GetChannelReasonsData,
+        response: HttpServletResponse,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String,
+    ) {
+        val inputStream = channelService.exportChannelJoinRefuseReasons(params, bearer)
+        response.contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        response.setHeader("Content-Disposition", "attachment; filename=refuse-reasons.xlsx")
+        FileCopyUtils.copy(inputStream, response.outputStream)
     }
 }

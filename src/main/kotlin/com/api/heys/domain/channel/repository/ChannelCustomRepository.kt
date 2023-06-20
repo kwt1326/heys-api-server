@@ -4,9 +4,8 @@ import com.api.heys.constants.enums.ChannelMemberStatus
 import com.api.heys.constants.enums.ChannelType
 import com.api.heys.domain.channel.dto.*
 import com.api.heys.entity.ChannelBookMark
+import com.api.heys.entity.ChannelUserRelations
 import com.api.heys.entity.ChannelView
-import com.api.heys.entity.Channels
-import com.api.heys.entity.ContentView
 
 interface ChannelCustomRepository {
     fun getJoinAndWaitingChannelCounts(userId: Long): HashMap<String, Long>?
@@ -24,4 +23,6 @@ interface ChannelCustomRepository {
     fun getChannelView(channelId: Long, userId: Long): ChannelView?
 
     fun getChannelBookMark(channelId: Long, userId: Long): ChannelBookMark?
+
+    fun getChannelUserRelations(params: GetChannelReasonsData): List<GetChannelUserRelItemData>
 }

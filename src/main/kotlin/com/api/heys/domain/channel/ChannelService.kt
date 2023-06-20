@@ -16,12 +16,14 @@ import com.api.heys.domain.notification.vo.NotificationRequestVo
 import com.api.heys.domain.user.repository.UserRepository
 import com.api.heys.utils.JwtUtil
 import com.api.heys.entity.*
+import com.api.heys.helpers.SpreadSheetManager
 import com.api.heys.utils.UserUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.io.ByteArrayInputStream
 import java.time.LocalDateTime
 import kotlin.collections.HashMap
 import java.util.*
@@ -190,20 +192,24 @@ class ChannelService(
         params: GetChannelsParam,
         contentId: Long?
     ): ResponseEntity<GetChannelsResponse> {
-        return ResponseEntity.ok(GetChannelsResponse(
-            data = channelsRepository.getChannels(params, contentId, type),
-            totalPage = channelsRepository.getChannelCount(params, contentId, type),
-            MessageString.SUCCESS_EN
-        ))
+        return ResponseEntity.ok(
+            GetChannelsResponse(
+                data = channelsRepository.getChannels(params, contentId, type),
+                totalPage = channelsRepository.getChannelCount(params, contentId, type),
+                MessageString.SUCCESS_EN
+            )
+        )
     }
 
     @Transactional(readOnly = true)
     override fun getChannelsAllType(params: GetChannelsParam): ResponseEntity<GetChannelsResponse> {
-        return ResponseEntity.ok(GetChannelsResponse(
-            data = channelsRepository.getChannels(params, null, null),
-            totalPage = channelsRepository.getChannelCount(params, null, null),
-            MessageString.SUCCESS_EN
-        ))
+        return ResponseEntity.ok(
+            GetChannelsResponse(
+                data = channelsRepository.getChannels(params, null, null),
+                totalPage = channelsRepository.getChannelCount(params, null, null),
+                MessageString.SUCCESS_EN
+            )
+        )
     }
 
     @Transactional
@@ -675,7 +681,8 @@ class ChannelService(
         channelEntity.channelBookMarks.add(ChannelBookMark(channelEntity, user))
         channelsRepository.save(channelEntity)
 
-        return ResponseEntity.status(HttpStatus.OK).body(ChannelPutResponse("New channel bookmarked! : ${channelEntity.id}"))
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(ChannelPutResponse("New channel bookmarked! : ${channelEntity.id}"))
     }
 
     @Transactional
@@ -695,11 +702,15 @@ class ChannelService(
 
         channelsRepository.save(channelEntity)
 
-        return ResponseEntity.status(HttpStatus.OK).body(ChannelPutResponse("Removed content bookmark : ${channelEntity.id}"))
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(ChannelPutResponse("Removed content bookmark : ${channelEntity.id}"))
     }
 
     @Transactional
-    override fun removeBookmarks(params: PutChannelRemoveRemarksData, token: String): ResponseEntity<ChannelPutResponse> {
+    override fun removeBookmarks(
+        params: PutChannelRemoveRemarksData,
+        token: String
+    ): ResponseEntity<ChannelPutResponse> {
         val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ChannelPutResponse("Not found User"))
 
@@ -711,7 +722,12 @@ class ChannelService(
 
         channelsRepository.saveAll(channels)
 
-        return ResponseEntity.status(HttpStatus.OK).body(ChannelPutResponse("Removed channel bookmarks num : ${channels.count()}"))
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(ChannelPutResponse("Removed channel bookmarks num : ${channels.count()}"))
+    }
+
+    override fun exportChannelJoinRefuseReasons(params: GetChannelReasonsData, token: String): ByteArrayInputStream {
+        return SpreadSheetManager(null).exportChannelJoinRefuseReasons(channelsRepository.getChannelUserRelations(params))
     }
 
     fun findChannelByChannelId(channelId: Long) : Channels? {

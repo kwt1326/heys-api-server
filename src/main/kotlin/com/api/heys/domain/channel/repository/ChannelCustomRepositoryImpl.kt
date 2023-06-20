@@ -216,7 +216,11 @@ class ChannelCustomRepositoryImpl(
         }
     }
 
-    override fun getChannels(params: GetChannelsParam, contentId: Long?, type: ChannelType?): List<ChannelListItemData> {
+    override fun getChannels(
+        params: GetChannelsParam,
+        contentId: Long?,
+        type: ChannelType?
+    ): List<ChannelListItemData> {
         return channelFilterQuery(
             queryBase = jpaQueryFactory.selectFrom(qChannels),
             params,
@@ -265,7 +269,9 @@ class ChannelCustomRepositoryImpl(
             query.where(qChannelUserRelations.user.id.eq(userId).and(qChannelUserRelations.status.eq(status)))
         } else {
             // status == null 일 경우 '내 채널' 페이지에 해당하는 모든 채널 쿼리 (내가 생성한 채널, 참여 승인된 채널)
-            query.where(qChannels.leader.id.eq(userId).or(qChannelUserRelations.status.eq(ChannelMemberStatus.Approved)))
+            query.where(
+                qChannels.leader.id.eq(userId).or(qChannelUserRelations.status.eq(ChannelMemberStatus.Approved))
+            )
         }
 
         return query
@@ -406,5 +412,39 @@ class ChannelCustomRepositoryImpl(
             .where(qUsers.id.eq(userId))
 
         return query.fetchOne()
+    }
+
+    override fun getChannelUserRelations(params: GetChannelReasonsData): List<GetChannelUserRelItemData> {
+        var query = jpaQueryFactory
+            .selectFrom(qChannelUserRelations)
+            .join(qChannelUserRelations.user, qUsers).fetchJoin()
+            .join(qChannelUserRelations.channel, qChannels).fetchJoin()
+            .join(qChannels.detail, qChannelDetail).fetchJoin()
+            .where(qChannelUserRelations.removedAt.isNull)
+            .where(qChannelUserRelations.refuseMessage.isNotEmpty.or(qChannelUserRelations.exitMessage.isNotEmpty))
+
+        if (params.startDate != null) {
+            query = query.where(qChannelUserRelations.updatedAt.after(LocalDateTime.parse(params.startDate)))
+        }
+        if (params.endDate != null) {
+            query = query.where(qChannelUserRelations.updatedAt.before(LocalDateTime.parse(params.endDate)))
+        }
+
+        val queryResult = query
+            .orderBy(qChannelUserRelations.id.desc())
+            .distinct()
+            .fetch() ?: listOf()
+
+        return queryResult.map {
+            val channelDetail = it.channel!!.detail!!
+            val user = it.user
+            GetChannelUserRelItemData(
+                channelName = channelDetail.name,
+                username = user.detail!!.username,
+                phone = user.phone,
+                refuseReason = it.refuseMessage,
+                exitReason = it.exitMessage
+            )
+        }.toList()
     }
 }

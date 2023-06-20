@@ -4,6 +4,7 @@ import com.api.heys.constants.enums.ChannelMemberStatus
 import com.api.heys.constants.enums.ChannelType
 import com.api.heys.domain.channel.dto.*
 import org.springframework.http.ResponseEntity
+import java.io.ByteArrayInputStream
 
 interface IChannelService {
     fun createChannel(dto: CreateChannelData, token: String, contentId: Long): ResponseEntity<CreateChannelResponse>
@@ -41,4 +42,6 @@ interface IChannelService {
     fun removeBookmark(channelId: Long, token: String): ResponseEntity<ChannelPutResponse>
 
     fun removeBookmarks(params: PutChannelRemoveRemarksData, token: String): ResponseEntity<ChannelPutResponse>
+
+    fun exportChannelJoinRefuseReasons(params: GetChannelReasonsData, token: String): ByteArrayInputStream
 }
