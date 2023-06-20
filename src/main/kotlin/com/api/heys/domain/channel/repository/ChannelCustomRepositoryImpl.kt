@@ -258,6 +258,16 @@ class ChannelCustomRepositoryImpl(
         )
     }
 
+    private fun getChannelType(channel: Channels): String {
+        if (channel.type == ChannelType.Content) {
+            val content = channel.contents!!
+            if (listOf(ContentType.Contest, ContentType.Extracurricular).contains(content.contentType)) {
+                return content.contentType.toString()
+            }
+        }
+        return channel.type.toString()
+    }
+
     override fun getMyChannels(status: ChannelMemberStatus?, userId: Long): List<MyChannelListItemData> {
         var query = jpaQueryFactory
             .selectFrom(qChannels)
@@ -284,7 +294,7 @@ class ChannelCustomRepositoryImpl(
                 val dDay: Long = DateHelpers.calculateDday(detail.lastRecruitDate)
                 MyChannelListItemData(
                     id = it.id,
-                    type = it.type,
+                    type = getChannelType(it),
                     name = detail.name,
                     dDay = dDay,
                     isLeader = it.leader.id == userId,
