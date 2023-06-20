@@ -7,4 +7,6 @@ import java.util.*
 interface DeviceTokenRepository : JpaRepository<DeviceToken, Long> {
 
     fun findByToken(token: String) : Optional<DeviceToken>
+
+    fun findAllByUserId(userId : Long) : List<DeviceToken>
 }

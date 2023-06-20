@@ -4,12 +4,15 @@ import com.api.heys.constants.DefaultString
 import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.ChannelMemberStatus
 import com.api.heys.constants.enums.ChannelType
+import com.api.heys.constants.enums.MessageType
 import com.api.heys.domain.channel.dto.*
 import com.api.heys.domain.channel.repository.IChannelUserRelationsRepository
 import com.api.heys.domain.channel.repository.IChannelsRepository
 import com.api.heys.domain.content.repository.IContentsRepository
 import com.api.heys.domain.interest.repository.InterestRelationRepository
 import com.api.heys.domain.interest.repository.InterestRepository
+import com.api.heys.domain.notification.service.NotificationService
+import com.api.heys.domain.notification.vo.NotificationRequestVo
 import com.api.heys.domain.user.repository.UserRepository
 import com.api.heys.utils.JwtUtil
 import com.api.heys.entity.*
@@ -33,6 +36,7 @@ class ChannelService(
     @Autowired private val userRepository: UserRepository,
     @Autowired private val userUtil: UserUtil,
     @Autowired private val jwtUtil: JwtUtil,
+    private val notificationService: NotificationService
 ) : IChannelService {
     /**
      * 컨텐츠 기반 채널 생성
@@ -74,7 +78,6 @@ class ChannelService(
             limitPeople = dto.limitPeople,
             lastRecruitDate = dto.lastRecruitDate,
             recruitMethod = dto.recruitMethod,
-            thumbnailUri = dto.thumbnailUri ?: DefaultString.defaultThumbnailUri
         )
 
         dto.purposes.map {
@@ -148,7 +151,6 @@ class ChannelService(
             limitPeople = dto.limitPeople,
             lastRecruitDate = dto.lastRecruitDate,
             recruitMethod = dto.recruitMethod,
-            thumbnailUri = dto.thumbnailUri ?: DefaultString.defaultThumbnailUri
         )
 
         dto.purposes.map {
@@ -260,6 +262,15 @@ class ChannelService(
         channelEntity.channelUserRelations.add(channelUserRelations)
 
         channelsRepository.save(channelEntity)
+
+
+        val notificationRequestVo = NotificationRequestVo(
+            messageType = MessageType.CHANNEL_APPROVAL_REQUEST,
+            sender = user,
+            receiver = channelEntity.leader,
+            channel = channelEntity
+        )
+        notificationService.saveNotification(notificationRequestVo)
 
         return ResponseEntity.ok(response)
     }
@@ -478,18 +489,28 @@ class ChannelService(
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response)
         }
 
+        var messageType : MessageType
         if (isAllow) {
+            messageType = MessageType.CHANNEL_APPROVAL
             channelUserRelation.status = ChannelMemberStatus.Approved
             channelUserRelation.channel = channelEntity
             channelUserRelation.approveRequestAt = LocalDateTime.now()
             channelEntity.channelUserRelations.add(channelUserRelation)
         } else {
+            messageType = MessageType.CHANNEL_REFUSE
             channelUserRelation.status = ChannelMemberStatus.Refused
             channelUserRelation.refuseMessage = msg
             channelUserRelation.removedAt = LocalDateTime.now()
         }
 
         channelsRepository.save(channelEntity)
+        val notificationRequestVo = NotificationRequestVo(
+            messageType = messageType,
+            sender = channelEntity.leader,
+            receiver = channelUserRelation.user,
+            channel = channelEntity
+        )
+        notificationService.saveNotification(notificationRequestVo)
 
         return ResponseEntity.ok(response)
     }
@@ -541,6 +562,13 @@ class ChannelService(
         channelUserRelation.removedAt = LocalDateTime.now()
 
         channelsRepository.save(channelEntity)
+        val notificationRequestVo = NotificationRequestVo(
+            messageType = MessageType.CHANNEL_REQUEST_CANCEL,
+            sender = user,
+            receiver = channelEntity.leader,
+            channel = channelEntity
+        )
+        notificationService.saveNotification(notificationRequestVo)
 
         return ResponseEntity.ok(response)
     }
@@ -593,6 +621,13 @@ class ChannelService(
         channelUserRelation.removedAt = LocalDateTime.now()
 
         channelsRepository.save(channelEntity)
+        val notificationRequestVo = NotificationRequestVo(
+            messageType = MessageType.EXIT_CHANNEL,
+            sender = user,
+            receiver = channelEntity.leader,
+            channel = channelEntity
+        )
+        notificationService.saveNotification(notificationRequestVo)
 
         return ResponseEntity.ok(response)
     }
@@ -677,5 +712,9 @@ class ChannelService(
         channelsRepository.saveAll(channels)
 
         return ResponseEntity.status(HttpStatus.OK).body(ChannelPutResponse("Removed channel bookmarks num : ${channels.count()}"))
+    }
+
+    fun findChannelByChannelId(channelId: Long) : Channels? {
+        return channelsRepository.findById(channelId).get()
     }
 }

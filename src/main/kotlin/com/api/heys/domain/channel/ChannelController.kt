@@ -1,13 +1,10 @@
 package com.api.heys.domain.channel
 
-import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.ChannelMemberStatus
 import com.api.heys.constants.enums.ChannelType
 import com.api.heys.domain.channel.dto.*
-import com.api.heys.domain.content.dto.ContentPutResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
