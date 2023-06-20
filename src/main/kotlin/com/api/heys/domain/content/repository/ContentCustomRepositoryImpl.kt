@@ -1,11 +1,14 @@
 package com.api.heys.domain.content.repository
 
 import com.api.heys.constants.MessageString
+import com.api.heys.constants.enums.ContentOrderType
 import com.api.heys.domain.content.dto.ExtraContentListItemData
 import com.api.heys.domain.content.dto.GetExtraContentsParam
 import com.api.heys.domain.content.dto.GetExtraContentsResponse
 import com.api.heys.entity.*
 import com.api.heys.helpers.DateHelpers
+import com.querydsl.core.types.dsl.Expressions
+import com.querydsl.core.types.dsl.NumberExpression
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.stereotype.Repository
@@ -56,8 +59,22 @@ class ContentCustomRepositoryImpl(
             query = query.where(qInterest.name.`in`(params.interests))
         }
 
+        if (params.order == ContentOrderType.Default) {
+            query = query.orderBy(qContents.id.desc())
+        } else if (params.order == ContentOrderType.Dday && !params.lastRecruitDate.isNullOrBlank()) {
+            val dateDiff: NumberExpression<Int> =
+                Expressions.numberTemplate(
+                    Int::class.java,
+                    "DATEDIFF({0}, {1})",
+                    LocalDateTime.parse(params.lastRecruitDate),
+                    qExtraContentDetail.endDate
+                )
+            query = query.orderBy(dateDiff.asc())
+        } else if (params.order == ContentOrderType.Popular) {
+            query = query.orderBy(qContentView.count().desc())
+        }
+
         return query
-            .orderBy(qContents.id.desc())
             .limit(params.limit)
             .offset((params.page - 1) * params.limit)
             .distinct()
