@@ -237,6 +237,7 @@ class ChannelCustomRepositoryImpl(
                     .filter { it2 -> it2.interest != null }
                     .map { it2 -> it2.interest!!.name }
 
+                val channelImageResult = channelUtil.getChannelImage(interests)
                 ChannelListItemData(
                     id = it.id,
                     type = it.type,
@@ -245,7 +246,7 @@ class ChannelCustomRepositoryImpl(
                     joinRemainCount = detail.limitPeople.toLong().minus(it.channelUserRelations.count()),
                     pastDay = DateHelpers.diffDay(it.createdAt, LocalDateTime.now()),
                     dDay = DateHelpers.calculateDday(detail.lastRecruitDate),
-                    thumbnailUri = channelUtil.getChannelImage(interests)["list"] ?: "FILTER_ERROR"
+                    thumbnailUri = channelImageResult["host"] + channelImageResult["list"]
                 )
             }
     }
@@ -384,7 +385,7 @@ class ChannelCustomRepositoryImpl(
         else if (approvedUserList.find { it.id == userId } != null) relationship = ChannelRelationship.Member
 
         val isBookMarked = channel.channelBookMarks.find { it.users!!.id == userId } != null
-        val thumbnailUri = channelUtil.getChannelImage(interests)["detail"] ?: ""
+        val channelImageResult = channelUtil.getChannelImage(interests)
 
         return GetChannelDetailData(
             id = channel.id,
@@ -405,7 +406,7 @@ class ChannelCustomRepositoryImpl(
             contentData = contentData,
             relationshipWithMe = relationship,
             isBookMarked = isBookMarked,
-            thumbnailUri = thumbnailUri,
+            thumbnailUri = channelImageResult["host"] + channelImageResult["detail"],
         )
     }
 
