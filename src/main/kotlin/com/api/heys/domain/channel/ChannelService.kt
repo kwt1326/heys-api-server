@@ -5,6 +5,7 @@ import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.ChannelMemberStatus
 import com.api.heys.constants.enums.ChannelType
 import com.api.heys.constants.enums.MessageType
+import com.api.heys.constants.enums.RecruitMethod
 import com.api.heys.domain.channel.dto.*
 import com.api.heys.domain.channel.repository.IChannelUserRelationsRepository
 import com.api.heys.domain.channel.repository.IChannelsRepository
@@ -241,7 +242,7 @@ class ChannelService(
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response)
         }
 
-        val existEntity = channelUserRelRepository.getChannelUserRelByChannelUserId(user.id)
+        val existEntity = channelUserRelRepository.getChannelUserRel(user.id, channelEntity.id)
 
         if (existEntity != null) {
             if (existEntity.status == ChannelMemberStatus.Waiting) {
@@ -255,14 +256,20 @@ class ChannelService(
         }
 
         // 관계 테이블 매핑 - 채널 참가 신청시, 우선 대기 채널 리스트로 보낸다.
+        // 즉시 참가의 경우 바로 Approve 상태로 합류한다.
         val channelUserRelations = ChannelUserRelations(user)
 
-        channelUserRelations.status = ChannelMemberStatus.Waiting
+        if (channelDetail.recruitMethod == RecruitMethod.Immediately) {
+            channelUserRelations.status = ChannelMemberStatus.Approved
+            channelUserRelations.approveRequestAt = LocalDateTime.now()
+        } else {
+            channelUserRelations.status = ChannelMemberStatus.Waiting
+        }
+
         channelUserRelations.channel = channelEntity
         channelEntity.channelUserRelations.add(channelUserRelations)
 
         channelsRepository.save(channelEntity)
-
 
         val notificationRequestVo = NotificationRequestVo(
             messageType = MessageType.CHANNEL_APPROVAL_REQUEST,
@@ -495,7 +502,6 @@ class ChannelService(
             channelUserRelation.status = ChannelMemberStatus.Approved
             channelUserRelation.channel = channelEntity
             channelUserRelation.approveRequestAt = LocalDateTime.now()
-            channelEntity.channelUserRelations.add(channelUserRelation)
         } else {
             messageType = MessageType.CHANNEL_REFUSE
             channelUserRelation.status = ChannelMemberStatus.Refused
