@@ -5,6 +5,7 @@ server:
     active: ${PROFILE_ACTIVE}
 custom:
   secret: ${CUSTOM_SECRET}
+  static-file-host: ${STATIC_FILE_HOST}
 springdoc:
   version: v1.0.0
   swagger-ui:
