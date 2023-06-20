@@ -1,8 +1,11 @@
 # DEV, PROD value on AWS
 server:
   port: 8090
+  profiles:
+    active: ${PROFILE_ACTIVE}
 custom:
   secret: ${CUSTOM_SECRET}
+  static-file-host: ${STATIC_FILE_HOST}
 springdoc:
   version: v1.0.0
   swagger-ui:
@@ -29,3 +32,14 @@ spring:
 logging:
   level:
     root: error
+
+aws:
+  push:
+    arn : ${AWS_PUSH_ARN}
+    region: ${AWS_PUSH_REGION}
+  sms:
+    region: ${AWS_SMS_REGION}
+
+slack:
+  channelId: ${SLACK_MESSAGE_CHANNEL}
+  token: ${SLACK_TOKEN}

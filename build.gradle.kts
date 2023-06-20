@@ -76,6 +76,17 @@ dependencies {
 
 	// AWS
 	implementation("ca.pjer:logback-awslogs-appender:1.6.0")
+	implementation("aws.sdk.kotlin:sns:0.18.0-beta")
+	implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.10")
+
+	// GSON
+	implementation("com.google.code.gson:gson:2.10.1")
+
+	// Coroutine
+	runtimeOnly("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+	runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
 	// Template Engine
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")

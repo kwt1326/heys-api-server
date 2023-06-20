@@ -10,6 +10,7 @@ import com.api.heys.domain.channel.dto.PutChannelData
 import com.api.heys.domain.channel.dto.PutChannelRemoveRemarksData
 import com.api.heys.domain.content.ContentService
 import com.api.heys.domain.content.dto.CreateExtraContentData
+import com.api.heys.domain.devicetoken.service.DeviceTokenService
 import com.api.heys.domain.user.dto.CommonSignUpData
 import com.api.heys.domain.user.service.UserService
 import com.api.heys.utils.JwtUtil
@@ -36,9 +37,11 @@ class ChannelServiceTest(
     @Autowired private val userService: UserService,
     @Autowired private val contentService: ContentService,
     @Autowired private val channelService: ChannelService,
+    @Autowired private val deviceTokenService: DeviceTokenService,
     @Autowired private val jwtUtil: JwtUtil,
 ) {
     private val testUrl = "https://res.cloudinary.com/dyfuiigbw/image/upload/v1670047057/heys-dev/test1_jnkego.jpg"
+    private val deviceToken = "d3BAg4eMTgKXuz9CgGkJtJ:APA91bHid3RecFta3xMA5-L3BAE9CRpn2KVaBqHMscPo0eKzV_aabVO4vNy1TkXeZ1xj8cC7dAe4c7wSL7M5Y0Na7kUuAwuyzLM4Hskh4NB9sDMR4ggt45ILK_It9s0cMKH7tBDn0xNP"
 
     private val commonSignUpData = CommonSignUpData(
         phone = "01012341234",
@@ -87,7 +90,6 @@ class ChannelServiceTest(
         recruitMethod = RecruitMethod.Approval,
         contentText = "러브러브 챌린지 참여 채널입니다~! 승인제로 운영하며, 준비된 사람만 커몽~",
         recruitText = "이상한 사람만 아니면 되요~! (신천지, 홍보 목적 절대 사양)",
-        thumbnailUri = testUrl,
         linkUri = mutableSetOf(testUrl, "http://test.test.com"),
         interests = mutableSetOf(
             "연애",
@@ -119,7 +121,6 @@ class ChannelServiceTest(
         recruitMethod = RecruitMethod.Approval,
         contentText = "환승연애학 공부 채널입니다~! 승인제로 운영하며, 준비된 사람만 커몽~",
         recruitText = "공부 목적인 사람만 오시면 되요",
-        thumbnailUri = testUrl,
         linkUri = mutableSetOf(testUrl),
         interests = mutableSetOf(
             "연애",
@@ -187,6 +188,7 @@ class ChannelServiceTest(
         assertThat(token).isNotEqualTo("")
 
         leaderToken = userService.signUp(commonLeaderSignUpData, DefaultString.commonRole) ?: ""
+        deviceTokenService.saveDeviceToken(leaderToken, deviceToken)
         assertThat(leaderToken).isNotEqualTo("")
     }
 

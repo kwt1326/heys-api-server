@@ -22,7 +22,6 @@ class ChannelDetail(
     limitPeople: Int,
     lastRecruitDate: LocalDateTime,
     recruitMethod: RecruitMethod,
-    thumbnailUri: String,
 ): Serializable {
     @Id
     @Column(name = "channel_id")
@@ -76,8 +75,4 @@ class ChannelDetail(
     @Enumerated(EnumType.STRING)
     @Column(name = "recruit_method", nullable = false)
     var recruitMethod: RecruitMethod = recruitMethod
-
-    // 썸네일 이미지 URI
-    @Column(columnDefinition = "TEXT", name = "thumbnail_uri")
-    var thumbnailUri: String = thumbnailUri
 }

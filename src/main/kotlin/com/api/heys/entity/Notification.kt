@@ -1,11 +1,10 @@
 package com.api.heys.entity
 
+import com.api.heys.constants.enums.MessageType
 import java.io.Serializable
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
-import javax.persistence.Table
+import java.time.LocalDateTime
+import javax.persistence.*
+import javax.persistence.FetchType.LAZY
 
 /**
  * 알림 메시지 테이블
@@ -14,17 +13,23 @@ import javax.persistence.Table
 @Entity
 @Table(name = "notification")
 class Notification(
-        title: String,
-        content: String,
-        writer: Users
-): BaseIdentityDate(), Serializable {
-    @Column(name = "title")
-    var title: String = title
 
-    @Column(name = "content")
-    var content: String = content
+        @Column(name = "message_type", length = 30)
+        val messageType: MessageType,
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    var writer: Users = writer
-}
+        @ManyToOne(fetch = LAZY)
+        @JoinColumn(name = "send_user_id")
+        val sender : Users? = null,
+
+        @ManyToOne(fetch = LAZY)
+        @JoinColumn(name = "receiver_user_id", nullable = false)
+        val receiver: Users,
+
+        @OneToOne
+        @JoinColumn(name = "channel_id", nullable = true)
+        val channels : Channels? = null,
+
+        @Column(name = "read_at")
+        val readAt : LocalDateTime? = null
+
+): BaseIdentityDate(), Serializable

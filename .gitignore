@@ -26,6 +26,7 @@ bin
 build
 !/**/src/**/bin
 !/**/src/**/build
+/**/src/test/resources/application-test.yml
 build.log
 dependency-reduced-pom.xml
 dump.rdb

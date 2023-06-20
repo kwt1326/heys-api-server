@@ -1,5 +1,6 @@
 package com.api.heys.domain.content.dto
 
+import com.api.heys.constants.enums.ContentOrderType
 import com.api.heys.constants.enums.ContentType
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Schema
@@ -17,6 +18,9 @@ data class GetExtraContentsParam(
 
         @field:Schema(example = "true", description = "마감된 컨텐츠 포함 여부")
         val includeClosed: Boolean?,
+
+        @field:Schema(example = "Default", description = "정렬 조건")
+        val order: ContentOrderType = ContentOrderType.Default,
 
         @field:Schema(example = "1", description = "가져올 데이터의 페이지")
         val page: Long = 1,
