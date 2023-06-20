@@ -5,6 +5,7 @@ import com.api.heys.constants.enums.*
 import com.api.heys.domain.channel.dto.*
 import com.api.heys.entity.*
 import com.api.heys.helpers.DateHelpers
+import com.api.heys.utils.ChannelUtil
 import com.api.heys.utils.UserDetailPercentUtils
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -15,6 +16,7 @@ import java.time.LocalDateTime
 @Repository
 class ChannelCustomRepositoryImpl(
     private val dateHelpers: DateHelpers,
+    private val channelUtil: ChannelUtil,
     private val jpaQueryFactory: JPAQueryFactory,
 ) : ChannelCustomRepository {
     val qUsers: QUsers = QUsers.users
@@ -231,6 +233,10 @@ class ChannelCustomRepositoryImpl(
             .map {
                 val detail: ChannelDetail = it.detail!!
                 val view = it.channelViews
+                val interests = detail.interestRelations
+                    .filter { it2 -> it2.interest != null }
+                    .map { it2 -> it2.interest!!.name }
+
                 ChannelListItemData(
                     id = it.id,
                     type = it.type,
@@ -239,7 +245,7 @@ class ChannelCustomRepositoryImpl(
                     joinRemainCount = detail.limitPeople.toLong().minus(it.channelUserRelations.count()),
                     pastDay = DateHelpers.diffDay(it.createdAt, LocalDateTime.now()),
                     dDay = DateHelpers.calculateDday(detail.lastRecruitDate),
-                    thumbnailUri = "" // TODO: thumbnail mapper
+                    thumbnailUri = channelUtil.getChannelImage(interests)["list"] ?: "FILTER_ERROR"
                 )
             }
     }
@@ -254,6 +260,16 @@ class ChannelCustomRepositoryImpl(
             ),
             params.limit
         )
+    }
+
+    private fun getChannelType(channel: Channels): String {
+        if (channel.type == ChannelType.Content) {
+            val content = channel.contents!!
+            if (listOf(ContentType.Contest, ContentType.Extracurricular).contains(content.contentType)) {
+                return content.contentType.toString()
+            }
+        }
+        return channel.type.toString()
     }
 
     override fun getMyChannels(status: ChannelMemberStatus?, userId: Long): List<MyChannelListItemData> {
@@ -284,7 +300,7 @@ class ChannelCustomRepositoryImpl(
                 val dDay: Long = DateHelpers.calculateDday(detail.lastRecruitDate)
                 MyChannelListItemData(
                     id = it.id,
-                    type = it.type,
+                    type = getChannelType(it),
                     name = detail.name,
                     dDay = dDay,
                     isLeader = it.leader.id == userId,
@@ -368,10 +384,10 @@ class ChannelCustomRepositoryImpl(
         else if (approvedUserList.find { it.id == userId } != null) relationship = ChannelRelationship.Member
 
         val isBookMarked = channel.channelBookMarks.find { it.users!!.id == userId } != null
+        val thumbnailUri = channelUtil.getChannelImage(interests)["detail"] ?: ""
 
         return GetChannelDetailData(
             id = channel.id,
-            thumbnailUri = "", // TODO: thumbnail mapper
             title = channelDetail.name,
             online = channelDetail.online,
             location = channelDetail.location,
@@ -389,6 +405,7 @@ class ChannelCustomRepositoryImpl(
             contentData = contentData,
             relationshipWithMe = relationship,
             isBookMarked = isBookMarked,
+            thumbnailUri = thumbnailUri,
         )
     }
 
