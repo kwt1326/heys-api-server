@@ -41,5 +41,5 @@ aws:
     region: ${AWS_SMS_REGION}
 
 slack:
-  channelId: ${SLACK_MESSAGE_CHANNEL}
+  channel: ${SLACK_MESSAGE_CHANNEL}
   token: ${SLACK_TOKEN}
