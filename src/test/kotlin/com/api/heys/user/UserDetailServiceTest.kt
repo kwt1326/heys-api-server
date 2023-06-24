@@ -94,5 +94,21 @@ class UserDetailServiceTest(
 
     }
 
+    @Test
+    @DisplayName("휴대폰 번호 수정 테스트")
+    @Throws(Exception::class)
+    fun modifyPhoneNumberTest () {
+        // given
+        val phoneNumber = "01011111111"
+        // when
+        userDetailService.modifyMyPhone(token, phoneNumber)
+        val myInfo = userDetailService.getMyInfo(token)
+        // then
+        if (myInfo != null) {
+            assertThat(myInfo.phone).isEqualTo(phoneNumber)
+        }
+
+    }
+
 }
 
