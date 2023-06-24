@@ -6,14 +6,17 @@ import com.api.heys.domain.user.dto.AdminSignUpData
 import com.api.heys.domain.user.dto.CommonSignUpData
 import com.api.heys.domain.user.service.UserService
 import com.api.heys.domain.user.repository.UserRepository
+import com.api.heys.entity.Authentication
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.test.context.ActiveProfiles
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.test.annotation.Rollback
+import java.lang.NullPointerException
 import java.time.LocalDate
 
 @SpringBootTest
@@ -90,5 +93,26 @@ internal class UserServiceTest(
 
         assertThat(userDetail.birthDate).isEqualTo(birthDate)
         assertThat(userDetail.gender).isEqualTo(Gender.Male)
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴")
+    @Throws(Exception::class)
+    fun withDrawalTest() {
+        // given
+        val role = "common"
+        val authRole = if (role == "admin") DefaultString.adminRole else DefaultString.commonRole
+        signUp_AdminUserCreate_Continue_CommonUserCreate()
+        // when
+        userService.withDrawal(1, authRole)
+        // then
+        val findUsers = userRepository.findById(1)
+
+        if (findUsers.isEmpty) {
+            throw NullPointerException("회원이 없습니다.")
+        }
+        assertThat(findUsers.get().isAvailable).isEqualTo(false)
+        assertThat(findUsers.get().removedAt).isNotNull
+        assertThat(findUsers.get().authentications).isEmpty()
     }
 }

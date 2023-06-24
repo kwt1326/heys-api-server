@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService
 
 interface IUserService: UserDetailsService {
     fun <T: SignUpData>signUp(dto: T, role: String): String?
-    fun withDrawal(id: Number, role: String): ResponseEntity<Boolean>
+    fun withDrawal(id: Long, role: String): ResponseEntity<Boolean>
     fun checkMember(dto: CheckMemberData): Boolean
 
     fun findByPhone(phone: String): Users?

@@ -9,7 +9,9 @@ import com.api.heys.domain.user.repository.UserRepository
 import com.api.heys.entity.*
 import com.api.heys.security.domain.CustomUser
 import com.api.heys.utils.JwtUtil
+import com.api.heys.utils.UserUtil
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -17,14 +19,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Service
 @Transactional(readOnly = true)
 class UserService(
-    @Autowired private val userRepository: UserRepository,
-    @Autowired private val interestRepository: InterestRepository,
-    @Autowired private val passwordEncoder: PasswordEncoder,
     @Autowired private val jwtUtil: JwtUtil,
+    @Autowired private val userRepository: UserRepository,
+    @Autowired private val passwordEncoder: PasswordEncoder,
+    @Autowired private val interestRepository: InterestRepository
 ) : IUserService {
     /**
      * 회원가입
@@ -92,9 +95,20 @@ class UserService(
         return jwtUtil.createJwt(user.phone, user.authentications.map { it.role })
     }
 
-    override fun withDrawal(id: Number, role: String): ResponseEntity<Boolean> {
+    @Transactional
+    override fun withDrawal(id: Long, role: String): ResponseEntity<Boolean> {
         // TODO: role 제거, 유저 비활성화 처리 (removedAt) flow 설계 필요
-        return ResponseEntity.status(403).body(false)
+        val user = userRepository.findById(id)
+
+        if (user.isEmpty) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false)
+        }
+
+        val findUser = user.get()
+        findUser.isAvailable = false
+        findUser.removedAt = LocalDateTime.now()
+        findUser.authentications = mutableSetOf()
+        return ResponseEntity.status(200).body(true)
     }
 
     override fun checkMember(dto: CheckMemberData): Boolean {
