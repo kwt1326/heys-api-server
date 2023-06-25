@@ -48,7 +48,7 @@ class NotificationService(
         val messageParam = MessageUtils.getMessageParam(user = senderName, channel = channelName)
         val content = MessageUtils.getContent(messageType, messageParam)
 
-        val deviceTokens = deviceTokenService.getDeviceTokens(notificationRequestVo.receiver.id)
+        val deviceTokens = deviceTokenService.getAvailableDeviceTokens(notificationRequestVo.receiver.id)
         val endPoints = deviceTokens.mapNotNull { it.arn }.toSet()
 
         val targetPushMessageVo = TargetPushMessageVo(

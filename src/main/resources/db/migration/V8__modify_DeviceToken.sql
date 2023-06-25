@@ -1,0 +1,1 @@
+alter table device_token add column expired_time timestamp;

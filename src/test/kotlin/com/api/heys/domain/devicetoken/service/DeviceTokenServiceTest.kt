@@ -16,6 +16,7 @@ import org.springframework.test.annotation.Rollback
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @SpringBootTest
 @Rollback(true)
@@ -54,12 +55,40 @@ class DeviceTokenServiceTest(
 
     @Test
     @Transactional
+    @DisplayName("유효한 디바이스 토큰 찾기")
+    @Throws(Exception::class)
+    fun getAvailableDeviceToken () {
+        // given
+        deviceTokenService.saveDeviceToken(token, deviceToken)
+        deviceTokenRepository.findByToken(deviceToken).orElse(null) ?: throw NullPointerException()
+        // when
+        val availableDeviceTokens = deviceTokenService.getAvailableDeviceTokens(1L)
+        // then
+        assertThat(availableDeviceTokens.size).isEqualTo(1)
+        assertThat(availableDeviceTokens.get(0).user.phone).isEqualTo(phone)
+        assertThat(availableDeviceTokens.get(0).token).isEqualTo(deviceToken)
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("만료된 디바이스 토큰 찾지 않는 테스트")
+    @Throws(Exception::class)
+    fun getUnavailableDeviceToken () {
+        // given
+        deviceTokenService.saveDeviceToken(token, deviceToken)
+        deviceTokenRepository.findByToken(deviceToken).orElse(null) ?: throw NullPointerException()
+        // when
+        val unavailableDeviceTokens = deviceTokenRepository.findAllByUserIdAndExpiredTimeAfter(1L, LocalDateTime.now().plusYears(1L))
+        // then
+        assertThat(unavailableDeviceTokens.size).isEqualTo(0)
+    }
+
+    @Test
+    @Transactional
     @Throws(Exception::class)
     @DisplayName("디바이스 토큰 등록하기")
     fun registerDeviceToken () {
         // given
-        println("$token + : $deviceToken")
-        println(deviceToken.length)
         deviceTokenService.saveDeviceToken(token, deviceToken)
         // when
         val registerDeviceToken = deviceTokenRepository.findByToken(deviceToken).orElse(null) ?: throw NullPointerException()
