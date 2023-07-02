@@ -184,10 +184,12 @@ class ChannelServiceTest(
     @BeforeEach
     internal fun beforeEach() {
         // Create Common User
-        token = userService.signUp(commonSignUpData, DefaultString.commonRole) ?: ""
+        val userResponse = userService.signUp(commonSignUpData, DefaultString.commonRole)
+        token = userResponse.body!!.token
         assertThat(token).isNotEqualTo("")
 
-        leaderToken = userService.signUp(commonLeaderSignUpData, DefaultString.commonRole) ?: ""
+        val leaderResponse = userService.signUp(commonLeaderSignUpData, DefaultString.commonRole)
+        leaderToken = leaderResponse.body!!.token
         deviceTokenService.saveDeviceToken(leaderToken, deviceToken)
         assertThat(leaderToken).isNotEqualTo("")
     }

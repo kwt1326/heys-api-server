@@ -35,18 +35,18 @@ class AdminController(
         return if (userUtil.isLogging(userService)) "redirect:/" else "signup"
     }
 
-    @PostMapping("/sign-up-result")
-    fun signUpResultPage(@ModelAttribute("dto") dto: AdminSignUpData, model: Model): String {
-        val token: String? = userService.signUp(dto, DefaultString.adminRole)
-        if (token != null) {
-            model.addAttribute("msg", "회원가입에 성공하였습니다.")
-            model.addAttribute("token", token)
-            return "redirect:login"
-        }
-        model.addAttribute("msg", "올바르지 않은 요청입니다.")
-        model.addAttribute("dto", dto)
-        return "redirect:signup"
-    }
+//    @PostMapping("/sign-up-result")
+//    fun signUpResultPage(@ModelAttribute("dto") dto: AdminSignUpData, model: Model): String {
+//        val token: String? = userService.signUp(dto, DefaultString.adminRole)
+//        if (token != null) {
+//            model.addAttribute("msg", "회원가입에 성공하였습니다.")
+//            model.addAttribute("token", token)
+//            return "redirect:login"
+//        }
+//        model.addAttribute("msg", "올바르지 않은 요청입니다.")
+//        model.addAttribute("dto", dto)
+//        return "redirect:signup"
+//    }
 
     @GetMapping
     fun mainPage(model: Model): String {

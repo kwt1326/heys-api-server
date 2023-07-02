@@ -91,7 +91,8 @@ internal class ContentsServiceTest(
     @BeforeEach
     internal fun beforeEach() {
         // Create Common User
-        token = userService.signUp(commonSignUpData, DefaultString.commonRole) ?: ""
+        val userResponse = userService.signUp(commonSignUpData, DefaultString.commonRole)
+        token = userResponse.body!!.token
         assertThat(token).isNotEqualTo("")
     }
 

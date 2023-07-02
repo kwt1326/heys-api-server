@@ -86,9 +86,12 @@ class NotificationServiceTest(
     @BeforeAll
     fun signUp() {
         println("송신자 생성")
-        senderToken = userService.signUp(sendDer, DefaultString.commonRole) ?: ""
+        val senderResponse = userService.signUp(sendDer, DefaultString.commonRole)
+        senderToken = senderResponse.body!!.token
         println("수신자 생성")
-        receiverToken = userService.signUp(receiver, DefaultString.commonRole) ?: ""
+        val receiverResponse = userService.signUp(receiver, DefaultString.commonRole)
+        receiverToken = receiverResponse.body!!.token
+
         deviceTokenService.saveDeviceToken(receiverToken, deviceToken)
         println("채널 생성")
         channelId = channelService.createChannel(studyChannelData, receiverToken).body!!.channelId ?: 0

@@ -1,7 +1,6 @@
 package com.api.heys.domain.user.controller
 
 import com.api.heys.constants.DefaultString
-import com.api.heys.constants.SecurityString
 import com.api.heys.domain.user.dto.*
 import com.api.heys.domain.user.service.UserService
 
@@ -12,7 +11,6 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody as OASRequestBody //
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
@@ -36,12 +34,7 @@ class UserController(
     fun signUpCommon(
         @Valid @RequestBody body: CommonSignUpData
     ): ResponseEntity<SignUpResponse> {
-        val role = DefaultString.commonRole
-        val token: String? = userService.signUp(body, role)
-
-        if (token != null) return ResponseEntity.ok(SignUpResponse(token = SecurityString.PREFIX_TOKEN + token))
-
-        return ResponseEntity<SignUpResponse>(SignUpResponse("", "Already Exist User or Exist Role: $role"), HttpStatus.BAD_REQUEST)
+        return userService.signUp(body, DefaultString.commonRole)
     }
 
     @Operation(
@@ -57,12 +50,7 @@ class UserController(
     fun signUpAdmin(
         @Valid @RequestBody body: AdminSignUpData
     ): ResponseEntity<SignUpResponse> {
-        val role = DefaultString.adminRole
-        val token: String? = userService.signUp(body, role)
-
-        if (token != null) return ResponseEntity.ok(SignUpResponse(token = SecurityString.PREFIX_TOKEN + token))
-
-        return ResponseEntity<SignUpResponse>(SignUpResponse("", "Already Exist User or Exist Role: $role"), HttpStatus.BAD_REQUEST)
+        return userService.signUp(body, DefaultString.adminRole)
     }
 
     @Operation(

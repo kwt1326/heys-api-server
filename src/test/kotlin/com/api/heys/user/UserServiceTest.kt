@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.test.context.ActiveProfiles
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.test.annotation.Rollback
 import java.lang.NullPointerException
@@ -102,11 +103,12 @@ internal class UserServiceTest(
         // given
         val role = "common"
         val authRole = if (role == "admin") DefaultString.adminRole else DefaultString.commonRole
-        signUp_AdminUserCreate_Continue_CommonUserCreate()
+        val userResponse = userService.signUp(adminSignUpData, DefaultString.adminRole)
+        val userId = userResponse.body!!.userId ?: throw NullPointerException("회원가입이 실패했습니다.")
         // when
-        userService.withDrawal(1, authRole)
+        userService.withDrawal(userId, authRole)
         // then
-        val findUsers = userRepository.findById(1)
+        val findUsers = userRepository.findById(userId)
 
         if (findUsers.isEmpty) {
             throw NullPointerException("회원이 없습니다.")

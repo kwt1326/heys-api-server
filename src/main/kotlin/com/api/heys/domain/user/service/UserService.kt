@@ -1,10 +1,13 @@
 package com.api.heys.domain.user.service
 
+import com.api.heys.constants.MessageString
+import com.api.heys.constants.SecurityString
 import com.api.heys.constants.enums.Gender
 import com.api.heys.domain.interest.repository.InterestRepository
 import com.api.heys.domain.user.dto.CheckMemberData
 import com.api.heys.domain.user.dto.CommonSignUpData
 import com.api.heys.domain.user.dto.SignUpData
+import com.api.heys.domain.user.dto.SignUpResponse
 import com.api.heys.domain.user.repository.UserRepository
 import com.api.heys.entity.*
 import com.api.heys.security.domain.CustomUser
@@ -38,7 +41,7 @@ class UserService(
      * 로그인 가능한 토큰 반환
      * */
     @Transactional
-    override fun <T: SignUpData> signUp(dto: T, role: String): String? {
+    override fun <T : SignUpData> signUp(dto: T, role: String): ResponseEntity<SignUpResponse> {
         var user: Users? = userRepository.findUserByPhone(dto.phone)
         var detail: UserDetail? = null
 
@@ -87,12 +90,23 @@ class UserService(
         userRepository.save(user)
 
         // 이미 해당 Role 존재하면 가입 실패
-        if (user.authentications.find { it.role == role } != null) return null
+        if (user.authentications.find { it.role == role } != null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(SignUpResponse(token = "", userId = null, message = "Already Exist User or Exist Role: $role"))
+        }
 
         user.authentications.add(Authentication(users = user, role = role))
         userRepository.save(user)
 
-        return jwtUtil.createJwt(user.phone, user.authentications.map { it.role })
+        val token = jwtUtil.createJwt(user.phone, user.authentications.map { it.role })
+
+        return ResponseEntity.ok(
+            SignUpResponse(
+                token = SecurityString.PREFIX_TOKEN + token,
+                userId = user.id,
+                message = MessageString.SUCCESS_EN
+            )
+        )
     }
 
     @Transactional
@@ -141,7 +155,7 @@ class UserService(
         return null
     }
 
-    fun findAllUserByUserIds(userIds : List<Long>) : List<Users> {
+    fun findAllUserByUserIds(userIds: List<Long>): List<Users> {
         return userRepository.findAllById(userIds)
     }
 }
