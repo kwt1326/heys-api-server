@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema
 
 data class UserDetailRequest(
 
+    @field:Schema(example = "010112341234", type = "string")
+    var phone: String = "",
 
     @field:Schema(example = "NonBinary", type = "string")
     var gender: Gender,

@@ -76,7 +76,7 @@ class UserController(
     )
     @PutMapping("withDrawal/{id}/{role}")
     fun withDrawal(
-        @PathVariable id: Number,
+        @PathVariable id: Long,
         @PathVariable role: String,
     ): ResponseEntity<Boolean> {
         val authRole = if (role == "admin") DefaultString.adminRole else DefaultString.commonRole
