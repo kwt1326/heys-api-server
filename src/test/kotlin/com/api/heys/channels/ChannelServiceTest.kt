@@ -173,7 +173,7 @@ class ChannelServiceTest(
     }
 
     @Transactional
-    private fun createStydyChannelByLeader(): Long {
+    private fun createStudyChannelByLeader(): Long {
         val createChannelResponse = channelService.createChannel(studyChannelData, leaderToken)
         assertThat(createChannelResponse.statusCode).isEqualTo(HttpStatus.OK)
         assertThat(createChannelResponse.body!!.channelId).isNotNull
@@ -197,12 +197,16 @@ class ChannelServiceTest(
     @Order(1)
     fun extraContentCreateAndCreateChannelTest() {
         val resultMap = createContentAndChannelByLeader()
+        val createChannel2 = channelService.createChannel(contentChannelData, leaderToken, resultMap["contentId"]!!)
+        val createChannel3 = channelService.createChannel(contentChannelData, leaderToken, resultMap["contentId"]!!)
+        assertThat(createChannel3.body!!.channelId).isEqualTo(3)
+
         channelService.increaseChannelView(resultMap["channelId"] as Long, token)
 
         val getChannelResponse = channelService.getChannels(ChannelType.Content, filterData, resultMap["contentId"])
         assertThat(getChannelResponse.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(getChannelResponse.body!!.data.count()).isEqualTo(1)
-        assertThat(getChannelResponse.body!!.data.first().viewCount).isEqualTo(1)
+        assertThat(getChannelResponse.body!!.data.count()).isEqualTo(3)
+        assertThat(getChannelResponse.body!!.data.last().viewCount).isEqualTo(1)
         assertThat(getChannelResponse.body!!.totalPage).isEqualTo(1)
     }
 
@@ -345,7 +349,7 @@ class ChannelServiceTest(
     @Order(7)
     fun removeAllBookmarksTest() {
         val resultMap = createContentAndChannelByLeader()
-        val studyChannelId = createStydyChannelByLeader()
+        val studyChannelId = createStudyChannelByLeader()
         val channelId = resultMap["channelId"] as Long
 
         channelService.addBookmark(channelId, token)

@@ -2,7 +2,6 @@ package com.api.heys.domain.channel.dto
 
 import com.api.heys.constants.enums.Gender
 import io.swagger.v3.oas.annotations.media.Schema
-import java.time.LocalDateTime
 
 @Schema(description = "채널 유저 데이터")
 data class ChannelUserData(
@@ -14,4 +13,6 @@ data class ChannelUserData(
         var username: String,
         @field:Schema(example = "2023-02-01T00:00:00", type = "string", description = "요청일자")
         var requestedAt: String,
+        @field:Schema(example = "100", type = "int")
+        var percentage: Int
 )

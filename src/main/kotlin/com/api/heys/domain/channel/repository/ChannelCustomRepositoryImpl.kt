@@ -213,6 +213,7 @@ class ChannelCustomRepositoryImpl(
                 id = user.id,
                 gender = userDetail.gender,
                 username = userDetail.username,
+                percentage = UserDetailPercentUtils.calculateUserDetailPercentage(userDetail),
                 requestedAt = if (it.createdAt != null) it.createdAt.toString() else "",
             )
         }

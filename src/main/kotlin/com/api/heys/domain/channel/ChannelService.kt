@@ -111,10 +111,12 @@ class ChannelService(
         val contentEntity = content.get()
 
         newChannel.contents = contentEntity
+        val channelSaveEntity = channelsRepository.save(newChannel)
+
         contentEntity.channels.add(newChannel)
 
-        val entity = contentsRepository.save(contentEntity)
-        val channel = entity.channels.find { it.leader.id == user.id }
+        val contentSaveEntity = contentsRepository.save(contentEntity)
+        val channel = contentSaveEntity.channels.find { it.leader.id == user.id }
 
         if (channel == null) {
             result.message = MessageString.NOT_CREATED_CHANNEL
@@ -123,7 +125,7 @@ class ChannelService(
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result)
         }
 
-        result.channelId = channel.id
+        result.channelId = channelSaveEntity.id
         return ResponseEntity.ok(result)
     }
 
