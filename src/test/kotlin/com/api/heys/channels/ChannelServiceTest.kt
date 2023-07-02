@@ -282,6 +282,28 @@ class ChannelServiceTest(
 
     @Test
     @Order(4)
+    fun joinChannelRefuseProcess() {
+        val resultMap = createContentAndChannelByLeader()
+
+        val joinResponse = channelService.joinChannel(resultMap["channelId"] as Long, token)
+        assertThat(joinResponse.body?.message ?: "").isEqualTo(MessageString.SUCCESS_EN)
+
+        val user = userService.findByPhone(jwtUtil.extractUsername(token))
+        assertThat(user).isNotNull
+
+        val refuseResponse = channelService.requestAllowReject(
+            false, user!!.id, resultMap["channelId"] as Long, "거절합니다", leaderToken
+        )
+
+        assertThat(refuseResponse.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(refuseResponse.body!!.message).isEqualTo(MessageString.SUCCESS_EN)
+
+        val detailResponse = channelService.getChannelDetail(resultMap["channelId"] as Long, token)
+        assertThat(detailResponse.statusCode).isEqualTo(HttpStatus.OK)
+    }
+
+    @Test
+    @Order(5)
     fun getChannelDetailTest() {
         val resultMap = createContentAndChannelByLeader()
         val channelId = resultMap["channelId"] as Long
@@ -301,7 +323,7 @@ class ChannelServiceTest(
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     fun putChannelDetailTest() {
         val resultMap = createContentAndChannelByLeader()
         val channelId = resultMap["channelId"] as Long
@@ -323,7 +345,7 @@ class ChannelServiceTest(
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     fun bookmarkTest() {
         val resultMap = createContentAndChannelByLeader()
 
@@ -348,7 +370,7 @@ class ChannelServiceTest(
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     fun removeAllBookmarksTest() {
         val resultMap = createContentAndChannelByLeader()
         val studyChannelId = createStudyChannelByLeader()

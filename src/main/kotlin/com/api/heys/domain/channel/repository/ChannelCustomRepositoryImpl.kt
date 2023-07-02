@@ -45,9 +45,8 @@ class ChannelCustomRepositoryImpl(
             .leftJoin(qChannelDetail.interestRelations, qInterestRelations).fetchJoin()
             .leftJoin(qInterestRelations.interest, qInterest).fetchJoin()
             .leftJoin(qChannelDetail.purposes, qChannelPurpose).fetchJoin()
-            .leftJoin(qChannels.channelUserRelations, qChannelUserRelations).fetchJoin()
+            .leftJoin(qChannels.channelUserRelations, qChannelUserRelations).on(qChannelUserRelations.removedAt.isNull)
             .where(qChannels.removedAt.isNull)
-            .where(qChannelUserRelations.removedAt.isNull)
 
         if (type != null) {
             query = query.where(qChannels.type.eq(type))
@@ -116,9 +115,8 @@ class ChannelCustomRepositoryImpl(
             .leftJoin(qChannelDetail.interestRelations, qInterestRelations)
             .leftJoin(qInterestRelations.interest, qInterest)
             .leftJoin(qChannelDetail.purposes, qChannelPurpose)
-            .leftJoin(qChannels.channelUserRelations, qChannelUserRelations)
+            .leftJoin(qChannels.channelUserRelations, qChannelUserRelations).on(qChannelUserRelations.removedAt.isNull)
             .where(qChannels.removedAt.isNull)
-            .where(qChannelUserRelations.removedAt.isNull)
 
         if (type != null) {
             query = query.where(qChannels.type.eq(type))
@@ -175,8 +173,8 @@ class ChannelCustomRepositoryImpl(
         val result = jpaQueryFactory
             .select(qChannelUserRelations.status, qChannelUserRelations.count())
             .from(qChannelUserRelations)
-            .join(qChannelUserRelations.user, qUsers).on(qUsers.id.eq(userId))
-            .where(qChannelUserRelations.removedAt.isNull)
+            .join(qChannelUserRelations.user, qUsers)
+            .where(qChannelUserRelations.removedAt.isNull.and(qUsers.id.eq(userId)))
             .groupBy(qChannelUserRelations.status)
             .fetch()
 
@@ -278,8 +276,7 @@ class ChannelCustomRepositoryImpl(
         var query = jpaQueryFactory
             .selectFrom(qChannels)
             .join(qChannels.detail)
-            .leftJoin(qChannels.channelUserRelations, qChannelUserRelations)
-            .where(qChannelUserRelations.removedAt.isNull)
+            .leftJoin(qChannels.channelUserRelations, qChannelUserRelations).on(qChannelUserRelations.removedAt.isNull)
             .where(qChannels.removedAt.isNull)
 
         query = if (status != null) {
@@ -316,6 +313,7 @@ class ChannelCustomRepositoryImpl(
             .selectFrom(qChannels)
             .join(qChannels.leader, qUsers).fetchJoin()
             .join(qChannels.detail, qChannelDetail).fetchJoin()
+            .leftJoin(qChannels.channelUserRelations, qChannelUserRelations).fetchJoin()
             .leftJoin(qChannels.channelBookMarks, qChannelBookMark).fetchJoin()
             .leftJoin(qChannels.contents, qContent).fetchJoin()
             .leftJoin(qContent.extraDetail, qExtraContentDetail).fetchJoin()
@@ -323,9 +321,7 @@ class ChannelCustomRepositoryImpl(
             .leftJoin(qChannelDetail.links, qChannelLink).fetchJoin()
             .leftJoin(qChannelDetail.interestRelations, qInterestRelations).fetchJoin()
             .leftJoin(qInterestRelations.interest, qInterest).fetchJoin()
-            .leftJoin(qChannels.channelUserRelations, qChannelUserRelations).fetchJoin()
             .where(qChannels.removedAt.isNull)
-            .where(qChannelUserRelations.removedAt.isNull)
             .where(qChannels.id.eq(channelId))
 
         val channel = query.fetchOne() ?: return null
@@ -345,7 +341,8 @@ class ChannelCustomRepositoryImpl(
         val purposes = channelDetail.purposes.map { GetChannelDetailPurposeData(id = it.id, purpose = it.purpose) }
         val links = channelDetail.links.map { GetChannelDetailLinkData(id = it.id, link = it.link) }
         val interests = channelDetail.interestRelations.filter { it.interest != null }.map { it.interest!!.name }
-        val waitingUserList = channel.channelUserRelations.filter { it.status == ChannelMemberStatus.Waiting }.map {
+        val userRelations = channel.channelUserRelations.filter { it.removedAt == null }
+        val waitingUserList = userRelations.filter { it.status == ChannelMemberStatus.Waiting }.map {
             GetChannelDetailUserData(
                 id = it.user.id,
                 percentage = UserDetailPercentUtils.calculateUserDetailPercentage(it.user.detail),
@@ -353,7 +350,7 @@ class ChannelCustomRepositoryImpl(
                 date = it.createdAt
             )
         }
-        val approvedUserList = channel.channelUserRelations.filter { it.status == ChannelMemberStatus.Approved }.map {
+        val approvedUserList = userRelations.filter { it.status == ChannelMemberStatus.Approved }.map {
             GetChannelDetailUserData(
                 id = it.user.id,
                 percentage = UserDetailPercentUtils.calculateUserDetailPercentage(it.user.detail),
