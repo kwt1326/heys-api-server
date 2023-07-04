@@ -297,11 +297,17 @@ class ChannelCustomRepositoryImpl(
             .map {
                 val detail: ChannelDetail = it.detail!!
                 val dDay: Long = DateHelpers.calculateDday(detail.lastRecruitDate)
+                val interests =
+                    detail.interestRelations.filter { it2 -> it2.interest != null }.map { it2 -> it2.interest!!.name }
+                val channelImageResult = channelUtil.getChannelImage(interests)
+
                 MyChannelListItemData(
                     id = it.id,
                     type = getChannelType(it),
-                    name = detail.name,
                     dDay = dDay,
+                    name = detail.name,
+                    leaderName = it.leader.detail!!.username,
+                    thumbnailUri = channelImageResult["host"] + channelImageResult["detail"],
                     isLeader = it.leader.id == userId,
                     isClosed = detail.limitPeople.toLong().minus(it.channelUserRelations.count()) <= 0 || dDay < 0
                 )
