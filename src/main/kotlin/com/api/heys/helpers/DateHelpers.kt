@@ -3,7 +3,9 @@ package com.api.heys.helpers
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 @Component
 object DateHelpers {
@@ -31,5 +33,11 @@ object DateHelpers {
 
         val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
         return date.format(formatter)
+    }
+
+    fun convertDateToLocalDateTime(date: Date): LocalDateTime {
+        return date.toInstant()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime()
     }
 }
