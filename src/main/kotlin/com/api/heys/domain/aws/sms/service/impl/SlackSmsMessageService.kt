@@ -14,7 +14,6 @@ import org.springframework.web.client.RestTemplate
 import java.lang.RuntimeException
 
 @Service
-@Primary
 class SlackSmsMessageService (
     private val restTemplate: RestTemplate
 ): SmsMessageService {

@@ -1,8 +1,6 @@
 # DEV, PROD value on AWS
 server:
   port: 8090
-  profiles:
-    active: ${PROFILE_ACTIVE}
 custom:
   secret: ${CUSTOM_SECRET}
   static-file-host: ${STATIC_FILE_HOST}
@@ -11,6 +9,8 @@ springdoc:
   swagger-ui:
     path: /api-docs
 spring:
+  profiles:
+    active: ${PROFILE_ACTIVE}
   datasource:
     url: ${DB_HOST_URL}
     username: ${DB_USERNAME}
