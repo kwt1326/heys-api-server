@@ -6,11 +6,12 @@ import com.api.heys.domain.aws.sms.service.SmsMessageService
 import com.api.heys.domain.aws.sms.vo.SmsMessageRequestVo
 import com.api.heys.utils.PhoneNumberUtils
 import com.api.heys.utils.StringUtils
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service
 
 @Service
+@Primary
 class AwsSmsMessageService : SmsMessageService {
 
     @Value("\${aws.sms.region}")

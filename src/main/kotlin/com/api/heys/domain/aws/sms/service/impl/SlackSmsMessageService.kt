@@ -5,7 +5,6 @@ import com.api.heys.domain.aws.sms.service.SmsMessageService
 import com.api.heys.domain.aws.sms.vo.SlackSmsMessageRequestVo
 import com.api.heys.domain.aws.sms.vo.SmsMessageRequestVo
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.Primary
 import org.springframework.http.*
 import org.springframework.http.HttpMethod.*
 import org.springframework.http.HttpStatus.*

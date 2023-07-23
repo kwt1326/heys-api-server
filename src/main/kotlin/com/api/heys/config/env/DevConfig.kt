@@ -2,6 +2,7 @@ package com.api.heys.config.env
 
 import com.api.heys.domain.aws.sms.service.SmsMessageService
 import com.api.heys.domain.aws.sms.service.impl.SlackSmsMessageService
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

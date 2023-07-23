@@ -29,7 +29,6 @@ fi
 echo "*** build jar name : $JAR_NAME ***"
 
 nohup java -jar \
-        -Dspring.profiles.active=local \
         -Dspring.config.location=file:local-application.yml \
         -Duser.timezone=Asia/Seoul \
         $JAR_NAME > nohup.txt 2>&1 &
