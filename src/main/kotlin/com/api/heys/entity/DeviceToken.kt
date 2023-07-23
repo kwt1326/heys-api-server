@@ -1,6 +1,7 @@
 package com.api.heys.entity
 
 import lombok.Getter
+import java.time.LocalDateTime
 import javax.persistence.*
 import javax.persistence.FetchType.LAZY
 import javax.persistence.GenerationType.*
@@ -18,6 +19,7 @@ class DeviceToken(
     val token : String,
 
     @Column(length = 200)
-    val arn : String?
+    var arn : String?,
 
+    var expiredTime : LocalDateTime
 ) : BaseIdentityDate()
