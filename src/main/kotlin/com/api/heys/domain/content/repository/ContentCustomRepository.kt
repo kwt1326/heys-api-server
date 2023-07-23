@@ -10,7 +10,7 @@ import com.api.heys.entity.Contents
 import com.api.heys.entity.ExtraContentDetail
 
 interface ContentCustomRepository {
-    fun findExtraContents(params: GetExtraContentsParam): GetExtraContentsResponse
+    fun findExtraContents(params: GetExtraContentsParam, role: String): GetExtraContentsResponse
 
     fun getExtraContent(contentId: Long): Contents?
 

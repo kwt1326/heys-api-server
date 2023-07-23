@@ -60,6 +60,28 @@ class ContentController(@Autowired private val contentService: ContentService) {
     }
 
     @Operation(
+        summary = "컨텐츠 필터링 리스트 (using Admin)",
+        description = "컨텐츠 리스트의 필터링 결과를 가져오는 API 입니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(
+                        schema = Schema(implementation = GetExtraContentsResponse::class),
+                        mediaType = "application/json"
+                    )
+                ]
+            ),
+        ]
+    )
+    @GetMapping("extra/admin")
+    fun getExtraContentsForAdmin(
+        params: GetExtraContentsParam,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String,
+    ): ResponseEntity<GetExtraContentsResponse> {
+        return contentService.getExtraContentsForAdmin(params, bearer)
+    }
+
+    @Operation(
         summary = "공모전/대외활동 등 외부 컨텐츠 생성",
         description = "공모전/대외활동 등 외부 컨텐츠 생성 API 입니다.",
         responses = [
@@ -101,6 +123,28 @@ class ContentController(@Autowired private val contentService: ContentService) {
         @Valid @RequestBody body: PutExtraContentData
     ): ResponseEntity<ContentPutResponse> {
         return contentService.putExtraContentDetail(id, body)
+    }
+
+    @Operation(
+        summary = "컨텐츠 게시 중단 및 해제",
+        description = "컨텐츠 게시 중단 및 해제 상태 전환 API 입니다. (publish/unPublish)",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "successful operation", content = [
+                    Content(
+                        schema = Schema(implementation = ContentPutResponse::class),
+                        mediaType = "application/json"
+                    )
+                ]
+            ),
+        ]
+    )
+    @PutMapping("toggle-publish/{id}")
+    fun putTogglePublishStateContent(
+        @PathVariable id: Long,
+        @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String,
+    ): ResponseEntity<ContentPutResponse> {
+        return contentService.putTogglePublishStateContent(id, bearer)
     }
 
     @Operation(
@@ -209,7 +253,7 @@ class ContentController(@Autowired private val contentService: ContentService) {
     fun postContentExcelUpload(
         @RequestPart("file") excelFile: MultipartFile,
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String
-    ): ResponseEntity<ContentPutResponse> {
+    ): ResponseEntity<CreateContentResponse> {
         return contentService.createExtraContentFromExcel(excelFile, bearer)
     }
 }

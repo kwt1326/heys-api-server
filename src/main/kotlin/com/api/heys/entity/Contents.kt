@@ -1,6 +1,9 @@
 package com.api.heys.entity
 
 import com.api.heys.constants.enums.ContentType
+import com.fasterxml.jackson.annotation.JsonFormat
+import org.hibernate.annotations.CreationTimestamp
+import java.time.LocalDateTime
 import javax.persistence.*
 
 /**
@@ -13,6 +16,11 @@ import javax.persistence.*
 class Contents(
         contentType: ContentType,
 ): BaseIdentityDate() {
+    // 해당 날짜가 존재해야 컨텐츠를 노출시킨다.
+    @JsonFormat(pattern = "yyyy-mm-dd")
+    @Column(name = "published_at", updatable = true)
+    var publishedAt: LocalDateTime? = null
+
     @Enumerated(EnumType.STRING)
     @Column(name = "content_type", nullable = false)
     var contentType: ContentType = contentType

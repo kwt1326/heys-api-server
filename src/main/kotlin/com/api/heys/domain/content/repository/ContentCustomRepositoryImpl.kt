@@ -1,5 +1,6 @@
 package com.api.heys.domain.content.repository
 
+import com.api.heys.constants.DefaultString
 import com.api.heys.constants.MessageString
 import com.api.heys.constants.enums.ContentOrderType
 import com.api.heys.domain.content.dto.ExtraContentListItemData
@@ -27,15 +28,22 @@ class ContentCustomRepositoryImpl(
     val qChannels: QChannels = QChannels.channels
     val qContentBookMark: QContentBookMark = QContentBookMark.contentBookMark
 
-    fun extraContentFilterQuery(queryBase: JPAQuery<Contents>, params: GetExtraContentsParam): List<Contents> {
+    fun extraContentFilterQuery(
+        queryBase: JPAQuery<Contents>,
+        params: GetExtraContentsParam,
+        role: String
+    ): List<Contents> {
         var query = queryBase
             .join(qContents.extraDetail, qExtraContentDetail).fetchJoin()
             .leftJoin(qContents.channels, qChannels).fetchJoin()
             .leftJoin(qContents.contentViews, qContentView).fetchJoin()
             .leftJoin(qExtraContentDetail.interestRelations, qInterestRelations).fetchJoin()
             .leftJoin(qInterestRelations.interest, qInterest).fetchJoin()
-            .where(qContents.removedAt.isNull)
-            .where(qContents.contentType.eq(params.type))
+            .where(qContents.removedAt.isNull.and(qContents.contentType.eq(params.type)))
+
+        if (role != DefaultString.adminRole) {
+            query = query.where(qContents.publishedAt.isNotNull)
+        }
 
         // includeClosed filter (마감된 컨텐츠 포함 여부 - 조건 : DDay 남은것, 정원 안찬것)
         // includeClosed == true 이면 '마감 일자' 및 '제한 인원' 쿼리 무시
@@ -81,15 +89,18 @@ class ContentCustomRepositoryImpl(
             .fetch()
     }
 
-    fun extraContentFilterCountQuery(queryBase: JPAQuery<Long>, params: GetExtraContentsParam): Long {
+    fun extraContentFilterCountQuery(queryBase: JPAQuery<Long>, params: GetExtraContentsParam, role: String): Long {
         var query = queryBase
             .join(qContents.extraDetail, qExtraContentDetail)
             .leftJoin(qContents.channels, qChannels)
             .leftJoin(qContents.contentViews, qContentView)
             .leftJoin(qExtraContentDetail.interestRelations, qInterestRelations)
             .leftJoin(qInterestRelations.interest, qInterest)
-            .where(qContents.removedAt.isNull)
-            .where(qContents.contentType.eq(params.type))
+            .where(qContents.removedAt.isNull.and(qContents.contentType.eq(params.type)))
+
+        if (role != DefaultString.adminRole) {
+            query = query.where(qContents.publishedAt.isNotNull)
+        }
 
         // includeClosed filter (마감된 컨텐츠 포함 여부 - 조건 : DDay 남은것, 정원 안찬것)
         // includeClosed == true 이면 '마감 일자' 및 '제한 인원' 쿼리 무시
@@ -122,11 +133,11 @@ class ContentCustomRepositoryImpl(
      * interest - 관심분야 리스트
      * lastRecruitDate - 마감 일자(모집기간) 프론트엔드 에서 날짜를 보내주면, 현재 날짜에서 diff 연산하여 탐색.
      * */
-    override fun findExtraContents(params: GetExtraContentsParam): GetExtraContentsResponse {
+    override fun findExtraContents(params: GetExtraContentsParam, role: String): GetExtraContentsResponse {
         val query = jpaQueryFactory.selectFrom(qContents)
         val totalCountQuery = jpaQueryFactory.select(qContents.countDistinct()).from(qContents)
 
-        val data = extraContentFilterQuery(query, params).map {
+        val data = extraContentFilterQuery(query, params, role).map {
             val detail = it.extraDetail!!
             val view = it.contentViews
             val channels = it.channels
@@ -137,11 +148,12 @@ class ContentCustomRepositoryImpl(
                 viewCount = view.count().toLong(),
                 channelCount = channels.count(),
                 dDay = DateHelpers.calculateDday(detail.endDate),
-                previewImgUri = detail.previewImgUri
+                previewImgUri = detail.previewImgUri,
+                publishedAt = it.publishedAt,
             )
         }
 
-        val totalCount = extraContentFilterCountQuery(totalCountQuery, params)
+        val totalCount = extraContentFilterCountQuery(totalCountQuery, params, role)
         val totalPage = DateHelpers.calcTotalPage(totalCount, params.limit)
 
         return GetExtraContentsResponse(data, totalPage, MessageString.SUCCESS_EN)
@@ -155,8 +167,7 @@ class ContentCustomRepositoryImpl(
             .leftJoin(qContents.contentViews, qContentView).fetchJoin()
             .leftJoin(qContents.channels, qChannels).fetchJoin()
             .leftJoin(qExtraContentDetail.interestRelations, qInterestRelations).fetchJoin()
-            .where(qContents.removedAt.isNull)
-            .where(qContents.id.eq(contentId))
+            .where(qContents.removedAt.isNull.and(qContents.id.eq(contentId)))
             .fetchOne()
     }
 
@@ -165,8 +176,7 @@ class ContentCustomRepositoryImpl(
             .selectFrom(qContentView)
             .join(qContentView.content, qContents).fetchJoin()
             .join(qContentView.users, qUsers).fetchJoin()
-            .where(qContents.id.eq(contentId))
-            .where(qUsers.id.eq(userId))
+            .where(qContents.id.eq(contentId).and(qUsers.id.eq(userId)))
 
         return query.fetchOne()
     }

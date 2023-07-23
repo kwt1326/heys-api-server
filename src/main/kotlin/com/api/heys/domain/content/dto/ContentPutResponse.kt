@@ -6,6 +6,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "컨텐츠 상태 변경 요청 결과")
 data class ContentPutResponse(
+    @field:Schema(example = "1", type = "long")
+    var contentId: Long? = null,
+
     @field:Schema(example = MessageString.SUCCESS_EN, type = "string")
     override var message: String = MessageString.SUCCESS_EN
 ): BaseResponse

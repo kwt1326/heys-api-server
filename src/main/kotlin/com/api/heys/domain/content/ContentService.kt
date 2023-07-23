@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import java.time.LocalDateTime
 
 @Service
 class ContentService(
@@ -86,16 +87,16 @@ class ContentService(
     }
 
     @Transactional
-    override fun createExtraContentFromExcel(file: MultipartFile, token: String): ResponseEntity<ContentPutResponse> {
+    override fun createExtraContentFromExcel(file: MultipartFile, token: String): ResponseEntity<CreateContentResponse> {
         val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse("Not found user"))
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CreateContentResponse(null, "Not found user"))
 
         if (user.authentications.find { it.role == DefaultString.adminRole } == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ContentPutResponse("Only Using Admin User"))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CreateContentResponse(null, "Only Using Admin User"))
         }
 
         SpreadSheetManager(file).excelDataConvertToExtraContentDTOs().forEach { pureCreateExtraContent(it) }
-        return ResponseEntity.ok(ContentPutResponse("success"))
+        return ResponseEntity.ok(CreateContentResponse(null, "success"))
     }
 
     @Transactional(readOnly = true)
@@ -104,8 +105,9 @@ class ContentService(
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(GetExtraContentDetailResponse(data = null, message = "Not found extra content"))
 
-        val user = userUtil.findUserByToken(token, jwtUtil, userRepository) ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(GetExtraContentDetailResponse(data = null, message = "Not found user"))
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(GetExtraContentDetailResponse(data = null, message = "Not found user"))
         val detail = result.extraDetail ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(GetExtraContentDetailResponse(data = null, message = "Not found extra content detail"))
         val views = result.contentViews
@@ -141,7 +143,25 @@ class ContentService(
 
     @Transactional(readOnly = true)
     override fun getExtraContents(params: GetExtraContentsParam): ResponseEntity<GetExtraContentsResponse> {
-        return ResponseEntity.ok(contentRepository.findExtraContents(params))
+        return ResponseEntity.ok(contentRepository.findExtraContents(params, DefaultString.commonRole))
+    }
+
+    @Transactional(readOnly = true)
+    override fun getExtraContentsForAdmin(
+        params: GetExtraContentsParam,
+        token: String
+    ): ResponseEntity<GetExtraContentsResponse> {
+        val unauthorizedEntity = ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(GetExtraContentsResponse(data = listOf(), message = "UnAuthorized"))
+
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
+            ?: return unauthorizedEntity
+
+        if (user.authentications.map { it.role }.contains(DefaultString.adminRole)) {
+            return ResponseEntity.ok(contentRepository.findExtraContents(params, DefaultString.adminRole))
+        }
+
+        return unauthorizedEntity
     }
 
     @Transactional
@@ -149,11 +169,12 @@ class ContentService(
         val content = contentRepository.findById(id)
 
         if (!content.isPresent)
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse("Not found extra content"))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse(id, "Not found extra content"))
 
         val contentEntity = content.get()
         val detail = contentEntity.extraDetail
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse("Not found extra content detail"))
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ContentPutResponse(id, "Not found extra content detail"))
 
         if (dto.title != null) detail.title = dto.title
         if (dto.target != null) detail.target = dto.target
@@ -188,44 +209,71 @@ class ContentService(
 
         contentRepository.save(contentEntity)
 
-        return ResponseEntity.ok().body(ContentPutResponse("success - modified content extra detail"))
+        return ResponseEntity.ok().body(ContentPutResponse(id, "success - modified content extra detail"))
+    }
+
+    override fun putTogglePublishStateContent(id: Long, token: String): ResponseEntity<ContentPutResponse> {
+        val content = contentRepository.findById(id)
+        if (!content.isPresent)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse(id, "Not found content"))
+
+        val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse(id, "Not found User"))
+
+        val roles = user.authentications.map { it.role }
+
+        val contentEntity = content.get()
+
+        if (roles.contains(DefaultString.adminRole)) {
+            if (contentEntity.publishedAt != null) {
+                contentEntity.publishedAt = null
+                contentRepository.save(contentEntity)
+                return ResponseEntity.ok(ContentPutResponse(id, "contentId: [$id] UnPublished"))
+            }
+            contentEntity.publishedAt = LocalDateTime.now()
+            contentRepository.save(contentEntity)
+            return ResponseEntity.ok(ContentPutResponse(id, "contentId: [$id] Publishing"))
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ContentPutResponse(id, "You do not have permission for this operation."))
     }
 
     @Transactional
     override fun increaseContentView(id: Long, token: String): ResponseEntity<ContentPutResponse> {
         val content = contentRepository.findById(id)
         if (!content.isPresent)
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse("Not found content"))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse(id, "Not found content"))
 
         val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse("Not found User"))
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse(id, "Not found User"))
 
         val contentEntity = content.get()
 
         val isExisted = contentRepository.getContentView(id, user.id)
         if (isExisted != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(ContentPutResponse("Already have seen content"))
+            return ResponseEntity.status(HttpStatus.OK).body(ContentPutResponse(id, "Already have seen content"))
         }
 
         contentEntity.contentViews.add(ContentView(contentEntity, user))
         contentRepository.save(contentEntity)
 
-        return ResponseEntity.status(HttpStatus.OK).body(ContentPutResponse("New content view"))
+        return ResponseEntity.status(HttpStatus.OK).body(ContentPutResponse(id, "New content view"))
     }
 
     @Transactional
     override fun addBookmark(id: Long, token: String): ResponseEntity<ContentPutResponse> {
         val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse("Not found User"))
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse(id, "Not found User"))
 
         val content = contentRepository.findById(id)
         if (!content.isPresent) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse("Not found Content"))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse(id, "Not found Content"))
         }
 
         val isExisted = contentRepository.getContentBookMark(id, user.id)
         if (isExisted != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(ContentPutResponse("Already added content bookmark"))
+            return ResponseEntity.status(HttpStatus.OK).body(ContentPutResponse(id, "Already added content bookmark"))
         }
 
         val contentEntity = content.get()
@@ -233,17 +281,18 @@ class ContentService(
         contentEntity.contentBookMarks.add(ContentBookMark(contentEntity, user))
         contentRepository.save(contentEntity)
 
-        return ResponseEntity.status(HttpStatus.OK).body(ContentPutResponse("New content bookmarked! : ${contentEntity.id}"))
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(ContentPutResponse(id, "New content bookmarked! : ${contentEntity.id}"))
     }
 
     @Transactional
     override fun removeBookmark(id: Long, token: String): ResponseEntity<ContentPutResponse> {
         val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse("Not found User"))
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse(id, "Not found User"))
 
         val content = contentRepository.findById(id)
         if (!content.isPresent) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse("Not found Content"))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse(id, "Not found Content"))
         }
 
         val contentEntity = content.get()
@@ -253,13 +302,17 @@ class ContentService(
 
         contentRepository.save(contentEntity)
 
-        return ResponseEntity.status(HttpStatus.OK).body(ContentPutResponse("Removed content bookmark : ${contentEntity.id}"))
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(ContentPutResponse(id, "Removed content bookmark : ${contentEntity.id}"))
     }
 
     @Transactional
-    override fun removeBookmarks(params: PutContentRemoveRemarksData, token: String): ResponseEntity<ContentPutResponse> {
+    override fun removeBookmarks(
+        params: PutContentRemoveRemarksData,
+        token: String
+    ): ResponseEntity<ContentPutResponse> {
         val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse("Not found User"))
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse(null, "Not found User"))
 
         val contents = contentRepository.findAllById(params.contentIds)
         contents.forEach {
@@ -269,6 +322,7 @@ class ContentService(
 
         contentRepository.saveAll(contents)
 
-        return ResponseEntity.status(HttpStatus.OK).body(ContentPutResponse("Removed content bookmarks num : ${contents.count()}"))
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(ContentPutResponse(null, "Removed content bookmarks num : ${contents.count()}"))
     }
 }
