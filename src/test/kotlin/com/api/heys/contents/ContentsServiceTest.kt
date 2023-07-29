@@ -10,6 +10,7 @@ import com.api.heys.constants.enums.Gender
 import com.api.heys.domain.content.dto.GetExtraContentsParam
 import com.api.heys.domain.content.dto.PutContentRemoveRemarksData
 import com.api.heys.domain.content.dto.PutExtraContentData
+import com.api.heys.domain.user.dto.AdminSignUpData
 import com.api.heys.domain.user.dto.CommonSignUpData
 import com.api.heys.domain.user.service.UserService
 import io.mockk.InternalPlatformDsl.toStr
@@ -39,6 +40,12 @@ internal class ContentsServiceTest(
         birthDate = LocalDate.of(1995, 10, 9),
         gender = Gender.Male,
         interests = mutableSetOf("교육", "자기계발"),
+    )
+    private val adminSignUpData = AdminSignUpData(
+        phone = commonSignUpData.phone,
+        username = commonSignUpData.username,
+        password = commonSignUpData.password,
+        birthDate = commonSignUpData.birthDate,
     )
 
     private val extraContentData = CreateExtraContentData(
@@ -87,6 +94,7 @@ internal class ContentsServiceTest(
     )
 
     private var token: String = ""
+    private var adminToken: String = ""
 
     @BeforeEach
     internal fun beforeEach() {
@@ -94,6 +102,10 @@ internal class ContentsServiceTest(
         val userResponse = userService.signUp(commonSignUpData, DefaultString.commonRole)
         token = userResponse.body!!.token
         assertThat(token).isNotEqualTo("")
+        // Add Admin Role
+        val adminResponse = userService.signUp(adminSignUpData, DefaultString.adminRole)
+        adminToken = adminResponse.body!!.token
+        assertThat(adminToken).isNotEqualTo("")
     }
 
     /** 외부(공모전, 사이드 프로젝트 등) 컨텐츠 생성 후 필터링 테스트 */
@@ -103,12 +115,25 @@ internal class ContentsServiceTest(
         val createResponse = contentService.createExtraContent(extraContentData, token)
 
         assertThat(createResponse.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(createResponse.body!!.contentId).isNotNull
+
+        val contentId = createResponse.body!!.contentId!!
+        val publishResponse = contentService.putTogglePublishStateContent(contentId, adminToken)
+
+        assertThat(publishResponse.statusCode).isEqualTo(HttpStatus.OK)
 
         val listResponse = contentService.getExtraContents(extraContentsFilterParam)
 
         assertThat(listResponse.body).isNotNull
         assertThat(listResponse.body!!.data.count()).isEqualTo(1)
         assertThat(listResponse.body!!.totalPage).isEqualTo(1)
+
+        contentService.putTogglePublishStateContent(contentId, adminToken)
+
+        val listResponse2 = contentService.getExtraContents(extraContentsFilterParam)
+
+        assertThat(listResponse2.body!!.data.count()).isEqualTo(0)
+        assertThat(listResponse2.body!!.totalPage).isEqualTo(0)
     }
 
     /** 외부 컨텐츠 생성 후 상세정보 가져오기 테스트 */
