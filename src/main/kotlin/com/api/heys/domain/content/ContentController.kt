@@ -143,7 +143,7 @@ class ContentController(@Autowired private val contentService: ContentService) {
     fun putTogglePublishStateContent(
         @PathVariable id: Long,
         @Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String,
-    ): ResponseEntity<ContentPutResponse> {
+    ): ResponseEntity<PutTogglePublishResponse> {
         return contentService.putTogglePublishStateContent(id, bearer)
     }
 

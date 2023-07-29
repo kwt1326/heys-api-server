@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile
 interface IContentService {
     fun createExtraContent(dto: CreateExtraContentData, token: String): ResponseEntity<CreateContentResponse>
     fun putExtraContentDetail(id: Long, dto: PutExtraContentData): ResponseEntity<ContentPutResponse>
-    fun putTogglePublishStateContent(id: Long, token: String): ResponseEntity<ContentPutResponse>
+    fun putTogglePublishStateContent(id: Long, token: String): ResponseEntity<PutTogglePublishResponse>
     fun increaseContentView(id: Long, token: String): ResponseEntity<ContentPutResponse>
     fun addBookmark(id: Long, token: String): ResponseEntity<ContentPutResponse>
     fun removeBookmark(id: Long, token: String): ResponseEntity<ContentPutResponse>

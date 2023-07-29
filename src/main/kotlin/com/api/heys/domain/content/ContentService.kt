@@ -212,13 +212,13 @@ class ContentService(
         return ResponseEntity.ok().body(ContentPutResponse(id, "success - modified content extra detail"))
     }
 
-    override fun putTogglePublishStateContent(id: Long, token: String): ResponseEntity<ContentPutResponse> {
+    override fun putTogglePublishStateContent(id: Long, token: String): ResponseEntity<PutTogglePublishResponse> {
         val content = contentRepository.findById(id)
         if (!content.isPresent)
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse(id, "Not found content"))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(PutTogglePublishResponse(id, null, "Not found content"))
 
         val user = userUtil.findUserByToken(token, jwtUtil, userRepository)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ContentPutResponse(id, "Not found User"))
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(PutTogglePublishResponse(id, null, "Not found User"))
 
         val roles = user.authentications.map { it.role }
 
@@ -228,15 +228,17 @@ class ContentService(
             if (contentEntity.publishedAt != null) {
                 contentEntity.publishedAt = null
                 contentRepository.save(contentEntity)
-                return ResponseEntity.ok(ContentPutResponse(id, "contentId: [$id] UnPublished"))
+                // success, hide content
+                return ResponseEntity.ok(PutTogglePublishResponse(id, null, "contentId: [$id] UnPublished"))
             }
             contentEntity.publishedAt = LocalDateTime.now()
             contentRepository.save(contentEntity)
-            return ResponseEntity.ok(ContentPutResponse(id, "contentId: [$id] Publishing"))
+            // success, publish content
+            return ResponseEntity.ok(PutTogglePublishResponse(id, contentEntity.publishedAt, "contentId: [$id] Publishing"))
         }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ContentPutResponse(id, "You do not have permission for this operation."))
+            .body(PutTogglePublishResponse(id, null, "You do not have permission for this operation."))
     }
 
     @Transactional
