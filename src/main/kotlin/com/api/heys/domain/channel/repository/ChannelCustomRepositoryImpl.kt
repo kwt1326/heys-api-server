@@ -274,7 +274,8 @@ class ChannelCustomRepositoryImpl(
 
     override fun getMyChannels(status: ChannelMemberStatus?, userId: Long): List<MyChannelListItemData> {
         var query = jpaQueryFactory
-            .selectFrom(qChannels)
+            .select(qChannels).distinct()
+            .from(qChannels)
             .join(qChannels.detail)
             .leftJoin(qChannels.channelUserRelations, qChannelUserRelations).on(qChannelUserRelations.removedAt.isNull)
             .where(qChannels.removedAt.isNull)
@@ -291,7 +292,6 @@ class ChannelCustomRepositoryImpl(
 
         return query
             .orderBy(qChannels.id.desc())
-            .distinct()
             .fetch()
             .filter { it.detail != null }
             .map {

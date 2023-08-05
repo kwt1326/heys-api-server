@@ -128,6 +128,7 @@ class ContentService(
                     contact = detail.contact,
                     startDate = detail.startDate,
                     endDate = detail.endDate,
+                    publishDate = result.publishedAt,
                     dDay = DateHelpers.calculateDday(detail.endDate),
                     viewCount = views.count().toLong(),
                     channelCount = channels.count().toLong(),

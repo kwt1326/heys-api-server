@@ -13,6 +13,7 @@ data class GetExtraContentDetailData(
     val contact: String, // 문의처
     val startDate: LocalDateTime, // 모집 시작일
     val endDate: LocalDateTime, // 모집 마감일
+    val publishDate: LocalDateTime?, // 게시일
     val dDay: Long, // 오늘로부터 마감일까지 남은 일 수
     val viewCount: Long, // 조회수
     val channelCount: Long, // 개설된 채널 수

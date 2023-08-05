@@ -8,12 +8,15 @@ import com.api.heys.domain.content.dto.GetExtraContentsParam
 import com.api.heys.domain.content.dto.GetExtraContentsResponse
 import com.api.heys.entity.*
 import com.api.heys.helpers.DateHelpers
+import com.querydsl.core.Tuple
+import com.querydsl.core.types.dsl.DateTimeExpression.currentTimestamp
 import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.core.types.dsl.NumberExpression
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 @Repository
 class ContentCustomRepositoryImpl(
@@ -67,26 +70,26 @@ class ContentCustomRepositoryImpl(
             query = query.where(qInterest.name.`in`(params.interests))
         }
 
-        if (params.order == ContentOrderType.Default) {
-            query = query.orderBy(qContents.id.desc())
-        } else if (params.order == ContentOrderType.Dday && !params.lastRecruitDate.isNullOrBlank()) {
-            val dateDiff: NumberExpression<Int> =
-                Expressions.numberTemplate(
-                    Int::class.java,
-                    "DATEDIFF({0}, {1})",
-                    LocalDateTime.parse(params.lastRecruitDate),
-                    qExtraContentDetail.endDate
-                )
-            query = query.orderBy(dateDiff.asc())
-        } else if (params.order == ContentOrderType.Popular) {
-            query = query.orderBy(qContentView.count().desc())
-        }
-
-        return query
+        val fetch = query
             .limit(params.limit)
             .offset((params.page - 1) * params.limit)
-            .distinct()
+            .orderBy(qContents.id.desc())
             .fetch()
+
+        // order by 문으로 정렬하다가 서브쿼리로 인한 복잡성을 피하기 위해 어플리케이션 단에서 정렬
+        val result = when (params.order) {
+            // 정렬 기준: Default - '새로 열린' - id 최신 순
+            ContentOrderType.Default -> fetch
+            // 정렬 기준: Dday - '마감 임박' - 현재 날짜로 부터 endDate 가 가장 가까운 순
+            ContentOrderType.Dday -> {
+                fetch.sortedByDescending { DateHelpers.diffDay(LocalDateTime.now(), it.extraDetail!!.endDate) }
+            }
+            // 정렬 기준: Popular - '인기 있는' - View 많은 순
+            ContentOrderType.Popular -> {
+                fetch.sortedByDescending { it.contentViews.count() }
+            }
+        }
+        return result
     }
 
     fun extraContentFilterCountQuery(queryBase: JPAQuery<Long>, params: GetExtraContentsParam, role: String): Long {
@@ -134,7 +137,7 @@ class ContentCustomRepositoryImpl(
      * lastRecruitDate - 마감 일자(모집기간) 프론트엔드 에서 날짜를 보내주면, 현재 날짜에서 diff 연산하여 탐색.
      * */
     override fun findExtraContents(params: GetExtraContentsParam, role: String): GetExtraContentsResponse {
-        val query = jpaQueryFactory.selectFrom(qContents)
+        val query = jpaQueryFactory.select(qContents).distinct().from(qContents)
         val totalCountQuery = jpaQueryFactory.select(qContents.countDistinct()).from(qContents)
 
         val data = extraContentFilterQuery(query, params, role).map {
