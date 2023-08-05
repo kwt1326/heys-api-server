@@ -286,7 +286,10 @@ class ChannelCustomRepositoryImpl(
         } else {
             // status == null 일 경우 '내 채널' 페이지에 해당하는 모든 채널 쿼리 (내가 생성한 채널, 참여 승인된 채널)
             query.where(
-                qChannels.leader.id.eq(userId).or(qChannelUserRelations.status.eq(ChannelMemberStatus.Approved))
+                qChannels.leader.id.eq(userId).or(
+                    qChannelUserRelations.user.id.eq(userId)
+                        .and(qChannelUserRelations.status.eq(ChannelMemberStatus.Approved))
+                )
             )
         }
 
