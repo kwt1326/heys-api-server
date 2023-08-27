@@ -1,5 +1,6 @@
 package com.api.heys.domain.channel.dto
 
+import com.api.heys.constants.enums.Gender
 import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "GetChannelDetailData - Leader 데이터")
@@ -14,4 +15,6 @@ data class GetChannelDetailLeaderData(
     val introduceText: String,
     @field:Schema(description = "프로필 완성도", example = "77")
     val percentage: Int = 0,
+    @field:Schema(description = "성별", example = "Male")
+    val gender: Gender = Gender.NonBinary,
 )

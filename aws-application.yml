@@ -4,6 +4,23 @@ server:
 custom:
   secret: ${CUSTOM_SECRET}
   static-file-host: ${STATIC_FILE_HOST}
+management:
+  server:
+    port: 8091
+  endpoints:
+    enabled-by-default: false
+    web:
+      base-path: /managements
+      exposure:
+        include: "health, info, loggers"
+  endpoint:
+    health:
+      show-components: always
+      enabled: true
+    info:
+      enabled: true
+    loggers:
+      enabled: true
 springdoc:
   version: v1.0.0
   swagger-ui:

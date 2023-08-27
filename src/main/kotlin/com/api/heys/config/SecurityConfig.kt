@@ -48,6 +48,7 @@ class SecurityConfig(
                         "/css/**", "/js/**", "/assets/**", "/favicon.ico",
                         "/swagger-ui/**", "/api-docs", "/v3/api-docs", "/v3/api-docs/swagger-config"
                 ).anonymous()
+                .antMatchers("/managements/**").anonymous()
                 .anyRequest().authenticated()
                 .and()
                 .headers().frameOptions().sameOrigin() // because: h2 console render issue

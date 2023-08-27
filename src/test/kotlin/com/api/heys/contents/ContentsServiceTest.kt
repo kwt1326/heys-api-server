@@ -125,8 +125,8 @@ internal class ContentsServiceTest(
         val listResponse = contentService.getExtraContents(extraContentsFilterParam)
 
         assertThat(listResponse.body).isNotNull
-        assertThat(listResponse.body!!.data.count()).isEqualTo(1)
-        assertThat(listResponse.body!!.totalPage).isEqualTo(1)
+        assertThat(listResponse.body!!.data.count()).isEqualTo(0)
+        assertThat(listResponse.body!!.totalPage).isEqualTo(0)
 
         contentService.putTogglePublishStateContent(contentId, adminToken)
 

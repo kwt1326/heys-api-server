@@ -342,9 +342,10 @@ class ChannelCustomRepositoryImpl(
         val leaderData = GetChannelDetailLeaderData(
             id = channelLeader.id,
             phone = channelLeader.phone,
+            gender = channelLeaderDetail.gender,
             username = channelLeaderDetail.username,
             introduceText = channelLeaderDetail.introduceText,
-            percentage = UserDetailPercentUtils.calculateUserDetailPercentage(channelLeaderDetail),
+            percentage = UserDetailPercentUtils.calculateUserDetailPercentage(channelLeaderDetail)
         )
 
         val purposes = channelDetail.purposes.map { GetChannelDetailPurposeData(id = it.id, purpose = it.purpose) }

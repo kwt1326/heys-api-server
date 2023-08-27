@@ -48,21 +48,19 @@ class ContentCustomRepositoryImpl(
             query = query.where(qContents.publishedAt.isNotNull)
         }
 
-        // includeClosed filter (마감된 컨텐츠 포함 여부 - 조건 : DDay 남은것, 정원 안찬것)
-        // includeClosed == true 이면 '마감 일자' 및 '제한 인원' 쿼리 무시
+        // includeClosed filter (마감된 컨텐츠 포함 여부 - 조건 : DDay 남은것)
+        // includeClosed == true 이면 '마감 일자' 쿼리 무시
         // includeClosed == false 이거나 null 이면
-        // '오늘 이후에 마감일자' 혹은 '오늘 이후 & 모집 기간 이내 마감일자' 및 '제한 인원수 보다 작은 것'만 쿼리
+        // 기본적으로 '오늘 이후 end_date' 범위이고 lastRecruitDate 가 존재하면 '오늘 ~ 모집 기간 범위내의 end_date' 범위까지 조건에 포함
         if (params.includeClosed == null || params.includeClosed == false) {
-            query = query.where(
-                qExtraContentDetail.endDate.after(LocalDateTime.now())
-            )
-
             // 마감 일자 값이 존재할 경우 해당 값 이전 요소만 쿼리
             if (!params.lastRecruitDate.isNullOrBlank()) {
                 query = query.where(
-                    qExtraContentDetail.endDate.before(LocalDateTime.parse(params.lastRecruitDate))
+                    qExtraContentDetail.endDate.after(LocalDateTime.now())
+                        .and(qExtraContentDetail.endDate.before(LocalDateTime.parse(params.lastRecruitDate)))
                 )
             }
+            query = query.where(qExtraContentDetail.endDate.after(LocalDateTime.now()))
         }
 
         // 관심분야 파라미터 배열 요소중 하나라도 맞는게 있으면 쿼리 대상
@@ -105,21 +103,19 @@ class ContentCustomRepositoryImpl(
             query = query.where(qContents.publishedAt.isNotNull)
         }
 
-        // includeClosed filter (마감된 컨텐츠 포함 여부 - 조건 : DDay 남은것, 정원 안찬것)
-        // includeClosed == true 이면 '마감 일자' 및 '제한 인원' 쿼리 무시
+        // includeClosed filter (마감된 컨텐츠 포함 여부 - 조건 : DDay 남은것)
+        // includeClosed == true 이면 '마감 일자' 쿼리 무시
         // includeClosed == false 이거나 null 이면
-        // '오늘 이후에 마감일자' 혹은 '오늘 이후 & 모집 기간 이내 마감일자' 및 '제한 인원수 보다 작은 것'만 쿼리
+        // 기본적으로 '오늘 이후 end_date' 범위이고 lastRecruitDate 가 존재하면 '오늘 ~ 모집 기간 범위내의 end_date' 범위까지 조건에 포함
         if (params.includeClosed == null || params.includeClosed == false) {
-            query = query.where(
-                qExtraContentDetail.endDate.after(LocalDateTime.now())
-            )
-
             // 마감 일자 값이 존재할 경우 해당 값 이전 요소만 쿼리
             if (!params.lastRecruitDate.isNullOrBlank()) {
                 query = query.where(
-                    qExtraContentDetail.endDate.before(LocalDateTime.parse(params.lastRecruitDate))
+                    qExtraContentDetail.endDate.after(LocalDateTime.now())
+                        .and(qExtraContentDetail.endDate.before(LocalDateTime.parse(params.lastRecruitDate)))
                 )
             }
+            query = query.where(qExtraContentDetail.endDate.after(LocalDateTime.now()))
         }
 
         // 관심분야 파라미터 배열 요소중 하나라도 맞는게 있으면 쿼리 대상
