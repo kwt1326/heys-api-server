@@ -1,12 +1,14 @@
 package com.api.heys.user
 
 import com.api.heys.constants.DefaultString
+import com.api.heys.constants.SecurityString
 import com.api.heys.constants.enums.Gender
 import com.api.heys.domain.user.dto.AdminSignUpData
 import com.api.heys.domain.user.dto.CommonSignUpData
 import com.api.heys.domain.user.service.UserService
 import com.api.heys.domain.user.repository.UserRepository
 import com.api.heys.entity.Authentication
+import com.api.heys.utils.JwtUtil
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -26,7 +28,8 @@ import java.time.LocalDate
 @Transactional
 internal class UserServiceTest(
     @Autowired private val userService: UserService,
-    @Autowired private val userRepository: UserRepository
+    @Autowired private val userRepository: UserRepository,
+    @Autowired private val jwtUtil : JwtUtil
 ) {
     private val phone = "01012345678"
     private val birthDate = LocalDate.of(1995, 10, 9)
@@ -106,15 +109,16 @@ internal class UserServiceTest(
         val userResponse = userService.signUp(adminSignUpData, DefaultString.adminRole)
         val userId = userResponse.body!!.userId ?: throw NullPointerException("회원가입이 실패했습니다.")
         // when
-        userService.withDrawal(userId, authRole)
+        val token = SecurityString.PREFIX_TOKEN + jwtUtil.createJwt(phone, listOf("USER"))
+        userService.withDrawal(token)
         // then
-        val findUsers = userRepository.findById(userId)
+        val findUsers = userRepository.findUserByPhone(phone)
 
-        if (findUsers.isEmpty) {
+        if (findUsers == null) {
             throw NullPointerException("회원이 없습니다.")
         }
-        assertThat(findUsers.get().isAvailable).isEqualTo(false)
-        assertThat(findUsers.get().removedAt).isNotNull
-        assertThat(findUsers.get().authentications).isEmpty()
+        assertThat(findUsers.isAvailable).isEqualTo(false)
+        assertThat(findUsers.removedAt).isNotNull
+        assertThat(findUsers.authentications).isEmpty()
     }
 }

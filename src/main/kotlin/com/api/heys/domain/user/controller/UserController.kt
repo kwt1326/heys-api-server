@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody as OASRequestBody //
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
@@ -62,13 +63,9 @@ class UserController(
             ]),
         ]
     )
-    @PutMapping("withDrawal/{id}/{role}")
-    fun withDrawal(
-        @PathVariable id: Long,
-        @PathVariable role: String,
-    ): ResponseEntity<Boolean> {
-        val authRole = if (role == "admin") DefaultString.adminRole else DefaultString.commonRole
-        return userService.withDrawal(id, authRole)
+    @PutMapping("withDrawal")
+    fun withDrawal(@Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) token: String): ResponseEntity<Boolean> {
+        return userService.withDrawal(token)
     }
 
     @Operation(
