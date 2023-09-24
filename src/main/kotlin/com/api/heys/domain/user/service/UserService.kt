@@ -110,15 +110,13 @@ class UserService(
     }
 
     @Transactional
-    override fun withDrawal(id: Long, role: String): ResponseEntity<Boolean> {
-        // TODO: role 제거, 유저 비활성화 처리 (removedAt) flow 설계 필요
-        val user = userRepository.findById(id)
+    override fun withDrawal(token : String): ResponseEntity<Boolean> {
+        val phone: String = jwtUtil.extractUsername(token)
+        val findUser = userRepository.findUserByPhone(phone)
 
-        if (user.isEmpty) {
+        if (findUser == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false)
         }
-
-        val findUser = user.get()
         findUser.isAvailable = false
         findUser.removedAt = LocalDateTime.now()
         findUser.authentications = mutableSetOf()
