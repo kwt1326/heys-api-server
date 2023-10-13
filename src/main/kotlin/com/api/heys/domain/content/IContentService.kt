@@ -1,13 +1,20 @@
 package com.api.heys.domain.content
 
-import com.api.heys.constants.enums.ContentType
+import com.api.heys.domain.channel.dto.PutChannelRemoveRemarksData
 import com.api.heys.domain.content.dto.*
-import com.api.heys.entity.Contents
+import org.springframework.http.ResponseEntity
+import org.springframework.web.multipart.MultipartFile
 
 interface IContentService {
-    fun createContent(dto: CreateContentData, token: String): CreateContentResponse
-    fun getContentDetail(id: Long): GetContentDetailData?
-    fun getContents(params: GetContentsParam): List<ContentListItemData>
-    fun putContentDetail(id: Long, dto: EditContentData): Boolean
-    fun increaseContentView(id: Long, token: String): Boolean
+    fun createExtraContent(dto: CreateExtraContentData, token: String): ResponseEntity<CreateContentResponse>
+    fun putExtraContentDetail(id: Long, dto: PutExtraContentData): ResponseEntity<ContentPutResponse>
+    fun putTogglePublishStateContent(id: Long, token: String): ResponseEntity<PutTogglePublishResponse>
+    fun increaseContentView(id: Long, token: String): ResponseEntity<ContentPutResponse>
+    fun addBookmark(id: Long, token: String): ResponseEntity<ContentPutResponse>
+    fun removeBookmark(id: Long, token: String): ResponseEntity<ContentPutResponse>
+    fun removeBookmarks(params: PutContentRemoveRemarksData, token: String): ResponseEntity<ContentPutResponse>
+    fun getExtraContentDetail(id: Long, token: String): ResponseEntity<GetExtraContentDetailResponse>
+    fun getExtraContents(params: GetExtraContentsParam): ResponseEntity<GetExtraContentsResponse>
+    fun getExtraContentsForAdmin(params: GetExtraContentsParam, token: String): ResponseEntity<GetExtraContentsResponse>
+    fun createExtraContentFromExcel(file: MultipartFile, token: String): ResponseEntity<CreateContentResponse>
 }

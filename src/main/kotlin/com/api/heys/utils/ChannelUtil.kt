@@ -1,24 +1,26 @@
 package com.api.heys.utils
 
-import com.api.heys.constants.enums.Gender
-import com.api.heys.domain.channel.dto.ChannelUserData
-import com.api.heys.entity.ChannelUserRelations
+import org.springframework.beans.factory.annotation.Value
+import com.api.heys.constants.ChannelConstants.channelThumbnailMapper
+import com.api.heys.constants.ChannelConstants.channelThumbnailsDefault
 
-open class ChannelUtil {
-    /**
-     * '채널 조인 테이블' 에서 '채널 유저 기본 정보' 만 추출합니다.
-     * */
-    open fun relationsToChannelUsersData(relations: List<ChannelUserRelations>): List<ChannelUserData> {
-        return relations.map {
-                val user = it.user
-                val userDetail = user.detail
-                ChannelUserData(
-                        id = user.id,
-                        gender = userDetail?.gender ?: Gender.NonBinary,
-                        status = it.status,
-                        exitMessage = it.exitMessage,
-                        refuseMessage = it.refuseMessage
-                )
+class ChannelUtil {
+    @Value("\${custom.static-file-host}")
+    lateinit var staticFileHost: String
+
+    fun getChannelImage(interests: List<String>): Map<String, String> {
+        val result = mutableMapOf("host" to staticFileHost)
+        var max = 0
+        var map = channelThumbnailsDefault
+
+        for (item in channelThumbnailMapper) {
+            val count = item.key.count { interests.contains(it) }
+            if (max < count) {
+                max = count
+                map = item.value
+            }
         }
+        result += map
+        return result
     }
 }

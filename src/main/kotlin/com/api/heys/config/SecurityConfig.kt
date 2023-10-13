@@ -19,7 +19,7 @@ import org.springframework.security.web.SecurityFilterChain
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfiguration(
+class SecurityConfig(
         @Autowired private val jwtUtil: JwtUtil
 ) {
     @Bean
@@ -42,10 +42,13 @@ class SecurityConfiguration(
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/common/**").permitAll()
                 .antMatchers("/user/**").permitAll()
+                .antMatchers("/app/code").permitAll()
+                .antMatchers("/admin/**").permitAll()
                 .antMatchers(
-                        "/css/**", "/js/**", "/img/**", "/favicon.ico",
+                        "/css/**", "/js/**", "/assets/**", "/favicon.ico",
                         "/swagger-ui/**", "/api-docs", "/v3/api-docs", "/v3/api-docs/swagger-config"
                 ).anonymous()
+                .antMatchers("/managements/**").anonymous()
                 .anyRequest().authenticated()
                 .and()
                 .headers().frameOptions().sameOrigin() // because: h2 console render issue

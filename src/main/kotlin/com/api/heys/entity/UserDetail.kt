@@ -1,8 +1,9 @@
 package com.api.heys.entity
 
 import com.api.heys.constants.enums.Gender
-import net.minidev.json.annotate.JsonIgnore
+import com.api.heys.constants.enums.UserPersonality
 import java.io.Serializable
+import java.time.LocalDate
 import javax.persistence.*
 import javax.persistence.FetchType.*
 
@@ -15,7 +16,7 @@ import javax.persistence.FetchType.*
 class UserDetail(
         users: Users,
         gender: Gender,
-        age: Int,
+        birthDate: LocalDate,
         username: String,
 ): Serializable {
         @Id
@@ -37,8 +38,8 @@ class UserDetail(
         @Column(name = "username", nullable = false, length = 50)
         var username: String = username
 
-        @Column(name = "age", nullable = false, length = 20)
-        var age: Int = age
+        @Column(name = "birth_date", nullable = false)
+        var birthDate: LocalDate = birthDate
 
         @Column(name = "job", length = 50)
         var job: String = ""
@@ -49,6 +50,11 @@ class UserDetail(
         @Column(name = "introduce_text")
         var introduceText: String = ""
 
-        @Column(name = "profile_picture_uri")
-        var profilePictureUri: String = ""
+        @Enumerated(EnumType.STRING)
+        @Column(name = "user_personality", length = 10)
+        var userPersonality: UserPersonality? = null
+
+        @OneToMany(mappedBy = "userDetail")
+        var profileLink: Set<UserProfileLink> = setOf();
+
 }

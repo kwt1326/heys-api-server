@@ -6,7 +6,6 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
-import lombok.Getter
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -57,7 +56,7 @@ open class JwtUtil(
 
     open fun makeUserDetail(token: String): UserDetails {
         val prefixRemovedToken: String = subStringToken(token)
-        return CustomUser(extractUsername(prefixRemovedToken), "", extractAuthorities(prefixRemovedToken))
+        return CustomUser(extractUsername(prefixRemovedToken), "", true, extractAuthorities(prefixRemovedToken))
     }
 
     open fun validateToken(token: String, userDetails: UserDetails): Boolean {

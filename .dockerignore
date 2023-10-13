@@ -1,0 +1,9 @@
+.gradle
+.idea
+.gitignore
+*.log
+*.log.*
+*.md
+Dockerfile
+nohup.txt
+local-application.yml

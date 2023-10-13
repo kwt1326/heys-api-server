@@ -27,12 +27,15 @@ class Users(
         @Column(name = "password")
         var password: String = password
 
-        @OneToOne(mappedBy = "users", fetch = LAZY, cascade = [CascadeType.ALL])
+        @OneToOne(mappedBy = "users", cascade = [CascadeType.ALL], orphanRemoval = true)
         var detail: UserDetail? = null
 
         @OneToMany(mappedBy = "users", fetch = EAGER, cascade = [CascadeType.ALL])
         var authentications: MutableSet<Authentication> = mutableSetOf()
 
-        @OneToMany(mappedBy = "writer", fetch = LAZY, cascade = [CascadeType.ALL])
+        @OneToMany(mappedBy = "receiver", fetch = LAZY)
         var notifications: MutableSet<Notification> = mutableSetOf()
+
+        @OneToMany(mappedBy = "user", fetch = LAZY)
+        var deviceTokens : MutableSet<DeviceToken> = mutableSetOf()
 }

@@ -1,0 +1,62 @@
+# DEV, PROD value on AWS
+server:
+  port: 8090
+custom:
+  secret: ${CUSTOM_SECRET}
+  static-file-host: ${STATIC_FILE_HOST}
+management:
+  server:
+    port: 8091
+  endpoints:
+    enabled-by-default: false
+    web:
+      base-path: /managements
+      exposure:
+        include: "health, info, loggers"
+  endpoint:
+    health:
+      show-components: always
+      enabled: true
+    info:
+      enabled: true
+    loggers:
+      enabled: true
+springdoc:
+  version: v1.0.0
+  swagger-ui:
+    path: /api-docs
+spring:
+  profiles:
+    active: ${PROFILE_ACTIVE}
+  datasource:
+    url: ${DB_HOST_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    properties:
+      hibernate:
+        default_batch_fetch_size: 500
+    hibernate:
+      ddl-auto: validate
+      jdbc:
+        time_zone: Asia/Seoul
+      connection:
+        characterEncoding: UTF8
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+logging:
+  level:
+    root: error
+
+aws:
+  push:
+    arn : ${AWS_PUSH_ARN}
+    region: ${AWS_PUSH_REGION}
+  sms:
+    region: ${AWS_SMS_REGION}
+
+slack:
+  channel: ${SLACK_MESSAGE_CHANNEL}
+  token: ${SLACK_TOKEN}

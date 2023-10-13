@@ -1,7 +1,7 @@
 #!/bin/bash +x
 
 PROJECT_NAME=heys-api-server
-JAR_NAME=deploy-jar.jar
+JAR_NAME=heys-api-server.jar
 
 chmod +x ./gradlew
 
@@ -9,7 +9,7 @@ chmod +x ./gradlew
 
 cp ./build/libs/*.jar .
 
-mv $(ls -tr ${PROJECT_NAME}-* | grep jar | tail -n 1) $JAR_NAME
+mv $(ls -tr ${PROJECT_NAME}* | grep jar | tail -n 1) $JAR_NAME
 
 echo "JAR NAME = $JAR_NAME"
 
@@ -29,7 +29,6 @@ fi
 echo "*** build jar name : $JAR_NAME ***"
 
 nohup java -jar \
-        -Dspring.profiles.active=local \
         -Dspring.config.location=file:local-application.yml \
         -Duser.timezone=Asia/Seoul \
         $JAR_NAME > nohup.txt 2>&1 &

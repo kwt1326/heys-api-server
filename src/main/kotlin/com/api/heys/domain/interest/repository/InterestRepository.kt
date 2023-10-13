@@ -9,5 +9,5 @@ import kotlin.jvm.Throws
 interface InterestRepository: CrudRepository<Interest, Long>, QuerydslPredicateExecutor<Interest> {
     @Throws(NotFoundException::class)
     fun findByName(name: String): Interest?
-    fun findAllByNameIn(names: MutableSet<String>): MutableSet<Interest>?
+    fun findAllByNameIn(names: Set<String>): Set<Interest>?
 }
