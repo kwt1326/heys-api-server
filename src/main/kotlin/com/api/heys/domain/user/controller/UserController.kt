@@ -7,7 +7,6 @@ import com.api.heys.domain.user.service.UserService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.parameters.RequestBody as OASRequestBody // 기존 RequestBody 와 이름이 같다.
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
@@ -64,8 +63,9 @@ class UserController(
         ]
     )
     @PutMapping("withDrawal")
-    fun withDrawal(@Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) token: String): ResponseEntity<Boolean> {
-        return userService.withDrawal(token)
+    fun withDrawal(@Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) token: String,
+    @RequestBody withdrawalUserRequest: WithdrawalUserRequest): ResponseEntity<Boolean> {
+        return userService.withDrawal(token, withdrawalUserRequest)
     }
 
     @Operation(

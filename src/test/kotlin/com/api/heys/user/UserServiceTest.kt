@@ -1,13 +1,14 @@
 package com.api.heys.user
 
+import aws.sdk.kotlin.runtime.region.resolveRegion
 import com.api.heys.constants.DefaultString
 import com.api.heys.constants.SecurityString
 import com.api.heys.constants.enums.Gender
 import com.api.heys.domain.user.dto.AdminSignUpData
 import com.api.heys.domain.user.dto.CommonSignUpData
+import com.api.heys.domain.user.dto.WithdrawalUserRequest
 import com.api.heys.domain.user.service.UserService
 import com.api.heys.domain.user.repository.UserRepository
-import com.api.heys.entity.Authentication
 import com.api.heys.utils.JwtUtil
 
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.test.context.ActiveProfiles
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.test.annotation.Rollback
 import java.lang.NullPointerException
@@ -110,7 +110,8 @@ internal class UserServiceTest(
         val userId = userResponse.body!!.userId ?: throw NullPointerException("회원가입이 실패했습니다.")
         // when
         val token = SecurityString.PREFIX_TOKEN + jwtUtil.createJwt(phone, listOf("USER"))
-        userService.withDrawal(token)
+        val reason = "탈퇴하고 싶어요!"
+        userService.withDrawal(token, WithdrawalUserRequest(reason))
         // then
         val findUsers = userRepository.findUserByPhone(phone)
 
