@@ -4,15 +4,12 @@ import com.api.heys.constants.MessageString
 import com.api.heys.constants.SecurityString
 import com.api.heys.constants.enums.Gender
 import com.api.heys.domain.interest.repository.InterestRepository
-import com.api.heys.domain.user.dto.CheckMemberData
-import com.api.heys.domain.user.dto.CommonSignUpData
-import com.api.heys.domain.user.dto.SignUpData
-import com.api.heys.domain.user.dto.SignUpResponse
+import com.api.heys.domain.user.dto.*
 import com.api.heys.domain.user.repository.UserRepository
+import com.api.heys.domain.user.repository.WithdrawUserReasonRepository
 import com.api.heys.entity.*
 import com.api.heys.security.domain.CustomUser
 import com.api.heys.utils.JwtUtil
-import com.api.heys.utils.UserUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -30,7 +27,8 @@ class UserService(
     @Autowired private val jwtUtil: JwtUtil,
     @Autowired private val userRepository: UserRepository,
     @Autowired private val passwordEncoder: PasswordEncoder,
-    @Autowired private val interestRepository: InterestRepository
+    @Autowired private val interestRepository: InterestRepository,
+    private val withdrawUserReasonRepository: WithdrawUserReasonRepository
 ) : IUserService {
     /**
      * 회원가입
@@ -110,7 +108,7 @@ class UserService(
     }
 
     @Transactional
-    override fun withDrawal(token : String): ResponseEntity<Boolean> {
+    override fun withDrawal(token : String, withDrawalUserRequest: WithdrawalUserRequest): ResponseEntity<Boolean> {
         val phone: String = jwtUtil.extractUsername(token)
         val findUser = userRepository.findUserByPhone(phone)
 
@@ -120,6 +118,9 @@ class UserService(
         findUser.isAvailable = false
         findUser.removedAt = LocalDateTime.now()
         findUser.authentications = mutableSetOf()
+
+        val withdrawUserReason = WithdrawUserReason(findUser, withDrawalUserRequest.reason)
+        withdrawUserReasonRepository.save(withdrawUserReason)
         return ResponseEntity.status(200).body(true)
     }
 
