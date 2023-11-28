@@ -17,7 +17,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.lang.NullPointerException
 
 @Service
 @Transactional(readOnly = true)
@@ -51,14 +50,16 @@ class NotificationService(
         val deviceTokens = deviceTokenService.getAvailableDeviceTokens(notificationRequestVo.receiver.id)
         val endPoints = deviceTokens.mapNotNull { it.arn }.toSet()
 
-        val targetPushMessageVo = TargetPushMessageVo(
-            title = messageType.title(),
-            content = content,
-            endPoints = endPoints
-        )
         runBlocking {
             withContext(dispatcher) {
-                awsPushService.sendTargetArnPush(targetPushMessageVo)
+                endPoints.forEach {
+                    val targetPushMessageVo = TargetPushMessageVo(
+                        title = messageType.title(),
+                        content = content,
+                        endPoint = it
+                    )
+                    awsPushService.sendTargetArnPush(targetPushMessageVo)
+                }
             }
         }
     }
