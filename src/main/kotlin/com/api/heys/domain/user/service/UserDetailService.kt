@@ -55,6 +55,7 @@ class UserDetailService(
         val waitingChannelCount: Long? = if(channels?.get(DefaultString.waitChannelKey) == null) 0 else channels[DefaultString.waitChannelKey];
 
         return UserDetailResponse(
+            userId = findUserDetail.users.id,
             userName = findUserDetail.username,
             phone = findUserDetail.users.phone,
             gender = findUserDetail.gender,

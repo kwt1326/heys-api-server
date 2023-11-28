@@ -6,6 +6,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
 
 data class UserDetailResponse(
+    @field:Schema(example = "1", type = "int")
+    val userId: Long? = null,
+
     @field:Schema(example = "Joenna", type = "string")
     val userName: String? = null,
 
