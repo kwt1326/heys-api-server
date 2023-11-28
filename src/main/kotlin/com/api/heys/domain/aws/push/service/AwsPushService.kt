@@ -2,14 +2,15 @@ package com.api.heys.domain.aws.push.service
 
 import aws.sdk.kotlin.services.sns.SnsClient
 import aws.sdk.kotlin.services.sns.model.PublishRequest
-import aws.smithy.kotlin.runtime.util.asyncLazy
 import com.api.heys.domain.aws.endpoint.service.AwsSnsEndPointService
 import com.api.heys.domain.aws.push.vo.PushMessageVo
 import com.api.heys.domain.aws.push.vo.TargetPushMessageVo
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import org.springframework.util.CollectionUtils
 
 @Service
 class AwsPushService (
@@ -33,27 +34,23 @@ class AwsPushService (
     // 특정 endpoint Arn 푸시 발송
     suspend fun sendTargetArnPush(targetPushMessageVo: TargetPushMessageVo) {
 
-        if (CollectionUtils.isEmpty(targetPushMessageVo.endPoints)) {
-            return
-        }
-
-        val client = SnsClient { region = awsPushRegion } // 클라이언트의 region을 본인이 사용할 region으로 변경
-
-        val pushSendMessage = getPushMessage(targetPushMessageVo)
-
-        targetPushMessageVo.endPoints.stream().parallel().map {
-            asyncLazy {
-                awsSnsEndPointService.checkEndpointAttributes(it)
+        coroutineScope { // 이 suspend function을 실행할 때 사용된 스코프를 사용할 수 있게 해줍니다.
+            val deferred = async(Dispatchers.IO) {
+                val client = SnsClient { region = awsPushRegion } // 클라이언트의 region을 본인이 사용할 region으로 변경
+                val pushSendMessage = getPushMessage(targetPushMessageVo)
 
                 val request = PublishRequest {
                     messageStructure = JSON
                     message = Gson().toJson(pushSendMessage)
-                    targetArn = it // 모바일 푸시 알림 엔드포인트 ARN
+                    targetArn = targetPushMessageVo.endPoint // 모바일 푸시 알림 엔드포인트 ARN
                 }
 
                 client.publish(request)
             }
+            deferred.await()
         }
+
+
     }
 
     // 특정 Topic Arn 푸시 발송
