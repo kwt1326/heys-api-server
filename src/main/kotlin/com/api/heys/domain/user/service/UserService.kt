@@ -157,4 +157,10 @@ class UserService(
     fun findAllUserByUserIds(userIds: List<Long>): List<Users> {
         return userRepository.findAllById(userIds)
     }
+
+    fun modifyPassword(token : String, modifyPasswordRequest: ModifyPasswordRequest) {
+        val phone: String = jwtUtil.extractUsername(token)
+        val user = userRepository.findUserByPhone(phone)
+        user?.password = passwordEncoder.encode(modifyPasswordRequest.password)
+    }
 }

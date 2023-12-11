@@ -4,7 +4,7 @@ import com.api.heys.domain.verificationcode.service.VerificationCodeService
 import com.api.heys.domain.verificationcode.vo.CheckVerificationCodeReqVo
 import com.api.heys.domain.verificationcode.vo.VerificationCodeResVo
 import com.api.heys.domain.verificationcode.vo.SendVerificationCodeReqVo
-import com.api.heys.domain.common.dto.ApiResponse
+import com.api.heys.domain.common.dto.CommonApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -21,16 +21,16 @@ class VerificationCodeController (
 ){
     @PostMapping
     @Operation(summary = "휴대폰 인증 번호 전송", description = "휴대폰 인증 번호 전송 API")
-    fun sendVerificationCode(@Valid @RequestBody sendVerificationCodeReqVo: SendVerificationCodeReqVo) : ResponseEntity<ApiResponse<Any>>? {
+    fun sendVerificationCode(@Valid @RequestBody sendVerificationCodeReqVo: SendVerificationCodeReqVo) : ResponseEntity<CommonApiResponse<Any>>? {
         verificationCodeService.saveVerificationCode(sendVerificationCodeReqVo)
-        return ResponseEntity.ok(ApiResponse())
+        return ResponseEntity.ok(CommonApiResponse())
     }
 
     @DeleteMapping
     @Operation(summary = "휴대폰 인증 번호 검증", description = "휴대폰 인증 번호 검증 API")
-    fun checkVerificationCode(@RequestBody checkVerificationCodeReqVo: CheckVerificationCodeReqVo) : ResponseEntity<ApiResponse<Any>>? {
+    fun checkVerificationCode(@RequestBody checkVerificationCodeReqVo: CheckVerificationCodeReqVo) : ResponseEntity<CommonApiResponse<Any>>? {
         val isVerification = verificationCodeService.checkVerificationCode(checkVerificationCodeReqVo)
         val codeResVo = VerificationCodeResVo(isVerification)
-        return ResponseEntity.ok(ApiResponse(data = codeResVo))
+        return ResponseEntity.ok(CommonApiResponse(data = codeResVo))
     }
 }
