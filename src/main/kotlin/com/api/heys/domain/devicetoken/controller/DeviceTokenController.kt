@@ -1,8 +1,7 @@
 package com.api.heys.domain.devicetoken.controller
 
-import com.api.heys.domain.common.dto.ApiResponse
+import com.api.heys.domain.common.dto.CommonApiResponse
 import com.api.heys.domain.devicetoken.service.DeviceTokenService
-import com.api.heys.domain.user.service.UserDetailService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -25,16 +24,16 @@ class DeviceTokenController (
     @PostMapping("/{token}")
     @Operation(summary = "디바이스 토큰 등록", description = "디바이스 토큰을 등록하는 API")
     fun registerDeviceToken(@Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String,
-                            @PathVariable token : String) : ResponseEntity<ApiResponse<Any>>?{
+                            @PathVariable token : String) : ResponseEntity<CommonApiResponse<Any>>?{
         deviceTokenService.saveDeviceToken(bearer, token)
-        return ResponseEntity.ok(ApiResponse())
+        return ResponseEntity.ok(CommonApiResponse())
     }
 
     @DeleteMapping("/{token}")
     @Operation(summary = "디바이스 토큰 삭제", description = "디바이스 토큰을 삭제하는 API")
-    fun deleteDeviceToken(@PathVariable token : String) : ResponseEntity<ApiResponse<Any>>?{
+    fun deleteDeviceToken(@PathVariable token : String) : ResponseEntity<CommonApiResponse<Any>>?{
         deviceTokenService.deleteDeviceToken(token)
-        return ResponseEntity.ok(ApiResponse())
+        return ResponseEntity.ok(CommonApiResponse())
     }
 
 }
