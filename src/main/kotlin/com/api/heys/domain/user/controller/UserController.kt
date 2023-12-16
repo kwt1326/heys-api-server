@@ -1,6 +1,7 @@
 package com.api.heys.domain.user.controller
 
 import com.api.heys.constants.DefaultString
+import com.api.heys.domain.common.dto.CommonApiResponse
 import com.api.heys.domain.user.dto.*
 import com.api.heys.domain.user.service.UserService
 
@@ -80,5 +81,13 @@ class UserController(
     @PutMapping("check-member")
     fun checkMember(@Valid @RequestBody body: CheckMemberData): ResponseEntity<CheckMemberResponse> {
         return ResponseEntity.ok(CheckMemberResponse(result = userService.checkMember(body)))
+    }
+    
+    @Operation(summary = "패스워드 변경하기", description = "패스워드 변경 API 입니다.")
+    @PutMapping("/password")
+    fun modifyPassword(@Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String,
+                            @RequestBody body: ModifyPasswordRequest): ResponseEntity<CommonApiResponse<Any>?>? {
+        userService.modifyPassword(bearer, body)
+        return ResponseEntity.ok(CommonApiResponse())
     }
 }
