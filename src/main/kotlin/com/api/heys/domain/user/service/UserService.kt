@@ -41,6 +41,10 @@ class UserService(
     @Transactional
     override fun <T : SignUpData> signUp(dto: T, role: String): ResponseEntity<SignUpResponse> {
         var user: Users? = userRepository.findUserByPhone(dto.phone)
+        if (user?.isAvailable == true) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(SignUpResponse(token = "", userId = null, message = "Already Exist User"))
+        }
         var detail: UserDetail? = null
 
         // 유저 생성
@@ -88,10 +92,10 @@ class UserService(
         userRepository.save(user)
 
         // 이미 해당 Role 존재하면 가입 실패
-        if (user.authentications.find { it.role == role } != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(SignUpResponse(token = "", userId = null, message = "Already Exist User or Exist Role: $role"))
-        }
+//        if (user.authentications.find { it.role == role } != null) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                .body(SignUpResponse(token = "", userId = null, message = "Already Exist User or Exist Role: $role"))
+//        }
 
         user.authentications.add(Authentication(users = user, role = role))
         userRepository.save(user)
@@ -126,6 +130,9 @@ class UserService(
 
     override fun checkMember(dto: CheckMemberData): Boolean {
         val user: Users? = userRepository.findUserByPhone(dto.phone)
+        if (user?.isAvailable == false) {
+            return false
+        }
         return user != null
     }
 
