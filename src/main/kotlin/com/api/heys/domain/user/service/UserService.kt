@@ -47,24 +47,19 @@ class UserService(
         }
         var detail: UserDetail? = null
 
-        // 유저 생성
-        if (user == null) {
-            // Create User
-            user = Users(
-                isAvailable = true,
-                phone = dto.phone,
-                password = passwordEncoder.encode(dto.password),
-            )
-            // Create UserDetail
-            detail = UserDetail(
-                users = user,
-                username = dto.username,
-                birthDate = dto.birthDate,
-                gender = if (dto is CommonSignUpData) dto.gender else Gender.NonBinary,
-            )
-        } else {
-            detail = user.detail
-        }
+        // Create User
+        user = Users(
+            isAvailable = true,
+            phone = dto.phone,
+            password = passwordEncoder.encode(dto.password),
+        )
+        // Create UserDetail
+        detail = UserDetail(
+            users = user,
+            username = dto.username,
+            birthDate = dto.birthDate,
+            gender = if (dto is CommonSignUpData) dto.gender else Gender.NonBinary,
+        )
 
         // Admin 가입은 성별, 관심분야 항목이 필요없다. Common Role 추가 혹은 생성시 업데이트
         if (dto is CommonSignUpData) {
