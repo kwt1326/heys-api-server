@@ -41,26 +41,25 @@ class UserService(
     @Transactional
     override fun <T : SignUpData> signUp(dto: T, role: String): ResponseEntity<SignUpResponse> {
         var user: Users? = userRepository.findUserByPhone(dto.phone)
+        if (user?.isAvailable == true) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(SignUpResponse(token = "", userId = null, message = "Already Exist User"))
+        }
         var detail: UserDetail? = null
 
-        // 유저 생성
-        if (user == null) {
-            // Create User
-            user = Users(
-                isAvailable = true,
-                phone = dto.phone,
-                password = passwordEncoder.encode(dto.password),
-            )
-            // Create UserDetail
-            detail = UserDetail(
-                users = user,
-                username = dto.username,
-                birthDate = dto.birthDate,
-                gender = if (dto is CommonSignUpData) dto.gender else Gender.NonBinary,
-            )
-        } else {
-            detail = user.detail
-        }
+        // Create User
+        user = Users(
+            isAvailable = true,
+            phone = dto.phone,
+            password = passwordEncoder.encode(dto.password),
+        )
+        // Create UserDetail
+        detail = UserDetail(
+            users = user,
+            username = dto.username,
+            birthDate = dto.birthDate,
+            gender = if (dto is CommonSignUpData) dto.gender else Gender.NonBinary,
+        )
 
         // Admin 가입은 성별, 관심분야 항목이 필요없다. Common Role 추가 혹은 생성시 업데이트
         if (dto is CommonSignUpData) {
@@ -88,10 +87,10 @@ class UserService(
         userRepository.save(user)
 
         // 이미 해당 Role 존재하면 가입 실패
-        if (user.authentications.find { it.role == role } != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(SignUpResponse(token = "", userId = null, message = "Already Exist User or Exist Role: $role"))
-        }
+//        if (user.authentications.find { it.role == role } != null) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                .body(SignUpResponse(token = "", userId = null, message = "Already Exist User or Exist Role: $role"))
+//        }
 
         user.authentications.add(Authentication(users = user, role = role))
         userRepository.save(user)
@@ -126,6 +125,9 @@ class UserService(
 
     override fun checkMember(dto: CheckMemberData): Boolean {
         val user: Users? = userRepository.findUserByPhone(dto.phone)
+        if (user?.isAvailable == false) {
+            return false
+        }
         return user != null
     }
 

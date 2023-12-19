@@ -19,7 +19,7 @@ class UserCustomRepositoryImpl(
         val query = jpaQueryFactory.selectFrom(qUsers)
             .join(qUsers.detail, qUserDetail).fetchJoin()
             .join(qUsers.authentications, qAuthentication).fetchJoin()
-            .where(qUsers.phone.eq(phone))
+            .where(qUsers.phone.eq(phone).and(qUsers.isAvailable.eq(true)))
 
         return query.fetchOne()
     }
