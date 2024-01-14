@@ -65,8 +65,9 @@ class UserController(
     )
     @PutMapping("withDrawal")
     fun withDrawal(@Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) token: String,
-    @RequestBody withdrawalUserRequest: WithdrawalUserRequest): ResponseEntity<Boolean> {
-        return userService.withDrawal(token, withdrawalUserRequest)
+    @RequestBody withdrawalUserRequest: WithdrawalUserRequest): CommonApiResponse<Any> {
+        userService.withDrawal(token, withdrawalUserRequest)
+        return CommonApiResponse.ok()
     }
 
     @Operation(
