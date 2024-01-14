@@ -10,4 +10,13 @@ data class CommonApiResponse<T>(
     var data: T? = null
 ) {
 
+    companion object {
+        fun ok() : CommonApiResponse<Any> {
+            return CommonApiResponse()
+        }
+
+        fun <T> ok (body : T) : CommonApiResponse<T> {
+            return CommonApiResponse(data = body)
+        }
+    }
 }

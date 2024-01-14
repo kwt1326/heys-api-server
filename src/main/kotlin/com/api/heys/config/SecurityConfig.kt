@@ -44,6 +44,7 @@ class SecurityConfig(
                 .antMatchers("/user/**").permitAll()
                 .antMatchers("/app/code").permitAll()
                 .antMatchers("/admin/**").permitAll()
+                .antMatchers("/api/**").permitAll()
                 .antMatchers(
                         "/css/**", "/js/**", "/assets/**", "/favicon.ico",
                         "/swagger-ui/**", "/api-docs", "/v3/api-docs", "/v3/api-docs/swagger-config"
