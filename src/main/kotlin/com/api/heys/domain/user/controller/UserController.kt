@@ -82,8 +82,11 @@ class UserController(
     fun checkMember(@Valid @RequestBody body: CheckMemberData): ResponseEntity<CheckMemberResponse> {
         return ResponseEntity.ok(CheckMemberResponse(result = userService.checkMember(body)))
     }
-    
-    @Operation(summary = "패스워드 변경하기", description = "패스워드 변경 API 입니다.")
+
+    @Operation(
+        summary = "토큰이 있는 경우 패스워드 변경",
+        description = "헤더에 로그인 토큰이 있어야 변경이 가능"
+    )
     @PutMapping("/password")
     fun modifyPassword(@Schema(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) bearer: String,
                             @RequestBody body: ModifyPasswordRequest): ResponseEntity<CommonApiResponse<Any>?>? {
