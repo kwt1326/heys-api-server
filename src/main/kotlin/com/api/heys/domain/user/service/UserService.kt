@@ -8,6 +8,8 @@ import com.api.heys.domain.user.dto.*
 import com.api.heys.domain.user.repository.UserRepository
 import com.api.heys.domain.user.repository.WithdrawUserReasonRepository
 import com.api.heys.entity.*
+import com.api.heys.exception.CustomException
+import com.api.heys.exception.type.UserExceptionType.*
 import com.api.heys.security.domain.CustomUser
 import com.api.heys.utils.JwtUtil
 import org.springframework.beans.factory.annotation.Autowired
@@ -109,10 +111,10 @@ class UserService(
     @Transactional
     override fun withDrawal(token : String, withDrawalUserRequest: WithdrawalUserRequest): ResponseEntity<Boolean> {
         val phone: String = jwtUtil.extractUsername(token)
-        val findUser = userRepository.findUserByPhone(phone)
+        val findUser = userRepository.findUserByPhone(phone) ?: throw CustomException(NOT_EXIST_USER)
 
-        if (findUser == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false)
+        if (!findUser.isAvailable) {
+            throw CustomException(NOT_ACTIVATE_USER)
         }
         findUser.isAvailable = false
         findUser.removedAt = LocalDateTime.now()
