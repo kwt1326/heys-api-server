@@ -16,8 +16,14 @@ class UserDetailCustomRepositoryImpl (
     override fun findUserDetail(userDetailSearchDto: UserDetailSearchDto): UserDetail? {
         return jpaQueryFactory.selectFrom(userDetail)
             .join(userDetail.users, users).fetchJoin()
-            .where(equalUserId(userDetailSearchDto.userId), equalUserPhone(userDetailSearchDto.phone))
+            .where(equalUserId(userDetailSearchDto.userId),
+                equalUserPhone(userDetailSearchDto.phone),
+                equalIsAvailable())
             .fetchOne()
+    }
+
+    fun equalIsAvailable() : BooleanExpression? {
+        return users.isAvailable.eq(true)
     }
 
     fun equalUserPhone(phone: String?) : BooleanExpression? {
